@@ -1,0 +1,4 @@
+1. some stones vanish after start but are not removed from the list
+2. 
+3. 
+4. 

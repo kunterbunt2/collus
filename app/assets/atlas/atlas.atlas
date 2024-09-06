@@ -1,0 +1,48 @@
+
+atlas.png
+size: 4096, 2048
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+Aero-font
+  rotate: false
+  xy: 1, 771
+  size: 1216, 1216
+  orig: 1216, 1216
+  offset: 0, 0
+  index: -1
+logo-font
+  rotate: false
+  xy: 1218, 963
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+model-font
+  rotate: false
+  xy: 1, 194
+  size: 576, 576
+  orig: 576, 576
+  offset: 0, 0
+  index: -1
+small-font
+  rotate: false
+  xy: 1218, 834
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+system
+  rotate: false
+  xy: 2243, 1795
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1
+version-font
+  rotate: false
+  xy: 1, 1
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1

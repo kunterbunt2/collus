@@ -1,0 +1,4 @@
+Dragon
+[GRAY]is the [BOLD]mode for the expert[]. Different than in all the other modes, [BOLD]a Dragon game can be won[]. The game starts with a game screen full of stones. You win the game if you can reduce the stone heap height to only one row. The score reflects the minimum heap size you accomplished. A score of 60 is in this case the maximum you can reach. If you win the game, you will be awarded with a symbolic total score of 100.
+[GRAY]Same as in the Turtle mode [BOLD]up to 3 stones can drop simultaneously[] into the game screen the [BOLD]size of 5x13[] stones. There exist stones of [BOLD]8 different colors[].
+[GRAY]Needless to mention, that it is very difficult to win a Dragon game. Only Pluvia experts will ever reach this goal.

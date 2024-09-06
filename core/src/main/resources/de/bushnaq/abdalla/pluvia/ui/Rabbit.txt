@@ -1,0 +1,4 @@
+Rabbit
+[GRAY]is complex and fast.
+[GRAY]Only up to [BOLD]2 stones can drop simultaneously[] into the game screen the [BOLD]size of 4x12[] stones. There exist stones of [BOLD]8 different colors[], making it less likely to find a match.
+[GRAY]Each rabbit game starts with a score count of [BOLD]-4x12 = -48[].

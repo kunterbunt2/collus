@@ -1,0 +1,4 @@
+Bird
+[GRAY]is the [BOLD]mode for beginners[] that will help learn the tactics necessary to reach higher scores in the other modes.
+[GRAY]In a bird game up to [BOLD]3 stones can drop simultaneously[] into the game screen the [BOLD]size of 4x9[] stones. There exist stones of only [BOLD]6 different colors[].
+[GRAY]Each bird game starts with a score count of [BOLD]-4x9 = -36[].
