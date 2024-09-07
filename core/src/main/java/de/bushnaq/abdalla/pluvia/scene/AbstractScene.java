@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2024 Abdalla Bushnaq
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.bushnaq.abdalla.pluvia.scene;
 
 import com.badlogic.gdx.Gdx;
@@ -28,9 +44,9 @@ import java.util.Random;
  */
 public abstract class AbstractScene {
     protected static final float                        CITY_SIZE = 3;
-    private static final   float                        WATER_X   = 100;
+    private static final   float                        WATER_X   = 1000;
     private static final   float                        WATER_Y   = -3.5f;
-    private static final   float                        WATER_Z   = 50;
+    private static final   float                        WATER_Z   = 1000;
     protected              int                          index     = 0;
     protected              Logger                       logger    = LoggerFactory.getLogger(this.getClass());
     protected              Text2D                       logo;
@@ -172,7 +188,7 @@ public abstract class AbstractScene {
         GameObject cube = new GameObject(new ModelInstanceHack(model), null);
         Material   m    = cube.instance.materials.get(0);
         m.set(PBRColorAttribute.createBaseColorFactor(color));
-        cube.instance.transform.setToTranslationAndScaling(0f, WATER_Y, -15f, WATER_X, 0.1f, WATER_Z);
+        cube.instance.transform.setToTranslationAndScaling(0f, renderEngine.getMirror().getMirrorLevel(), 0, WATER_X, 0.1f, WATER_Z);
         renderModelInstances.add(cube);
     }
 

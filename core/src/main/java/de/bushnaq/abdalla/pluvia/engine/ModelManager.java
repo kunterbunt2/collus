@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2024 Abdalla Bushnaq
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.bushnaq.abdalla.pluvia.engine;
 
 import com.badlogic.gdx.Gdx;
@@ -38,7 +54,7 @@ public class ModelManager {
     public               Model        backPlate;                                                                        // game grid glass background
     public               SceneAsset[] bubbleModel                   = new SceneAsset[MAX_NUMBER_OF_BUBBLE_MODELS];    // for bubbles
     public               Model[]      buildingCube                  = new Model[MAX_NUMBER_OF_BUILDING_MODELS];        // for city scene
-    public               SceneAsset   cube;
+    public               Model        cube;
     public               Model        cubeTrans1;
     public               SceneAsset[] firelyModel                   = new SceneAsset[MAX_NUMBER_OF_FIRELY_MODELS];    // for fly
     public               Model[]      fishCube                      = new Model[MAX_NUMBER_OF_FISH_MODELS];            // for fish
@@ -46,6 +62,7 @@ public class ModelManager {
     public               Model        levelCube;                                                                        // level edges
     public               Model        mirror;                                                                            // mirror square
     public               SceneAsset[] rainModel                     = new SceneAsset[MAX_NUMBER_OF_RAIN_MODELS];    // for firefly
+    public               Model        shadow;
     public               Model        square;                                                                            // used for the ground
     public               SceneAsset[] stone                         = new SceneAsset[MAX_NUMBER_OF_STONE_MODELS];    // for stones
     public               SceneAsset[] turtleCube                    = new SceneAsset[MAX_NUMBER_OF_TURTLE_MODELS];    // for turtles
@@ -55,10 +72,7 @@ public class ModelManager {
     }
 
     public void create(boolean isPbr) throws Exception {
-
-//		final Texture		texture			= new Texture(Gdx.files.internal(ASSETS_FOLDER+"/tiles.png"));
         final ModelBuilder modelBuilder = new ModelBuilder();
-//		final ModelCreator	modelCreator	= new ModelCreator();
         createStoneModels(isPbr);
         createBuildingModels(isPbr, modelBuilder);
         createFishModels(isPbr, modelBuilder);
@@ -73,9 +87,8 @@ public class ModelManager {
         createSquareModel(isPbr, modelBuilder);
         createBackPlateModel(isPbr, modelBuilder);
         createTransparentCube(modelBuilder);
-        {
-            cube = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/turtle.glb")));
-        }
+        createShadowModel(modelBuilder);
+        createCube(modelBuilder);
     }
 
     private void createBackPlateModel(boolean isPbr, final ModelBuilder modelBuilder) {
@@ -119,8 +132,7 @@ public class ModelManager {
     }
 
     private void createBuildingModels(boolean isPbr, final ModelBuilder modelBuilder) {
-        Color[] buildingColors = new Color[]{Color.WHITE, POST_GREEN_COLOR, SCARLET_COLOR, DIAMON_BLUE_COLOR, GRAY_COLOR, Color.CORAL, Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.GOLD, Color.MAGENTA,
-                Color.YELLOW};
+        Color[] buildingColors = new Color[]{Color.WHITE, POST_GREEN_COLOR, SCARLET_COLOR, DIAMON_BLUE_COLOR, GRAY_COLOR, Color.CORAL, Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.GOLD, Color.MAGENTA, Color.YELLOW};
         if (isPbr) {
             for (int i = 0; i < MAX_NUMBER_OF_BUILDING_MODELS; i++) {
                 final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, buildingColors[i]);
@@ -136,6 +148,24 @@ public class ModelManager {
                 buildingCube[i] = modelBuilder.createBox(1.0f, 1.0f, 1.0f, material, Usage.Position | Usage.Normal);
             }
         }
+    }
+
+    private void createCube(final ModelBuilder modelBuilder) {
+//        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.GRAY);
+//        final Attribute metallic  = PBRFloatAttribute.createMetallic(0f);
+//        final Attribute roughness = PBRFloatAttribute.createRoughness(1f);
+//        final Material  material  = new Material(metallic, roughness, color);
+////        cube = modelBuilder.createBox(1f, 1f, 1f, material, Usage.Position | Usage.Normal);
+//        cube = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + "/models/stone1.glb"));
+//        Material m = cube.scene.model.materials.get(0);
+//        m.set(PBRColorAttribute.createBaseColorFactor(Color.WHITE));
+        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.DARK_GRAY);
+        final Attribute metallic  = PBRFloatAttribute.createMetallic(0.5f);
+        final Attribute roughness = PBRFloatAttribute.createRoughness(0.5f);
+        final Attribute blending  = new BlendingAttribute(0.2f); // opacity is set by pbrMetallicRoughness below
+        final Material  material  = new Material(metallic, roughness, color, blending);
+        cube = createSquare(modelBuilder, 0.5f, 0.5f, material);
+
     }
 
     private void createFireflyModels(boolean isPbr, final ModelBuilder modelBuilder) {
@@ -249,8 +279,16 @@ public class ModelManager {
         }
     }
 
-    private Model createSquare(final ModelBuilder modelBuilder, final float sx, final float sz,
-                               final Material material) {
+    private void createShadowModel(final ModelBuilder modelBuilder) {
+        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.DARK_GRAY);
+        final Attribute metallic  = PBRFloatAttribute.createMetallic(0.5f);
+        final Attribute roughness = PBRFloatAttribute.createRoughness(0.5f);
+//        final Attribute blending  = new BlendingAttribute(0.2f); // opacity is set by pbrMetallicRoughness below
+        final Material material = new Material(metallic, roughness, color);
+        shadow = createSquare(modelBuilder, 0.5f, 0.5f, material);
+    }
+
+    private Model createSquare(final ModelBuilder modelBuilder, final float sx, final float sz, final Material material) {
         return modelBuilder.createRect(-sx, 0f, sz, sx, 0f, sz, sx, 0f, -sz, -sx, 0f, -sz, 0f, 1f, 0f, material, Usage.Position | Usage.Normal | Usage.TextureCoordinates);
     }
 
@@ -270,18 +308,11 @@ public class ModelManager {
     }
 
     private void createStoneModels(boolean isPbr) {
-        Color[] colorList = {
-                Color.NAVY, Color.RED, Color.GREEN, Color.CORAL, Color.GOLD, Color.MAGENTA, Color.YELLOW, Color.DARK_GRAY, Color.DARK_GRAY, Color.BROWN,
-                POST_GREEN_COLOR,
-                SCARLET_COLOR,
-                DIAMON_BLUE_COLOR,
-                GRAY_COLOR,
-                Color.WHITE
-        };
+        Color[] colorList = {Color.NAVY, Color.RED, Color.GREEN, Color.CORAL, Color.GOLD, Color.MAGENTA, Color.YELLOW, Color.DARK_GRAY, Color.DARK_GRAY, Color.BROWN, POST_GREEN_COLOR, SCARLET_COLOR, DIAMON_BLUE_COLOR, GRAY_COLOR, Color.WHITE};
 
 
-        Cube[] cubes = new Cube[]{ //
-                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone1.glb"), //
+        CubeModel[] cubes = new CubeModel[]{ //
+                new CubeModel(null, AtlasManager.getAssetsFolderName() + "/models/stone1.glb"), //
 //				new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone2.glb"), //
 //				new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone3.glb"), //
 //				new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone4.glb"), //

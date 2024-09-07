@@ -1,7 +1,20 @@
-package de.bushnaq.abdalla.pluvia.ui;
+/*
+ * Copyright (C) 2024 Abdalla Bushnaq
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import java.util.ArrayList;
-import java.util.List;
+package de.bushnaq.abdalla.pluvia.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -21,12 +34,16 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
-
+import de.bushnaq.abdalla.engine.camera.MovingCamera;
 import de.bushnaq.abdalla.pluvia.desktop.Context;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
+import de.bushnaq.abdalla.pluvia.game.Game;
 import de.bushnaq.abdalla.pluvia.game.LevelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 //enum BlurMode {
 //	up, down
@@ -34,169 +51,181 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author kunterbunt
- *
  */
 public abstract class AbstractDialog {
-	protected static final int		BUTTON_WIDTH		= 150;
-	protected static final int		DIALOG_WIDTH		= 150;
-	protected static final int		LABEL_WIDTH			= 250;
-	protected static final Color	LIGHT_BLUE_COLOR	= new Color(0x1BA1E2FF);
-	private final Batch				batch;
-	private VisDialog				dialog;
-	private GameEngine				gameEngine;
-	private final InputMultiplexer	inputMultiplexer;
-	private   List<InputProcessor> inputProcessorCache = new ArrayList<>();
-	// private float blurAmount = 1f;
+    protected static final int                  BUTTON_WIDTH        = 150;
+    protected static final int                  DIALOG_WIDTH        = 150;
+    protected static final int                  LABEL_WIDTH         = 250;
+    protected static final Color                LIGHT_BLUE_COLOR    = new Color(0x1BA1E2FF);
+    private final          Batch                batch;
+    private                VisDialog            dialog;
+    private final          GameEngine           gameEngine;
+    private final          InputMultiplexer     inputMultiplexer;
+    private final          List<InputProcessor> inputProcessorCache = new ArrayList<>();
+    // private float blurAmount = 1f;
 //	private int						blurPasses			= 1;
 //	private BlurMode				blurMode			= BlurMode.up;
-	final     Logger               logger              = LoggerFactory.getLogger(this.getClass());
-	protected boolean              modal               = false;
-	private AbstractDialog			parent;
-	private Stage					stage;
-	private VisTable				table				= new VisTable(true);
-	private boolean					visible				= false;
+    final                  Logger               logger              = LoggerFactory.getLogger(this.getClass());
+    protected              boolean              modal               = false;
+    private                AbstractDialog       parent;
+    private                Stage                stage;
+    private final          VisTable             table               = new VisTable(true);
+    private                boolean              visible             = false;
 
-	public AbstractDialog(GameEngine gameEngine, final Batch batch, final InputMultiplexer inputMultiplexer) throws Exception {
-		this.gameEngine = gameEngine;
-		this.batch = batch;
-		this.inputMultiplexer = inputMultiplexer;
-	}
+    public AbstractDialog(GameEngine gameEngine, final Batch batch, final InputMultiplexer inputMultiplexer) throws Exception {
+        this.gameEngine       = gameEngine;
+        this.batch            = batch;
+        this.inputMultiplexer = inputMultiplexer;
+    }
 
-	protected void addHoverEffect(final VisTextButton button) {
-		button.addListener(new ClickListener() {
-			@Override
-			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-				button.setFocusBorderEnabled(true);
-			}
+    protected void addHoverEffect(final VisTextButton button) {
+        button.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                button.setFocusBorderEnabled(true);
+            }
 
-			@Override
-			public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-				button.setFocusBorderEnabled(false);
-			}
-		});
-	}
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                button.setFocusBorderEnabled(false);
+            }
+        });
+    }
 
-	protected void afterInvisible() {
-	}
+    protected void afterInvisible() {
+    }
 
-	protected void beforeVisible() {
-	}
+    protected void beforeVisible() {
+    }
 
-	protected void close() {
-		pop();
-	}
+    protected void close() {
+        pop();
+    }
 
-	protected abstract void create();
+    protected abstract void create();
 
-	protected void createGame(int gameIndex, boolean resume, int seed) {
-		if (getGameEngine().context.levelManager != null)
-			getGameEngine().context.levelManager.disposeLevel();
-		getGameEngine().context.selectGame(gameIndex);
-		getGameEngine().context.levelManager = new LevelManager(getGameEngine().renderEngine, getGameEngine().context.game);
+    protected void createGame(int gameIndex, boolean resume, int seed) {
+        if (getGameEngine().context.levelManager != null)
+            getGameEngine().context.levelManager.disposeLevel();
+        getGameEngine().context.selectGame(gameIndex);
+        Game game = getGameEngine().context.game;
+        getGameEngine().context.levelManager = new LevelManager(getGameEngine().renderEngine, game);
 //		universe.GameThread.clearLevel();
-		if (resume) {
-			if (!getGameEngine().context.levelManager.readFromDisk()) {
-				// we failed to read the level
-				// What is the next seed?
-				getGameEngine().context.levelManager.disposeLevel();
-				int lastGameSeed = getGameEngine().context.getLastGameSeed();
-				getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
-			} else {
-				if (!getGameEngine().context.levelManager.testValidity()) {
-					// we failed to validate the level
-					logger.error("invalid recording file");
+        if (resume) {
+            if (!getGameEngine().context.levelManager.readFromDisk()) {
+                // we failed to read the level
+                // What is the next seed?
+                getGameEngine().context.levelManager.disposeLevel();
+                int lastGameSeed = getGameEngine().context.getLastGameSeed();
+                getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
+            } else {
+                if (!getGameEngine().context.levelManager.testValidity()) {
+                    // we failed to validate the level
+                    logger.error("invalid recording file");
 //					System.exit(1);
-					// What is the next seed?
-					getGameEngine().context.levelManager.disposeLevel();
-					int lastGameSeed = getGameEngine().context.getLastGameSeed();
-					getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
-				}
-			}
-		} else {
-			if (seed == -1) {
-				// next seed
-				int lastGameSeed = getGameEngine().context.getLastGameSeed();
-				getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
-			} else {
-				// seed is defined by user choice (high score)
-				getGameEngine().context.levelManager.setGameSeed(seed);
-			}
-		}
-		getGameEngine().context.levelManager.createLevel();
-		getGameEngine().context.game.startTimer();
-		{
-			float	z			= getGameEngine().context.game.cameraZPosition;
-			Vector3	position	= getGameEngine().renderEngine.getCamera().position;
-			position.z = z;
-			if (getGameEngine().context.game.getySize() == 0)
-			{
-				position.y = 4;
-				getGameEngine().renderEngine.getCamera().lookat.y = 0;
-			} else {
-				position.y = (float)getGameEngine().context.game.getySize();
-				getGameEngine().renderEngine.getCamera().lookat.y = 0;
-			}
-			getGameEngine().renderEngine.getCamera().update();
-		}
-	}
+                    // What is the next seed?
+                    getGameEngine().context.levelManager.disposeLevel();
+                    int lastGameSeed = getGameEngine().context.getLastGameSeed();
+                    getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
+                }
+            }
+        } else {
+            if (seed == -1) {
+                // next seed
+                int lastGameSeed = getGameEngine().context.getLastGameSeed();
+                getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
+            } else {
+                // seed is defined by user choice (high score)
+                getGameEngine().context.levelManager.setGameSeed(seed);
+            }
+        }
+        getGameEngine().context.levelManager.createLevel();
+        game.startTimer();
+        {
+            MovingCamera camera   = getGameEngine().renderEngine.getCamera();
+            Vector3      position = new Vector3();
+            Vector3      lookAt   = new Vector3();
+            if (game.getySize() == 0) {
+                position.x = 0;
+                position.y = 4;
+                position.z = game.cameraZPosition;
+                lookAt.x   = -3.5f;
+                lookAt.y   = 0;
+                lookAt.z   = -3.5f;
+            } else {
+                position.x = 0;
+                position.y = (float) game.getySize();
+                position.z = game.cameraZPosition;
+                lookAt.x   = 0;
+                lookAt.y   = 0;
+                lookAt.z   = 0;
+            }
+            camera.position.set(position);
+            camera.up.set(0, 1, 0);
+            camera.lookAt(lookAt);
+            camera.update();
+            camera.setDirty(true);
 
-	public void createStage(String title, boolean closeOnEscape) {
-		if (stage == null) {
-			stage = new Stage(new ScreenViewport(), batch);
-			if (closeOnEscape) {
-				stage.addListener(new InputListener() {
-					@Override
-					public boolean keyDown(InputEvent event, int keycode) {
-						switch (event.getKeyCode()) {
-						case Input.Keys.ESCAPE:
-							escapeAction();
-							return true;
-						}
-						return false;
-					}
-				});
-			}
-			stage.addListener(new InputListener() {
+        }
+    }
 
-				@Override
-				public boolean keyDown(InputEvent event, int keycode) {
-					switch (event.getKeyCode()) {
-					case Input.Keys.ENTER:
-						enterAction();
-						return true;
-					}
-					return false;
-				}
+    public void createStage(String title, boolean closeOnEscape) {
+        if (stage == null) {
+            stage = new Stage(new ScreenViewport(), batch);
+            if (closeOnEscape) {
+                stage.addListener(new InputListener() {
+                    @Override
+                    public boolean keyDown(InputEvent event, int keycode) {
+                        switch (event.getKeyCode()) {
+                            case Input.Keys.ESCAPE:
+                                escapeAction();
+                                return true;
+                        }
+                        return false;
+                    }
+                });
+            }
+            stage.addListener(new InputListener() {
 
-			});
-			stage.addActor(createWindow(title));
-			create();
-			packAndPosition();
-		}
-	}
+                @Override
+                public boolean keyDown(InputEvent event, int keycode) {
+                    switch (event.getKeyCode()) {
+                        case Input.Keys.ENTER:
+                            enterAction();
+                            return true;
+                    }
+                    return false;
+                }
 
-	protected VisDialog createWindow(String title) {
-		dialog = new VisDialog(title);
-		dialog.setColor(0.0f, 0.0f, 0.0f, 1.0f);
-		dialog.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		dialog.setMovable(false);
-		getDialog().setBackground((Drawable) null);
+            });
+            stage.addActor(createWindow(title));
+            create();
+            packAndPosition();
+        }
+    }
+
+    protected VisDialog createWindow(String title) {
+        dialog = new VisDialog(title);
+        dialog.setColor(0.0f, 0.0f, 0.0f, 1.0f);
+        dialog.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        dialog.setMovable(false);
+        getDialog().setBackground((Drawable) null);
 //		table.setDebug(true);
-		table.pad(0, 16, 16, 16);
-		dialog.getContentTable().add(this.table);
-		return dialog;
-	}
+        table.pad(0, 16, 16, 16);
+        dialog.getContentTable().add(this.table);
+        return dialog;
+    }
 
 //	public void disposeWindow() {
 //		stage.clear();
 //	}
 
-	public void dispose() {
-		inputMultiplexer.removeProcessor(stage);
-		stage.dispose();
-	}
+    public void dispose() {
+        inputMultiplexer.removeProcessor(stage);
+        stage.dispose();
+    }
 
-	public void draw() {
+    public void draw() {
 //		switch (blurMode) {
 //		case up:
 //			if (blurPasses < 32)
@@ -216,72 +245,72 @@ public abstract class AbstractDialog {
 //		}
 //		gameEngine.renderEngine.updateBlurEffect(blurPasses, blurAmount);
 
-		stage.act();
-		stage.draw();
-	}
+        stage.act();
+        stage.draw();
+    }
 
-	protected void enterAction() {
-		close();
-	}
+    protected void enterAction() {
+        close();
+    }
 
-	protected void escapeAction() {
-		close();
-	}
+    protected void escapeAction() {
+        close();
+    }
 
-	public VisDialog getDialog() {
-		return dialog;
-	}
+    public VisDialog getDialog() {
+        return dialog;
+    }
 
-	public GameEngine getGameEngine() {
-		return gameEngine;
-	}
+    public GameEngine getGameEngine() {
+        return gameEngine;
+    }
 
-	public VisTable getTable() {
-		return table;
-	}
+    public VisTable getTable() {
+        return table;
+    }
 
-	public Viewport getViewport() {
-		return stage.getViewport();
-	}
+    public Viewport getViewport() {
+        return stage.getViewport();
+    }
 
-	public boolean isVisible() {
-		return visible;
-	}
+    public boolean isVisible() {
+        return visible;
+    }
 
-	protected void packAndPosition() {
-		dialog.pack();
-		positionWindow();
-	}
+    protected void packAndPosition() {
+        dialog.pack();
+        positionWindow();
+    }
 
-	public void pop() {
-		setVisible(false);
-		parent.setVisible(true);
-	}
+    public void pop() {
+        setVisible(false);
+        parent.setVisible(true);
+    }
 
-	protected void positionWindow() {
-		dialog.setPosition(Gdx.graphics.getWidth() / 2 - dialog.getWidth() / 2, Gdx.graphics.getHeight() / 2 - (dialog.getHeight() - GameEngine.FONT_SIZE - 2) / 2);
-	}
+    protected void positionWindow() {
+        dialog.setPosition(Gdx.graphics.getWidth() / 2 - dialog.getWidth() / 2, Gdx.graphics.getHeight() / 2 - (dialog.getHeight() - GameEngine.FONT_SIZE - 2) / 2);
+    }
 
-	/**
-	 * switch to another dialog
-	 *
-	 * @param dialog
-	 */
-	public void push(AbstractDialog parent) {
-		this.parent = parent;
-		parent.setVisible(false);
-		setVisible(true);
-	}
+    /**
+     * switch to another dialog
+     *
+     * @param dialog
+     */
+    public void push(AbstractDialog parent) {
+        this.parent = parent;
+        parent.setVisible(false);
+        setVisible(true);
+    }
 
-	public void setVisible(final boolean visible) {
-		this.visible = visible;
-		if (visible) {
-			beforeVisible();
-			for (InputProcessor ip : inputMultiplexer.getProcessors()) {
-				inputProcessorCache.add(ip);
-			}
-			inputMultiplexer.clear();
-			inputMultiplexer.addProcessor(stage);
+    public void setVisible(final boolean visible) {
+        this.visible = visible;
+        if (visible) {
+            beforeVisible();
+            for (InputProcessor ip : inputMultiplexer.getProcessors()) {
+                inputProcessorCache.add(ip);
+            }
+            inputMultiplexer.clear();
+            inputMultiplexer.addProcessor(stage);
 //			gameEngine.renderEngine.updateBlurEffect(1, 1f);
 //			gameEngine.renderEngine.addBlurEffect();
 //			gameEngine.renderEngine.updateBlurEffect(32, 1f);
@@ -289,20 +318,20 @@ public abstract class AbstractDialog {
 //			blurMode = BlurMode.up;
 //			blurAmount = 1f;
 //			blurPasses = 1;
-		} else {
-			inputMultiplexer.removeProcessor(stage);
-			for (InputProcessor ip : inputProcessorCache) {
-				inputMultiplexer.addProcessor(ip);
-			}
-			inputProcessorCache.clear();
+        } else {
+            inputMultiplexer.removeProcessor(stage);
+            for (InputProcessor ip : inputProcessorCache) {
+                inputMultiplexer.addProcessor(ip);
+            }
+            inputProcessorCache.clear();
 //			blurMode = BlurMode.down;
 //			gameEngine.renderEngine.removeBlurEffect();
 //			gameEngine.renderEngine.removeBloomEffect();
-			afterInvisible();
-		}
-	}
+            afterInvisible();
+        }
+    }
 
-	public void update(final Context universe) {
-	}
+    public void update(final Context universe) {
+    }
 
 }

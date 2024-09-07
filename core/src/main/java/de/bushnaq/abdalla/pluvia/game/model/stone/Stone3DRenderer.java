@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2024 Abdalla Bushnaq
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.bushnaq.abdalla.pluvia.game.model.stone;
 
 import com.badlogic.gdx.graphics.Color;
@@ -16,20 +32,23 @@ import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
  * @author kunterbunt
  */
 public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
-    private static final float                  NORMAL_LIGHT_INTENSITY     = 10f;
     private static final Color                  SELECTED_TRADER_NAME_COLOR = Color.BLACK;
     private static final Color                  TRADER_NAME_COLOR          = Color.BLACK;
     private static final float                  TRADER_SIZE_X              = 1f;
     private static final float                  TRADER_SIZE_Y              = 1f;
     private static final float                  TRADER_SIZE_Z              = 1f;
-    private static final float                  VANISHING_LIGHT_INTENSITY  = 1000;
+    private final        boolean                bothSides                  = false;
     private              BitmapFont             font;
-    private              GameObject<GameEngine> gameObject;
-    private final        float                  lightIntensity             = 0f;
-    private final        boolean                lightIsOne                 = false;
-    //	private final List<PointLight>	pointLight					= new ArrayList<>();
     private final        Stone                  stone;
+    private              GameObject<GameEngine> stoneGO;
+    private              GameObject<GameEngine> stoneXNegGO;
+    private              GameObject<GameEngine> stoneXPosGO;
+    private              GameObject<GameEngine> stoneYNegGO;
+    private              GameObject<GameEngine> stoneYPosGO;
+    private              GameObject<GameEngine> stoneZNegGO;
+    private              GameObject<GameEngine> stoneZPosGO;
     private final        Vector3                translation                = new Vector3();    // intermediate value
+    private final        Vector3                translationBuffer          = new Vector3();    // intermediate value
 
     public Stone3DRenderer(final Stone patch) {
         this.stone = patch;
@@ -37,15 +56,43 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
 
     @Override
     public void create(final RenderEngine3D<GameEngine> renderEngine) {
-        if (gameObject == null && renderEngine != null) {
-            gameObject = new GameObject<GameEngine>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.stone[stone.getType()].scene.model), stone);
-//			gameObject = new GameObject<GameEngine>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.stone[0].scene.model), stone);
-//			final Material            material =gameObject.instance.model.materials.get(0);
-//			PBRColorAttribute                 attribute = (PBRColorAttribute)material.get(PBRColorAttribute.BaseColorFactor);
-//			attribute.color = Color.RED;
-            renderEngine.addDynamic(gameObject);
+        if (stoneGO == null && renderEngine != null) {
             renderEngine.addDynamic(this);
-            gameObject.update();
+            {
+                stoneGO = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.stone[stone.getType()].scene.model), stone);
+                renderEngine.addDynamic(stoneGO);
+                stoneGO.update();
+            }
+            {
+                stoneXNegGO = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.shadow), null);
+                renderEngine.addDynamic(stoneXNegGO);
+                stoneXNegGO.update();
+            }
+            {
+                stoneYNegGO = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.shadow), null);
+                renderEngine.addDynamic(stoneYNegGO);
+                stoneYNegGO.update();
+            }
+            {
+                stoneZNegGO = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.shadow), null);
+                renderEngine.addDynamic(stoneZNegGO);
+                stoneZNegGO.update();
+            }
+            if (bothSides) {
+                stoneXPosGO = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.shadow), null);
+                renderEngine.addDynamic(stoneXPosGO);
+                stoneXPosGO.update();
+            }
+            if (bothSides) {
+                stoneYPosGO = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.shadow), null);
+                renderEngine.addDynamic(stoneYPosGO);
+                stoneYPosGO.update();
+            }
+            if (bothSides) {
+                stoneZPosGO = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.shadow), null);
+                renderEngine.addDynamic(stoneZPosGO);
+                stoneZPosGO.update();
+            }
             font = renderEngine.getGameEngine().getAtlasManager().modelFont;
         }
     }
@@ -53,11 +100,8 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
     @Override
     public void destroy(final RenderEngine3D<GameEngine> renderEngine) {
         if (renderEngine != null) {
-            renderEngine.removeDynamic(gameObject);
+            renderEngine.removeDynamic(stoneGO);
             renderEngine.removeDynamic(this);
-//			for (PointLight pl : pointLight) {
-//				renderEngine.remove(pl, true);
-//			}
         }
     }
 
@@ -70,8 +114,6 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             } else {
                 color = TRADER_NAME_COLOR;
             }
-//			float h = TRADER_SIZE_Y / 4;
-//			renderTextOnFrontSide(renderEngine, 0, 0 + h, "" + stone.getType(), TRADER_SIZE_Y / 2, color);
             float h = TRADER_SIZE_Y / 8;
             renderTextOnFrontSide(renderEngine, 0, 0 + 2 * h, stone.name, TRADER_SIZE_Y / 8, color);
             renderTextOnFrontSide(renderEngine, 0, 0 + 1 * h, stone.getCoordinatesAsString(), TRADER_SIZE_Y / 8, color);
@@ -107,54 +149,6 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
         }
     }
 
-//	private void tuneLightIntensity() {
-//		if (lightIsOne) {
-//			if (stone.isVanishing()) {
-//				if (lightIntensity < VANISHING_LIGHT_INTENSITY)
-//					lightIntensity += Math.signum(VANISHING_LIGHT_INTENSITY - lightIntensity) * 0.3f;
-//			} else {
-//				if (lightIntensity < NORMAL_LIGHT_INTENSITY)
-//					lightIntensity += Math.signum(NORMAL_LIGHT_INTENSITY - lightIntensity) * 0.1f;
-//			}
-//			for (PointLight pl : pointLight) {
-//				pl.intensity = lightIntensity;
-//			}
-//		}
-//	}
-
-//	private void turnLightOff(final GameEngine gameEngine) {
-//		if (lightIsOne) {
-//			for (PointLight pl : pointLight) {
-//				gameEngine.renderEngine.remove(pl, true);
-//			}
-//			lightIsOne = false;
-//		}
-//	}
-
-//	private void turnLightOn(final GameEngine gameEngine) {
-//		if (!lightIsOne) {
-//			lightIntensity = 0f;
-//			Color color;
-//			if (gameEngine.renderEngine.isPbr()) {
-//				Material			material	= gameObject.instance.model.materials.get(0);
-//				Attribute			attribute	= material.get(PBRColorAttribute.BaseColorFactor);
-//				PBRColorAttribute	a			= (PBRColorAttribute) attribute;
-//				color = a.color;
-//			} else {
-//				Material		material	= gameObject.instance.model.materials.get(0);
-//				Attribute		attribute	= material.get(ColorAttribute.Diffuse);
-//				ColorAttribute	a			= (ColorAttribute) attribute;
-//				color = a.color;
-//			}
-//
-//			final PointLight light = new PointLight().set(color, 0f, 0f, 0f, lightIntensity);
-//			pointLight.add(light);
-//			gameEngine.renderEngine.add(light, true);
-//			lightIsOne = true;
-//		}
-//
-//	}
-
     @Override
     public void update(final float x, final float y, final float z, final RenderEngine3D<GameEngine> renderEngine, final long currentTime, final float timeOfDay, final int index, final boolean selected) throws Exception {
         float fraction = (float) (renderEngine.getGameEngine().context.levelManager.animationPhase) / ((float) renderEngine.getGameEngine().context.levelManager.maxAnimationPhase);
@@ -181,38 +175,118 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
         }
         float scaleDx = 0;
 
-        if (stone.isRightAttached())
-            scaleDx += 0.2f;
-        if (stone.isLeftAttached())
-            scaleDx += 0.2f;
+        if (stone.isRightAttached()) scaleDx += 0.2f;
+        if (stone.isLeftAttached()) scaleDx += 0.2f;
 
-        if (stone.isRightAttached() && !stone.isLeftAttached())
-            translation.x = stone.tx + 0.1f;
-        else if (!stone.isRightAttached() && stone.isLeftAttached())
-            translation.x = stone.tx - 0.1f;
-        else
-            translation.x = stone.tx;
+        if (stone.isRightAttached() && !stone.isLeftAttached()) translation.x = stone.tx + 0.1f;
+        else if (!stone.isRightAttached() && stone.isLeftAttached()) translation.x = stone.tx - 0.1f;
+        else translation.x = stone.tx;
         translation.y = -stone.ty;
         translation.z = stone.tz;
-//		for (PointLight pl : pointLight) {
-//			pl.setPosition(translation);
-//		}
 
         {
-            gameObject.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
-            gameObject.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
-            gameObject.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
-            gameObject.instance.transform.translate(translation);
+            stoneGO.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
+            stoneGO.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
+            stoneGO.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
+            stoneGO.instance.transform.translate(translation);
             if (stone.isVanishing()) {
-                gameObject.instance.transform.scale(fraction, fraction, fraction);
+                stoneGO.instance.transform.scale(fraction, fraction, fraction);
             } else {
-                gameObject.instance.transform.scale(1f + scaleDx, 1f, 1f);
+                stoneGO.instance.transform.scale(1f + scaleDx, 1f, 1f);
             }
-            gameObject.update();
-
-//            gameObject.instance.transform.translate(new Vector3(0, 1, 0));
-//            gameObject.instance.transform.scale(1f, 1f, 1f);
-//            gameObject.update();
+            stoneGO.update();
+        }
+        float distance = 3.6f;
+        float scaling  = 0.9f;
+        {
+            translationBuffer.set(translation);
+            translationBuffer.x = -distance;
+            stoneXNegGO.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
+            stoneXNegGO.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
+            stoneXNegGO.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
+            stoneXNegGO.instance.transform.translate(translationBuffer);
+            stoneXNegGO.instance.transform.rotate(Vector3.Z, -90);
+            if (stone.isVanishing()) {
+                stoneXNegGO.instance.transform.scale(fraction, fraction, fraction);
+            } else {
+                stoneXNegGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+            }
+            stoneXNegGO.update();
+        }
+        if (bothSides) {
+            translationBuffer.set(translation);
+            translationBuffer.x = distance;
+            stoneXPosGO.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
+            stoneXPosGO.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
+            stoneXPosGO.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
+            stoneXPosGO.instance.transform.translate(translationBuffer);
+            stoneXPosGO.instance.transform.rotate(Vector3.Z, -90);
+            if (stone.isVanishing()) {
+                stoneXPosGO.instance.transform.scale(fraction, fraction, fraction);
+            } else {
+                stoneXPosGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+            }
+            stoneXPosGO.update();
+        }
+        {
+            translationBuffer.set(translation);
+            translationBuffer.y = -distance;
+            stoneYNegGO.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
+            stoneYNegGO.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
+            stoneYNegGO.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
+            stoneYNegGO.instance.transform.translate(translationBuffer);
+//            stoneYGO.instance.transform.rotate(Vector3.Z, -90);
+            if (stone.isVanishing()) {
+                stoneYNegGO.instance.transform.scale(fraction, fraction, fraction);
+            } else {
+                stoneYNegGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+            }
+            stoneYNegGO.update();
+        }
+        if (bothSides) {
+            translationBuffer.set(translation);
+            translationBuffer.y = distance;
+            stoneYPosGO.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
+            stoneYPosGO.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
+            stoneYPosGO.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
+            stoneYPosGO.instance.transform.translate(translationBuffer);
+//            stoneYPosGO.instance.transform.rotate(Vector3.Z, 180);
+            if (stone.isVanishing()) {
+                stoneYPosGO.instance.transform.scale(fraction, fraction, fraction);
+            } else {
+                stoneYPosGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+            }
+            stoneYPosGO.update();
+        }
+        {
+            translationBuffer.set(translation);
+            translationBuffer.z = -distance;
+            stoneZNegGO.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
+            stoneZNegGO.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
+            stoneZNegGO.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
+            stoneZNegGO.instance.transform.translate(translationBuffer);
+            stoneZNegGO.instance.transform.rotate(Vector3.X, 90);
+            if (stone.isVanishing()) {
+                stoneZNegGO.instance.transform.scale(fraction, fraction, fraction);
+            } else {
+                stoneZNegGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+            }
+            stoneZNegGO.update();
+        }
+        if (bothSides) {
+            translationBuffer.set(translation);
+            translationBuffer.z = distance;
+            stoneZPosGO.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
+            stoneZPosGO.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
+            stoneZPosGO.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
+            stoneZPosGO.instance.transform.translate(translationBuffer);
+            stoneZPosGO.instance.transform.rotate(Vector3.X, 90);
+            if (stone.isVanishing()) {
+                stoneZPosGO.instance.transform.scale(fraction, fraction, fraction);
+            } else {
+                stoneZPosGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+            }
+            stoneZPosGO.update();
         }
 
     }

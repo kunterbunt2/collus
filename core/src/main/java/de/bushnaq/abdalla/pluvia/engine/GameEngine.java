@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2024 Abdalla Bushnaq
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.bushnaq.abdalla.pluvia.engine;
 
 import com.badlogic.gdx.*;
@@ -17,6 +33,7 @@ import de.bushnaq.abdalla.engine.camera.MovingCamera;
 import de.bushnaq.abdalla.pluvia.desktop.Context;
 import de.bushnaq.abdalla.pluvia.engine.camera.MyCameraInputController;
 import de.bushnaq.abdalla.pluvia.game.Game;
+import de.bushnaq.abdalla.pluvia.game.StonePlane;
 import de.bushnaq.abdalla.pluvia.game.model.stone.Stone;
 import de.bushnaq.abdalla.pluvia.scene.model.bubble.Bubble;
 import de.bushnaq.abdalla.pluvia.scene.model.digit.Digit;
@@ -44,20 +61,8 @@ import java.util.List;
  * @author kunterbunt
  */
 public class GameEngine implements ScreenListener, ApplicationListener, InputProcessor, RenderEngineExtension {
-    //    public static final  Color                   FACTORY_COLOR               = Color.DARK_GRAY;                            // 0xff000000;
-//    public static final  float                   FACTORY_HEIGHT              = 1.2f;
-//    public static final  float                   FACTORY_WIDTH               = 2.4f;
     public static final  int                        FONT_SIZE        = 9;
-    //    public static final  Color                   NOT_PRODUCING_FACTORY_COLOR = Color.RED;                                // 0xffFF0000;
-//    public static final  int                     RAYS_NUM                    = 128;
     private static final float                      SCROLL_SPEED     = 0.2f;
-    //    public static final  Color                   SELECTED_PLANET_COLOR       = Color.BLUE;
-//    public static final  Color                   SELECTED_TRADER_COLOR       = Color.RED;                                // 0xffff0000;
-//    public static final  float                   SIM_HEIGHT                  = 0.3f;
-//    public static final  float                   SIM_WIDTH                   = 0.3f;
-//    public static final  float                   SOOM_SPEED                  = 8.0f * 10;
-//    public static final  float                   SPACE_BETWEEN_OBJECTS       = 0.05f;
-//    public static final  Color                   TEXT_COLOR                  = Color.WHITE;                                // 0xffffffff;
     private static final int                        TOUCH_DELTA_X    = 1;
     private static final int                        TOUCH_DELTA_Y    = 1;
     private              AboutDialog                aboutDialog;
@@ -72,11 +77,11 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     public               Context                    context;
     private final        IContextFactory            contextFactory;
     private final        GameObject<GameEngine>     cube             = null;
-    private              GameObject<GameEngine>     cubeXPlane;
+    private              StonePlane                 cubeXPlane;
     private              Vector3                    cubeXPlaneTranslation;    // intermediate value
-    private              GameObject<GameEngine>     cubeYPlane;//TODO
+    private              StonePlane                 cubeYPlane;
     private              Vector3                    cubeYPlaneTranslation;    // intermediate value
-    private              GameObject<GameEngine>     cubeZPlane;
+    private              StonePlane                 cubeZPlane;
     private              Vector3                    cubeZPlaneTranslation;    // intermediate value
     private              Cubemap                    diffuseCubemap;
     private final        boolean                    enableProfiling  = true;
@@ -88,13 +93,11 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     private final        List<VisLabel>             labels           = new ArrayList<>();
     private final        Logger                     logger           = LoggerFactory.getLogger(this.getClass());
     private              MainDialog                 mainDialog;
-    //    private       int              maxFramesPerSecond;
     private              MessageDialog              messageDialog;
+    private final        Meter<GameEngine>          meter            = null;
     public               ModelManager               modelManager;
-    //    StoneList oldStoneList = null;
     private              OptionsDialog              optionsDialog;
     private              PauseDialog                pauseDialog;
-    //	private boolean					pbr;
     private              GLProfiler                 profiler;
     public               RenderEngine3D<GameEngine> renderEngine;
     private final        float                      rotateAngle      = 2f;
@@ -108,25 +111,16 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     private              StringBuilder              stringBuilder;
     private              boolean                    takeScreenShot;
     GameObject<GameEngine> testCube;
-    private Integer touchX    = null;
-    private Integer touchY    = null;
-    private float   viewAngle = -45f;
-    //	public boolean isPbr() {
-//		return pbr;
-//	}
+    private Integer touchX = null;
+    private Integer touchY = null;
+    Vector3 translationBuffer = new Vector3();
+    private float viewAngle = -45f;
     float viewAngleSpeed = 0f;
 
     public GameEngine(final IContextFactory contextFactory) throws Exception {
         this.contextFactory = contextFactory;
         modelManager        = new ModelManager();
     }
-
-//    private void createStone() {
-//        instance = new GameObject(new ModelInstanceHack(modelManager.cube.scene.model), null);
-//        instance.instance.transform.setToTranslationAndScaling(0, 0, -15, 16, 16, 16);
-//        instance.update();
-//        renderEngine.addStatic(instance);
-//    }
 
     @Override
     public void create() {
@@ -136,8 +130,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                 context = (Context) contextFactory.create();
                 evaluateConfiguation();
             }
-            showFps = context.getShowFpsProperty();
-//			pbr = context.getPbrModeProperty();
+            showFps  = context.getShowFpsProperty();
             profiler = new GLProfiler(Gdx.graphics);
             profiler.setListener(GLErrorListener.LOGGING_LISTENER);// ---enable exception throwing in case of error
             profiler.setListener(new MyGLErrorListener());
@@ -162,13 +155,14 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             audioManager = new AudioManager(context);
             createStage();
             context.readScoreFromDisk(this);
-//            renderEngine.createCoordinates(new Vector3(-3.5f,-3.5f,-3.5f),new Vector3(0,-45,0),7, 0.1f);
+//            renderEngine.createCoordinates(new Vector3(0, 0, 0), new Vector3(0, 0, 0), 7, 0.1f);
             createCube();
 //            createStone();
 //			createMonument();
 //			createGame(0);
 //			context.selectGamee(0);
 //			context.levelManager = new LevelManager(this, context.game);
+
         } catch (final Throwable e) {
             logger.error(e.getMessage(), e);
             System.exit(1);
@@ -185,27 +179,50 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         camera.far  = 100f;
         camera.update();
         camera.setDirty(true);
-
     }
 
     private void createCube() {
-        cubeYPlaneTranslation = new Vector3(0, -3.5f, 0);
-        cubeYPlane            = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cubeTrans1), null);
-        cubeYPlane.instance.transform.setToTranslationAndScaling(0, 0, 0, 7, .01f, 7);
-        cubeYPlane.update();
-        renderEngine.addDynamic(cubeYPlane);
-
-        cubeZPlaneTranslation = new Vector3(0, 0, -3.5f);
-        cubeZPlane            = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cubeTrans1), null);
-        cubeZPlane.instance.transform.setToTranslationAndScaling(0, 0, 0, 7, 7, .01f);
-        cubeZPlane.update();
-        renderEngine.addDynamic(cubeZPlane);
-
-        cubeXPlaneTranslation = new Vector3(-3.5f, 0, 0);
-        cubeXPlane            = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cubeTrans1), null);
-        cubeXPlane.instance.transform.setToTranslationAndScaling(0, 0, 0, .01f, 7, 7);
-        cubeXPlane.update();
-        renderEngine.addDynamic(cubeXPlane);
+        {
+//        cubeYPlane = new StonePlane(context.game.getxSize(), context.game.getzSize());
+            cubeYPlane            = new StonePlane(7, 7);
+            cubeYPlaneTranslation = new Vector3(0, -3.5f - .1f, 0);
+            for (int x = 0; x < 7; x++) {
+                for (int z = 0; z < 7; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, .9f, .01f, .9f);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeYPlane.set(x, z, go);
+                }
+            }
+        }
+        {
+            cubeZPlane            = new StonePlane(7, 7);
+            cubeZPlaneTranslation = new Vector3(0, 0, -3.5f - .1f);
+            for (int x = 0; x < 7; x++) {
+                for (int z = 0; z < 7; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, 7, 7, .01f);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeZPlane.set(x, z, go);
+                }
+            }
+        }
+        {
+            cubeXPlane            = new StonePlane(7, 7);
+            cubeXPlaneTranslation = new Vector3(-3.5f - .1f, 0, 0);
+//            cubeXPlane            = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+            for (int y = 0; y < 7; y++) {
+                for (int z = 0; z < 7; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, .01f, 7, 7);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeXPlane.set(y, z, go);
+                }
+            }
+        }
     }
 
     private void createEnvironment() {
@@ -342,10 +359,6 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         return camController;
     }
 
-    public InputMultiplexer getInputMultiplexer() {
-        return inputMultiplexer;
-    }
-
 //	private void exit() {
 //		Gdx.app.exit();
 //	}
@@ -359,13 +372,17 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 //		printWriter.close();
 //	}
 
-    public MainDialog getMainDialog() {
-        return mainDialog;
+    public InputMultiplexer getInputMultiplexer() {
+        return inputMultiplexer;
     }
 
 //    public int getMaxFramesPerSecond() {
 //        return maxFramesPerSecond;
 //    }
+
+    public MainDialog getMainDialog() {
+        return mainDialog;
+    }
 
     public MessageDialog getMessageDialog() {
         return messageDialog;
@@ -663,52 +680,95 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     }
 
     private void renderCube(final long currentTime) {
+        float scale = .9f;
         if (context.game.getySize() != 0) {
             if (cubeYPlane != null) {
-                cubeYPlane.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
-                cubeYPlane.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
-                cubeYPlane.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
-                cubeYPlane.instance.transform.translate(cubeYPlaneTranslation);
-                cubeYPlane.instance.transform.scale(7, 0.1f, 7);
-                cubeYPlane.update();
+                for (int x = 0; x < context.game.getxSize(); x++) {
+                    for (int z = 0; z < context.game.getzSize(); z++) {
+                        GameObject<GameEngine> go = cubeYPlane.get(x, z);
+                        go.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
+                        go.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
+                        go.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
+                        translationBuffer.set(cubeYPlaneTranslation);
+                        translationBuffer.x += x - 3f;
+                        translationBuffer.z += z - 3f;
+                        go.instance.transform.translate(translationBuffer);
+                        go.instance.transform.scale(scale, 0.1f, scale);
+//                        go.instance.transform.rotate(Vector3.Z, -90);
+                        go.update();
+                    }
+                }
             }
 
             if (cubeZPlane != null) {
-                cubeZPlane.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
-                cubeZPlane.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
-                cubeZPlane.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
-                cubeZPlane.instance.transform.translate(cubeZPlaneTranslation);
-                cubeZPlane.instance.transform.scale(7, 7, 0.1f);
-                cubeZPlane.update();
+                for (int x = 0; x < context.game.getxSize(); x++) {
+                    for (int y = 0; y < context.game.getySize(); y++) {
+                        GameObject<GameEngine> go = cubeZPlane.get(x, y);
+                        go.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
+                        go.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
+                        go.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
+                        translationBuffer.set(cubeZPlaneTranslation);
+                        translationBuffer.x += x - 3f;
+                        translationBuffer.y += y - 3f;
+                        go.instance.transform.translate(translationBuffer);
+                        go.instance.transform.scale(scale, scale, 0.1f);
+                        go.instance.transform.rotate(Vector3.X, 90);
+                        go.update();
+                    }
+                }
             }
 
             if (cubeXPlane != null) {
-                cubeXPlane.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
-                cubeXPlane.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
-                cubeXPlane.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
-                cubeXPlane.instance.transform.translate(cubeXPlaneTranslation);
-                cubeXPlane.instance.transform.scale(0.1f, 7, 7);
-                cubeXPlane.update();
+                for (int y = 0; y < context.game.getySize(); y++) {
+                    for (int z = 0; z < context.game.getzSize(); z++) {
+                        GameObject<GameEngine> go = cubeXPlane.get(y, z);
+                        go.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
+                        go.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
+                        go.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
+                        translationBuffer.set(cubeXPlaneTranslation);
+                        translationBuffer.y += y - 3f;
+                        translationBuffer.z += z - 3f;
+                        go.instance.transform.translate(translationBuffer);
+                        go.instance.transform.scale(0.1f, scale, scale);
+                        go.instance.transform.rotate(Vector3.Z, -90);
+                        go.update();
+                    }
+                }
             }
         } else {
             Vector3 hide = new Vector3(0, 0, 1000);
             //hide
             if (cubeYPlane != null) {
-                cubeYPlane.instance.transform.setToTranslation(hide);
-                cubeYPlane.instance.transform.scale(1, 1, 1);
-                cubeYPlane.update();
+                for (int x = 0; x < context.game.getxSize(); x++) {
+                    for (int z = 0; z < context.game.getzSize(); z++) {
+                        GameObject<GameEngine> go = cubeYPlane.get(x, z);
+                        go.instance.transform.setToTranslation(hide);
+//                        go.instance.transform.scale(1, 1, 1);
+                        go.update();
+                    }
+                }
             }
 
             if (cubeZPlane != null) {
-                cubeZPlane.instance.transform.setToTranslation(hide);
-                cubeZPlane.instance.transform.scale(1, 1, 1);
-                cubeZPlane.update();
+                for (int x = 0; x < context.game.getxSize(); x++) {
+                    for (int y = 0; y < context.game.getzSize(); y++) {
+                        GameObject<GameEngine> go = cubeZPlane.get(x, y);
+                        go.instance.transform.setToTranslation(hide);
+//                        go.instance.transform.scale(1, 1, 1);
+                        go.update();
+                    }
+                }
             }
 
             if (cubeXPlane != null) {
-                cubeXPlane.instance.transform.setToTranslation(hide);
-                cubeXPlane.instance.transform.scale(1, 1, 1);
-                cubeXPlane.update();
+                for (int y = 0; y < context.game.getySize(); y++) {
+                    for (int z = 0; z < context.game.getzSize(); z++) {
+                        GameObject<GameEngine> go = cubeXPlane.get(y, z);
+                        go.instance.transform.setToTranslation(hide);
+//                        go.instance.transform.scale(1, 1, 1);
+                        go.update();
+                    }
+                }
             }
         }
     }
@@ -747,7 +807,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         //camera properties
         {
             stringBuilder.setLength(0);
-            stringBuilder.append(String.format(" camera: position(%+.0f,%+.0f,%+.0f), lookAt(%+.0f, %+.0f, %+.0f)", camera.position.x, camera.position.y, camera.position.z, camera.lookat.x, camera.lookat.y, camera.lookat.z));
+            stringBuilder.append(String.format(" camera: position(%+.1f,%+.1f,%+.1f), lookAt(%+.1f, %+.1f, %+.1f), direction(%+.1f, %+.1f, %+.1f)", camera.position.x, camera.position.y, camera.position.z, camera.lookat.x, camera.lookat.y, camera.lookat.z, camera.direction.x, camera.direction.y, camera.direction.z));
             labels.get(labelIndex).getStyle().fontColor = Color.ORANGE;
             labels.get(labelIndex++).setText(stringBuilder);
         }
@@ -922,7 +982,6 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             switch (button) {
                 case Input.Buttons.LEFT: {
                     // did we select an object?
-                    // renderMaster.sceneClusterManager.createCoordinates();
                     final GameObject selected = renderEngine.getGameObject(screenX, screenY);
 //				System.out.println("selected " + selected);
 //                    if (selected != null)
@@ -931,7 +990,6 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                 break;
                 case Input.Buttons.RIGHT: {
                     // did we select an object?
-                    // renderMaster.sceneClusterManager.createCoordinates();
                     final GameObject selected = renderEngine.getGameObject(screenX, screenY);
 //				System.out.println("selected " + selected);
 //                    if (selected != null)
@@ -957,7 +1015,6 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                     if (dx > 0) {
                         // dragged finger to the right
                         // did we select an object?
-                        // renderMaster.sceneClusterManager.createCoordinates();
 //                        final GameObject selected = renderEngine.getGameObject(touchX, touchY);
 //						System.out.println("selected " + selected);
 //                        if (selected != null)
@@ -967,7 +1024,6 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                     } else {
                         // dragged finger to the left
                         // did we select an object?
-                        // renderMaster.sceneClusterManager.createCoordinates();
 //                        final GameObject selected = renderEngine.getGameObject(touchX, touchY);
 //						System.out.println("react left dx " + dx);
 //						System.out.println("selected " + selected);

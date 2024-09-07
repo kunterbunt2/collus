@@ -1,4 +1,20 @@
 /*
+ * Copyright (C) 2024 Abdalla Bushnaq
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  * Created on 10.07.2004 TODO To change the template for this generated file go to Window - Preferences - Java - Code Style - Code Templates
  */
 package de.bushnaq.abdalla.pluvia.game;
@@ -29,12 +45,12 @@ import java.util.Map;
 public class LevelManager extends Level implements Serializable {
     private static final String                       INVALID_LEVEL_RECORDING_DETECTED = "Invalid Level Recording Detected";
     private static final String                       RESETTING_LEVEL                  = "\n\nResetting level...";
-    private static final long                         serialVersionUID                 = 1L;
-    private              RenderEngine3D<GameEngine>   renderEngine;
-    private              int                          index                            = 0;
-    private              Color                        infoColor;
-    private final        List<GameObject<GameEngine>> renderModelInstances             = new ArrayList<>();
-    private              Map<String, AbstractScene>   sceneList                        = new HashMap<>();
+    private static final long  serialVersionUID = 1L;
+    private final        int   index            = 0;
+    private              Color infoColor;
+    private final RenderEngine3D<GameEngine>   renderEngine;
+    private final List<GameObject<GameEngine>> renderModelInstances = new ArrayList<>();
+    private final Map<String, AbstractScene>   sceneList            = new HashMap<>();
 //	protected Font				TextFont							= new Font("SansSerif", Font.BOLD, 14);
 
     public LevelManager(RenderEngine3D<GameEngine> renderEngine, Game game) {
@@ -64,7 +80,7 @@ public class LevelManager extends Level implements Serializable {
             Model model    = renderEngine.getGameEngine().modelManager.levelCube;
             // level back
             int count = 0;
-            if (game.ySize != 0 && false) {
+            if (false) {
                 // back side
 //		{
 //			Model m;
@@ -76,21 +92,21 @@ public class LevelManager extends Level implements Serializable {
 //		}
                 // left side
                 for (float y = this.ySize - 0.75f; y >= preview; y -= 0.5f) {
-                    GameObject cube = new GameObject(new ModelInstanceHack(model), null);
+                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
                     cube.instance.transform.setToTranslationAndScaling(-0.75f - dx, -(y - dy), -0.25f, cubeSize, cubeSize, cubeSize);
                     renderModelInstances.add(cube);
                     count++;
                 }
                 // right side
                 for (float y = this.ySize - 0.75f; y >= preview; y -= 0.5f) {
-                    GameObject cube = new GameObject(new ModelInstanceHack(model), null);
+                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
                     cube.instance.transform.setToTranslationAndScaling(xSize - 0.25f - dx, -(y - dy), 0 - 0.25f, cubeSize, cubeSize, cubeSize);
                     renderModelInstances.add(cube);
                     count++;
                 }
                 // left lower side
                 for (float x = -0.75f; x <= this.xSize / 2 - 1.5f - 1f; x += 0.5f) {
-                    GameObject cube = new GameObject(new ModelInstanceHack(model), null);
+                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
                     cube.instance.transform.setToTranslationAndScaling(x - dx, -(ySize - dy) + 0.25f, 0 - 0.25f, cubeSize, cubeSize, cubeSize);
                     renderModelInstances.add(cube);
                     count++;
@@ -111,7 +127,7 @@ public class LevelManager extends Level implements Serializable {
                 }
                 // right lower side
                 for (float x = -0.75f + this.xSize / 2 + 1.5f + 1f; x <= this.xSize; x += 0.5f) {
-                    GameObject cube = new GameObject(new ModelInstanceHack(model), null);
+                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
                     cube.instance.transform.setToTranslationAndScaling(x - dx, -(ySize - dy) + 0.25f, 0 - 0.25f, cubeSize, cubeSize, cubeSize);
                     renderModelInstances.add(cube);
                     count++;
