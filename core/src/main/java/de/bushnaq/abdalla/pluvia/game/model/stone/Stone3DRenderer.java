@@ -101,6 +101,12 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
     public void destroy(final RenderEngine3D<GameEngine> renderEngine) {
         if (renderEngine != null) {
             renderEngine.removeDynamic(stoneGO);
+            renderEngine.removeDynamic(stoneXNegGO);
+            renderEngine.removeDynamic(stoneYNegGO);
+            renderEngine.removeDynamic(stoneZNegGO);
+            renderEngine.removeDynamic(stoneXPosGO);
+            renderEngine.removeDynamic(stoneYPosGO);
+            renderEngine.removeDynamic(stoneZPosGO);
             renderEngine.removeDynamic(this);
         }
     }
@@ -196,7 +202,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             }
             stoneGO.update();
         }
-        float distance = 3.6f;
+        float distance = 3.55f;
         float scaling  = 0.9f;
         {
             translationBuffer.set(translation);

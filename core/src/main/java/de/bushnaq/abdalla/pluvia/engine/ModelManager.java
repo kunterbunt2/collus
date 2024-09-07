@@ -280,8 +280,8 @@ public class ModelManager {
     }
 
     private void createShadowModel(final ModelBuilder modelBuilder) {
-        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.DARK_GRAY);
-        final Attribute metallic  = PBRFloatAttribute.createMetallic(0.5f);
+        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.GRAY);
+        final Attribute metallic  = PBRFloatAttribute.createMetallic(0.1f);
         final Attribute roughness = PBRFloatAttribute.createRoughness(0.5f);
 //        final Attribute blending  = new BlendingAttribute(0.2f); // opacity is set by pbrMetallicRoughness below
         final Material material = new Material(metallic, roughness, color);

@@ -1,4 +1,20 @@
 /*
+ * Copyright (C) 2024 Abdalla Bushnaq
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  * Created on 10.07.2004 TODO To change the template for this generated file go to Window - Preferences - Java - Code Style - Code Templates
  */
 package de.bushnaq.abdalla.pluvia.game;
@@ -28,6 +44,7 @@ import java.util.Set;
  * @author kunterbunt
  */
 public abstract class Level {
+    protected     int        NrOfTotalStones      = 0;                                        // The sum of all follen patches within this game
     public        int        animationPhase       = 0;
     private final Cube       cube;
     protected     Set<Stone> droppingStones       = new HashSet<>();
@@ -36,18 +53,17 @@ public abstract class Level {
     public        GamePhase  gamePhase            = GamePhase.waiting;
     protected     Logger     logger               = LoggerFactory.getLogger(this.getClass());
     public        int        maxAnimationPhase    = 12;
-    public        int        xSize                = 0;                                        // number of columns
-    public        int        ySize                = 0;                                        // number of rows in the level
     protected     int        nrOfStones           = 0;                                        // Number of different patches (colors) in the game
-    protected     int        NrOfTotalStones      = 0;                                        // The sum of all follen patches within this game
     protected     int        preview              = 0;                                        // Number of rows that the user can preview before they actually drop into the game
-    private       Set<Stone> pushingLeftStones    = new HashSet<>();
-    private       Set<Stone> pushingRightStones   = new HashSet<>();
+    private final Set<Stone> pushingLeftStones    = new HashSet<>();
+    private final Set<Stone> pushingRightStones   = new HashSet<>();
     PersistentRandomGenerator rand;
-    private      Recording recording;
-    private      boolean   tilt        = false;                                    // mark that game has finished
-    private      boolean   userReacted = false;                                    // user has either moved a stones left or right and we need to generate new stones.
-    public final int       zSize;
+    private final Recording recording;
+    private       boolean   tilt        = false;                                    // mark that game has finished
+    private       boolean   userReacted = false;                                    // user has either moved a stones left or right and we need to generate new stones.
+    public        int       xSize       = 0;                                        // number of columns
+    public        int       ySize       = 0;                                        // number of rows in the level
+    public final  int       zSize;
 
     public Level(Game game) {
         this.xSize      = game.xSize;
@@ -121,6 +137,20 @@ public abstract class Level {
         }
     }
 
+    private void createDemoLevel() {
+        if (zSize > 0) {
+            for (int z = 0; z < zSize; z++) {
+                for (int x = 0; x < xSize; x++) {
+                    createDemoStone(x, 0, z, 0);
+                }
+            }
+        }
+    }
+
+    private void createDemoStone(int x, int y, int z, int type) {
+        cube.set(x, y, z, createStoneAndUpdateScore(x, y, z, type));
+    }
+
     public void createLevel() {
         // if this is a level that already (resumed game) has stones, we do not fill it, and we do not generate stones right at the start
         if (queryHeapHeight() == 0) {
@@ -180,20 +210,6 @@ public abstract class Level {
 
         createDemoLevel();
         boolean Changed = false;
-    }
-
-    private void createDemoLevel() {
-        if (zSize > 0) {
-            for (int z = 0; z < zSize; z++) {
-                for (int x = 0; x < xSize; x++) {
-                    createDemoStone(x, 0, z, 0);
-                }
-            }
-        }
-    }
-
-    private void createDemoStone(int x, int y, int z, int type) {
-        cube.set(x, y, z, createStoneAndUpdateScore(x, y, z, type));
     }
 
     public void generateStones() {
@@ -598,8 +614,7 @@ public abstract class Level {
 
     public boolean reactLeft(Object selected) {
         if (selected != null && userCanReact()) {
-            if (Stone.class.isInstance(selected)) {
-                Stone selectedStone = (Stone) selected;
+            if (selected instanceof Stone selectedStone) {
                 if ((selectedStone.y >= preview)) {
                     selectedStone.setPushingLeft(true);
                     pushingLeftStones.add(selectedStone);
@@ -622,8 +637,7 @@ public abstract class Level {
 
     public boolean reactRight(Object selected) {
         if (selected != null && userCanReact()) {
-            if (Stone.class.isInstance(selected)) {
-                Stone selectedStone = (Stone) selected;
+            if (selected instanceof Stone selectedStone) {
                 if ((selectedStone.y >= preview)) {
                     selectedStone.setPushingRight(true);
                     pushingRightStones.add(selectedStone);
@@ -647,8 +661,7 @@ public abstract class Level {
     public boolean readFromDisk() {
         // only if this is a real game type and not the UI type
         if (!game.name.equals(GameName.UI.name())) {
-            try
-            {
+            try {
 //                {
 //                    File         recordingFile = new File(String.format(Context.getConfigFolderName() + "/%s.yaml", game.name));
 //                    ObjectMapper mapper        = new ObjectMapper(new YAMLFactory());
@@ -657,8 +670,7 @@ public abstract class Level {
 //                }
                 readLegacy();
                 return true;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 logger.info(e.getMessage(), e);
             }
         }
@@ -671,7 +683,7 @@ public abstract class Level {
         // [1][0][0],[1][0][1],[1][0][2],[1][1][0],[1][1][1],[1][1][2]
         // [2][0][0],[2][0][1],[2][0][2],[2][1][0],[2][1][1],[2][1][2]
         //        int level = 2;
-        try (FileInputStream fis = new FileInputStream("level/level004.lvl");
+        try (FileInputStream fis = new FileInputStream("level/level005.lvl");
              DataInputStream dis = new DataInputStream(fis)) {
             for (int z = 0; z < this.zSize; z++) {
                 for (int y = 0; y < this.ySize; y++) {
@@ -709,6 +721,37 @@ public abstract class Level {
 //		game.updateScore(queryHeapHeight());
     }
 
+    public void rotateCubeMinusX() {
+        Cube buffer = new Cube(xSize, ySize, zSize);
+        for (int z = 0; z < zSize; z++) {
+            for (int y = 0; y < ySize; y++) {
+                for (int x = 0; x < xSize; x++) {
+                    Stone stone = cube.get(x, y, z);
+                    buffer.set(x, ySize - 1 - z, y, stone);
+//                    if(stone!=null) {
+//                        stone.set(stone.x,ySize - 1 -z,y);
+//                    }
+                }
+            }
+        }
+        cube.set(buffer);
+        setUserReacted(true);
+    }
+
+    public void rotateCubeMinusZ() {
+        Cube buffer = new Cube(xSize, ySize, zSize);
+        for (int z = 0; z < zSize; z++) {
+            for (int y = 0; y < ySize; y++) {
+                for (int x = 0; x < xSize; x++) {
+                    Stone stone = cube.get(x, y, z);
+                    buffer.set(xSize - 1 - y, x, z, stone);
+                }
+            }
+        }
+        cube.set(buffer);
+        setUserReacted(true);
+    }
+
     public void rotateCubePlusX() {
         Cube buffer = new Cube(xSize, ySize, zSize);
         for (int z = 0; z < zSize; z++) {
@@ -729,38 +772,7 @@ public abstract class Level {
             for (int y = 0; y < ySize; y++) {
                 for (int x = 0; x < xSize; x++) {
                     Stone stone = cube.get(x, y, z);
-                    buffer.set( y, ySize-1-x, z, stone);
-                }
-            }
-        }
-        cube.set(buffer);
-        setUserReacted(true);
-    }
-
-    public void rotateCubeMinusZ() {
-        Cube buffer = new Cube(xSize, ySize, zSize);
-        for (int z = 0; z < zSize; z++) {
-            for (int y = 0; y < ySize; y++) {
-                for (int x = 0; x < xSize; x++) {
-                    Stone stone = cube.get(x, y, z);
-                    buffer.set(xSize-1-y, x, z, stone);
-                }
-            }
-        }
-        cube.set(buffer);
-        setUserReacted(true);
-    }
-
-    public void rotateCubeMinusX() {
-        Cube buffer = new Cube(xSize, ySize, zSize);
-        for (int z = 0; z < zSize; z++) {
-            for (int y = 0; y < ySize; y++) {
-                for (int x = 0; x < xSize; x++) {
-                    Stone stone = cube.get(x, y, z);
-                    buffer.set(x, ySize - 1 - z, y, stone);
-//                    if(stone!=null) {
-//                        stone.set(stone.x,ySize - 1 -z,y);
-//                    }
+                    buffer.set(y, ySize - 1 - x, z, stone);
                 }
             }
         }
@@ -841,15 +853,15 @@ public abstract class Level {
                     Stone stone = cube.get(x, y, z);
                     if (stone != null) {
                         if (stone.isPushingLeft() && stone.isCanMoveLeft() && pushingLeftStones.isEmpty()) {
-                            logger.error(String.format("pushingLeftStones is empty, but at least one stone is still pushing left"));
+                            logger.error("pushingLeftStones is empty, but at least one stone is still pushing left");
                             System.exit(1);
                         }
                         if (stone.isPushingRight() && stone.isCanMoveRight() && pushingRightStones.isEmpty()) {
-                            logger.error(String.format("pushingRightStones is empty, but at least one stone is still pushing right"));
+                            logger.error("pushingRightStones is empty, but at least one stone is still pushing right");
                             System.exit(1);
                         }
                         if (stone.isDropping() && droppingStones.isEmpty()) {
-                            logger.error(String.format("droppingStones is empty, but at least one stone is still dropping"));
+                            logger.error("droppingStones is empty, but at least one stone is still dropping");
                             System.exit(1);
                         }
                     }
