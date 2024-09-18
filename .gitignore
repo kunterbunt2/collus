@@ -16,3 +16,5 @@ app/config/*
 .idea
 
 ios/robovm-logs/
+/original-resources/assets
+/app/assets/raw

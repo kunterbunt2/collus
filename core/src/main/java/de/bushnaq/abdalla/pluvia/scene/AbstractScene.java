@@ -48,6 +48,7 @@ public abstract class AbstractScene {
     private static final   float                        WATER_Y   = -3.5f;
     private static final   float                        WATER_Z   = 1000;
     protected              int                          index     = 0;
+    protected              Text2D                       levelName;
     protected              Logger                       logger    = LoggerFactory.getLogger(this.getClass());
     protected              Text2D                       logo;
     protected              Random                       rand;
@@ -61,8 +62,8 @@ public abstract class AbstractScene {
         this.rand                 = new Random(System.currentTimeMillis());
     }
 
-    public void create() {
-        logo = new Text2D("Collus", 100, Gdx.graphics.getHeight() - 200, Color.WHITE, renderEngine.getGameEngine().getAtlasManager().logoFont);
+    public void create(String levelNameString) {
+        logo = new Text2D("Collus", 100, Gdx.graphics.getHeight() - 200, Color.RED, renderEngine.getGameEngine().getAtlasManager().logoFont);
         renderEngine.add(logo);
         try {
             String            v      = renderEngine.getGameEngine().context.getAppVersion();
@@ -71,11 +72,13 @@ public abstract class AbstractScene {
             float h1 = layout.height;
             layout.setText(renderEngine.getGameEngine().getAtlasManager().versionFont, v);
             float h2 = layout.height;
-            version = new Text2D(v, 400 + 30, Gdx.graphics.getHeight() - 200 - (int) (h1 - h2), Color.WHITE, renderEngine.getGameEngine().getAtlasManager().versionFont);
+            version = new Text2D(v, 400 + 30, Gdx.graphics.getHeight() - 200 - (int) (h1 - h2), Color.GREEN, renderEngine.getGameEngine().getAtlasManager().versionFont);
             renderEngine.add(version);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
+        levelName = new Text2D(levelNameString, 100, Gdx.graphics.getHeight() - 300, Color.RED, renderEngine.getGameEngine().getAtlasManager().modelFont);
+        renderEngine.add(levelName);
     }
 
     protected void createCity(final RenderEngine3D<GameEngine> renderEngine, final float x, final float y, final float z, boolean up, float ScaleY) {
@@ -139,8 +142,8 @@ public abstract class AbstractScene {
                             }
                         }
 
-                        final GameObject inst = instanciateBuilding(renderEngine, index++);
-                        final float      xs   = iteration * scaleX * twinFactorXs - screetSize;
+                        final GameObject<GameEngine> inst = instanciateBuilding(renderEngine, index++);
+                        final float                  xs   = iteration * scaleX * twinFactorXs - screetSize;
                         // the bigger the building, the lower the change for it to get big
                         final float ys = (maxIteration + 1 - iteration) * scaleY /* ;averrageBuildingHight */ * (0.1f + 3 * rand.nextFloat());
                         final float zs = iteration * scaleZ * twinFactorZs - screetSize;
@@ -185,20 +188,20 @@ public abstract class AbstractScene {
     protected void createPlane(Color color) {
         Model model;
         model = renderEngine.getGameEngine().modelManager.square;
-        GameObject cube = new GameObject(new ModelInstanceHack(model), null);
-        Material   m    = cube.instance.materials.get(0);
+        GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
+        Material               m    = cube.instance.materials.get(0);
         m.set(PBRColorAttribute.createBaseColorFactor(color));
         cube.instance.transform.setToTranslationAndScaling(0f, renderEngine.getMirror().getMirrorLevel(), 0, WATER_X, 0.1f, WATER_Z);
         renderModelInstances.add(cube);
     }
 
-    protected void createTurtles(float minSize, float maxSize) {
+    protected void createTurtles(float minSize, float maxSize, float planeLevel) {
         Vector3 min = renderEngine.getSceneBox().min;
         Vector3 max = renderEngine.getSceneBox().max;
         for (int i = 0; i < Math.min(renderEngine.getGameEngine().context.getMaxSceneObjects(), 10); i++) {
             int         type   = rand.nextInt(ModelManager.MAX_NUMBER_OF_TURTLE_MODELS);
             float       size   = minSize + (float) Math.random() * (maxSize - minSize);
-            BoundingBox b      = new BoundingBox(new Vector3(min.x, size / 2, min.z), new Vector3(max.x, size / 2, 0));
+            BoundingBox b      = new BoundingBox(new Vector3(min.x, planeLevel + size / 2, min.z), new Vector3(max.x, planeLevel + size / 2, 0));
             Turtle      turtle = new Turtle(renderEngine, type, size, b);
             renderEngine.getGameEngine().context.turtleList.add(turtle);
         }
@@ -207,7 +210,7 @@ public abstract class AbstractScene {
     protected void createWater() {
         // water
         if (renderEngine.isWaterPresent()) {
-            final GameObject water = new GameObject(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.water), null);
+            final GameObject<GameEngine> water = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.water), null);
             water.instance.transform.setToTranslationAndScaling(0, WATER_Y, -15, WATER_X, 1, WATER_Z);
             water.update();
             renderModelInstances.add(water);
@@ -215,7 +218,7 @@ public abstract class AbstractScene {
             {
                 Model model;
                 model = renderEngine.getGameEngine().modelManager.square;
-                GameObject cube = new GameObject(new ModelInstanceHack(model), null);
+                GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
                 if (renderEngine.isPbr()) {
                     cube.instance.materials.get(0).set(PBRColorAttribute.createBaseColorFactor(Color.GREEN));
                 } else {
@@ -229,10 +232,10 @@ public abstract class AbstractScene {
 
     public abstract Color getInfoColor();
 
-    private GameObject instanciateBuilding(final RenderEngine3D<GameEngine> renderEngine, final int index) {
+    private GameObject<GameEngine> instanciateBuilding(final RenderEngine3D<GameEngine> renderEngine, final int index) {
 //		int i = rand.nextInt(ModelManager.MAX_NUMBER_OF_BUILDING_MODELS);
-        final GameObject go = new GameObject(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.buildingCube[(int) (Math.random() * ModelManager.MAX_NUMBER_OF_BUILDING_MODELS)]), null);
-        Material         m  = go.instance.model.materials.get(0);
+        final GameObject<GameEngine> go = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.buildingCube[(int) (Math.random() * ModelManager.MAX_NUMBER_OF_BUILDING_MODELS)]), null);
+        Material                     m  = go.instance.model.materials.get(0);
         if (renderEngine.isPbr()) {
             m.set(PBRColorAttribute.createBaseColorFactor(Color.BLACK));
             return go;
@@ -243,4 +246,8 @@ public abstract class AbstractScene {
 
     }
 
+    public void setLevelName(String levelName) {
+        if (this.levelName != null)
+            this.levelName.setText(levelName);
+    }
 }

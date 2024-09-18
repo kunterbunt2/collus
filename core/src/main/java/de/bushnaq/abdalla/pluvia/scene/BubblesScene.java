@@ -37,30 +37,34 @@ public class BubblesScene extends AbstractScene {
     }
 
     @Override
-    public void create() {
-        super.create();
+    public void create(String levelNameString) {
+        super.create(levelNameString);
         logo.setColor(getInfoColor());
         version.setColor(getInfoColor());
         renderEngine.setSkyBox(false);
-        renderEngine.setShadowEnabled(true);
+        renderEngine.setShadowEnabled(false);
         // time
         renderEngine.setAlwaysDay(true);
-        renderEngine.setDynamicDayTime(true);
+        renderEngine.setDynamicDayTime(false);
 //		gameEngine.renderEngine.setFixedDayTime(8);
         // fog
         renderEngine.getFog().setBeginDistance(20f);
         renderEngine.getFog().setFullDistance(50f);
         renderEngine.getFog().setColor(Color.WHITE);
+        renderEngine.getFog().setEnabled(true);
         // water
         renderEngine.getWater().setPresent(false);
         // mirror
-        renderEngine.getMirror().setPresent(false);
+        renderEngine.getMirror().setPresent(true);
         renderEngine.getMirror().setReflectivity(0.1f);
         renderEngine.getMirror().setMirrorLevel(-4.949f);
-        createMirror(Color.BLACK);
-//        createPlane(Color.BLACK);
+        createMirror(Color.WHITE);
+        renderEngine.setDayAmbientLight(.5f, .5f, .5f, 10f);
+        renderEngine.setNightAmbientLight(.8f, .8f, .8f, 1f);
+//        createPlane(Color.WHITE);
 
 //        createBubble(0.02f, 0.5f);
+//        createTurtles(1f, 1f, -4.949f);
     }
 
     private void createBubble(float minSize, float maxSize) {

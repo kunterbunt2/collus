@@ -1,0 +1,2 @@
+1. logo black instead of white
+2. legacy levels are sometimes not solveable.

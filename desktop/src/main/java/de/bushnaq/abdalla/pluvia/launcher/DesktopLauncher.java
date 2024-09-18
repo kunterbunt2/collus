@@ -20,24 +20,17 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class DesktopLauncher implements ApplicationListener {
+    //private static final int UNIVERSE_GENERATION_RANDOM_SEED = 1;
+    //private static final int UNIVERSE_SIZE                   = 10;
+	DesktopContextFactory	contextFactory	= new DesktopContextFactory();
+    //LaunchMode            launchMode     = LaunchMode.normal;
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public static void main(final String[] args) throws Exception {
 		DesktopLauncher desktopLauncher = new DesktopLauncher();
 		desktopLauncher.start();
 	}
 
-	DesktopContextFactory	contextFactory	= new DesktopContextFactory();
-
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	boolean					useOGL3			= true;
-
-	/**
-	 * called by GameEngine to create Lwjgl3Application
-	 *
-	 * @throws Exception
-	 */
-	public DesktopLauncher() throws Exception {
-	}
 
 	@Override
 	public void create() {
@@ -80,9 +73,6 @@ public class DesktopLauncher implements ApplicationListener {
 		boolean				fullScreenMode	= context.getFullscreenModeProperty();
 		if (fullScreenMode)
 			config.setFullscreenMode(primaryMode);
-//		config.setWindowPosition(0, 0);
-//		config.setWindowedMode(primaryMode.width, primaryMode.height);
-//		config.setMaximized(true);
 		return config;
 	}
 
@@ -90,7 +80,7 @@ public class DesktopLauncher implements ApplicationListener {
 	public void dispose() {
 	}
 
-	private void loop() throws Exception, InterruptedException {
+	private void loop() throws Exception {
 		boolean restart = false;
 		do {
 			if (restart)
@@ -103,12 +93,14 @@ public class DesktopLauncher implements ApplicationListener {
 
 			final GameEngine						gameEngine	= new GameEngine(contextFactory);
 			final Lwjgl3ApplicationConfiguration	config		= createConfig(contextFactory.getContext());
+            //final GameEngine3D gameEngine = new GameEngine3D(contextFactory, universe, launchMode);
+            //universe.create(gameEngine, UNIVERSE_GENERATION_RANDOM_SEED, UNIVERSE_SIZE, 10L * TimeUnit.DAYS_PER_YEAR);
+            //final Lwjgl3ApplicationConfiguration config = createConfig(contextFactory.getContext());
 			try {
 				contextFactory.getContext().restart = false;
 				new Lwjgl3Application(gameEngine, config);
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
-				Thread.sleep(5000);
 			}
 			contextFactory.getContext().dispose();
 			restart = contextFactory.getContext().restart;

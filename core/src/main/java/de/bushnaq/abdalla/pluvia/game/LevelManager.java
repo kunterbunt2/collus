@@ -45,18 +45,18 @@ import java.util.Map;
 public class LevelManager extends Level implements Serializable {
     private static final String                       INVALID_LEVEL_RECORDING_DETECTED = "Invalid Level Recording Detected";
     private static final String                       RESETTING_LEVEL                  = "\n\nResetting level...";
-    private static final long  serialVersionUID = 1L;
-    private final        int   index            = 0;
-    private              Color infoColor;
-    private final RenderEngine3D<GameEngine>   renderEngine;
-    private final List<GameObject<GameEngine>> renderModelInstances = new ArrayList<>();
-    private final Map<String, AbstractScene>   sceneList            = new HashMap<>();
+    private static final long                         serialVersionUID                 = 1L;
+    private final        int                          index                            = 0;
+    private              Color                        infoColor;
+    private final        RenderEngine3D<GameEngine>   renderEngine;
+    private final        List<GameObject<GameEngine>> renderModelInstances             = new ArrayList<>();
+    private final        Map<String, AbstractScene>   sceneList                        = new HashMap<>();
 //	protected Font				TextFont							= new Font("SansSerif", Font.BOLD, 14);
 
     public LevelManager(RenderEngine3D<GameEngine> renderEngine, Game game) {
         super(game);
         this.renderEngine = renderEngine;
-        sceneList.put(GameName.SMALL.name(), new BubblesScene(renderEngine, renderModelInstances));
+        sceneList.put(GameName.LEGACY.name(), new BubblesScene(renderEngine, renderModelInstances));
 //		sceneList.put(GameName.Rabbit.name(), new FireflyScene(renderEngine, renderModelInstances));
 //		sceneList.put(GameName.Turtle.name(), new TurtlesScene(renderEngine, renderModelInstances));
 //		sceneList.put(GameName.Dragon.name(), new NightFishScene(renderEngine, renderModelInstances));
@@ -71,8 +71,13 @@ public class LevelManager extends Level implements Serializable {
         }
     }
 
+    public void createLevel(String levelName) {
+//        sceneList.get(game.name).setLevelName(levelName);
+        super.createLevel(levelName);
+    }
+
     @Override
-    public void createLevelBackground() {
+    public void createLevelBackground(String levelNameString) {
         if (renderEngine != null) {
             float cubeSize = 0.5f;
             float dx       = ((float) xSize) / 2;
@@ -155,7 +160,7 @@ public class LevelManager extends Level implements Serializable {
 //            }
             // logger.info(String.format("count=%d", count));
             renderEngine.removeAllEffects();
-            sceneList.get(game.name).create();
+            sceneList.get(game.name).create(levelNameString);
             infoColor = sceneList.get(game.name).getInfoColor();
             addToEngine();
         }

@@ -6,43 +6,272 @@ filter: Nearest, Nearest
 repeat: none
 Aero-font
   rotate: false
-  xy: 1, 771
+  xy: 2, 830
   size: 1216, 1216
   orig: 1216, 1216
   offset: 0, 0
   index: -1
+check-off
+  rotate: false
+  xy: 774, 620
+  size: 14, 14
+  orig: 14, 14
+  offset: 0, 0
+  index: -1
+textfield
+  rotate: false
+  xy: 774, 620
+  size: 14, 14
+  split: 3, 3, 3, 3
+  orig: 14, 14
+  offset: 0, 0
+  index: -1
+check-on
+  rotate: false
+  xy: 968, 814
+  size: 14, 14
+  orig: 14, 14
+  offset: 0, 0
+  index: -1
+cursor
+  rotate: false
+  xy: 2275, 1655
+  size: 3, 3
+  split: 1, 1, 1, 1
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+default-pane
+  rotate: false
+  xy: 2, 2
+  size: 5, 3
+  split: 1, 1, 1, 1
+  orig: 5, 3
+  offset: 0, 0
+  index: -1
+default-rect-pad
+  rotate: false
+  xy: 2, 2
+  size: 5, 3
+  split: 1, 1, 1, 1
+  orig: 5, 3
+  offset: 0, 0
+  index: -1
+default-pane-noborder
+  rotate: false
+  xy: 390, 227
+  size: 1, 1
+  split: 0, 0, 0, 0
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
+default-rect
+  rotate: false
+  xy: 2462, 1849
+  size: 3, 3
+  split: 1, 1, 1, 1
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+default-rect-down
+  rotate: false
+  xy: 2440, 1827
+  size: 3, 3
+  split: 1, 1, 1, 1
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+default-round
+  rotate: false
+  xy: 580, 420
+  size: 12, 20
+  split: 5, 5, 5, 4
+  pad: 4, 4, 1, 1
+  orig: 12, 20
+  offset: 0, 0
+  index: -1
+default-round-down
+  rotate: false
+  xy: 390, 230
+  size: 12, 20
+  split: 5, 5, 5, 4
+  pad: 4, 4, 1, 1
+  orig: 12, 20
+  offset: 0, 0
+  index: -1
+default-round-large
+  rotate: false
+  xy: 2440, 1832
+  size: 20, 20
+  split: 5, 5, 5, 4
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+default-scroll
+  rotate: false
+  xy: 2634, 2026
+  size: 20, 20
+  split: 2, 2, 2, 2
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+default-select
+  rotate: false
+  xy: 2246, 1638
+  size: 27, 20
+  split: 4, 14, 4, 4
+  orig: 27, 20
+  offset: 0, 0
+  index: -1
+default-select-selection
+  rotate: false
+  xy: 2634, 2021
+  size: 3, 3
+  split: 1, 1, 1, 1
+  orig: 3, 3
+  offset: 0, 0
+  index: -1
+default-slider
+  rotate: false
+  xy: 31, 48
+  size: 8, 8
+  split: 2, 2, 2, 2
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+default-slider-knob
+  rotate: false
+  xy: 2, 7
+  size: 9, 18
+  orig: 9, 18
+  offset: 0, 0
+  index: -1
+default-splitpane
+  rotate: false
+  xy: 9, 2
+  size: 5, 3
+  split: 0, 5, 0, 0
+  orig: 5, 3
+  offset: 0, 0
+  index: -1
+default-splitpane-vertical
+  rotate: false
+  xy: 2246, 1631
+  size: 3, 5
+  split: 0, 0, 0, 5
+  orig: 3, 5
+  offset: 0, 0
+  index: -1
+default-window
+  rotate: false
+  xy: 2, 27
+  size: 27, 29
+  split: 4, 3, 20, 3
+  orig: 27, 29
+  offset: 0, 0
+  index: -1
 logo-font
   rotate: false
-  xy: 1218, 963
+  xy: 1220, 1022
   size: 1024, 1024
   orig: 1024, 1024
   offset: 0, 0
   index: -1
 model-font
   rotate: false
-  xy: 1, 194
+  xy: 2, 252
   size: 576, 576
   orig: 576, 576
   offset: 0, 0
   index: -1
+selection
+  rotate: false
+  xy: 404, 249
+  size: 1, 1
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
 small-font
   rotate: false
-  xy: 1218, 834
+  xy: 1220, 892
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-system
+stone-01
   rotate: false
-  xy: 2243, 1795
+  xy: 2246, 1854
   size: 192, 192
   orig: 192, 192
   offset: 0, 0
   index: -1
-version-font
+stone-02
   rotate: false
-  xy: 1, 1
+  xy: 2, 58
   size: 192, 192
   orig: 192, 192
+  offset: 0, 0
+  index: -1
+stone-03
+  rotate: false
+  xy: 580, 636
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1
+stone-04
+  rotate: false
+  xy: 2246, 1660
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1
+stone-05
+  rotate: false
+  xy: 2440, 1854
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1
+stone-06
+  rotate: false
+  xy: 196, 58
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1
+system
+  rotate: false
+  xy: 580, 442
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1
+tree-minus
+  rotate: false
+  xy: 1220, 876
+  size: 14, 14
+  orig: 14, 14
+  offset: 0, 0
+  index: -1
+tree-plus
+  rotate: false
+  xy: 1350, 1006
+  size: 14, 14
+  orig: 14, 14
+  offset: 0, 0
+  index: -1
+version-font
+  rotate: false
+  xy: 774, 636
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1
+white
+  rotate: false
+  xy: 2656, 2043
+  size: 3, 3
+  orig: 3, 3
   offset: 0, 0
   index: -1

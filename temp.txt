@@ -1,1 +1,0 @@
-java.base,java.desktop,java.logging,java.management,java.naming,jdk.unsupported

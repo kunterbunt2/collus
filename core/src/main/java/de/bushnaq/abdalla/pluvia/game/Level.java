@@ -37,7 +37,9 @@ import org.slf4j.LoggerFactory;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -151,16 +153,16 @@ public abstract class Level {
         cube.set(x, y, z, createStoneAndUpdateScore(x, y, z, type));
     }
 
-    public void createLevel() {
+    public void createLevel(String levelNameString) {
         // if this is a level that already (resumed game) has stones, we do not fill it, and we do not generate stones right at the start
         if (queryHeapHeight() == 0) {
 //            fillLevel();
             generateStones();
         }
-        createLevelBackground();
+        createLevelBackground(levelNameString);
     }
 
-    abstract void createLevelBackground();
+    abstract void createLevelBackground(String levelNameString);
 
     protected abstract Stone createStone(int x, int y, int z, int type);
 
@@ -183,7 +185,7 @@ public abstract class Level {
         for (int z = 0; z < this.zSize; z++) {
             for (int y = this.ySize - 2; y >= preview; y--) {
                 for (int x = 0; x < this.xSize; x++) {
-                    if ((cube.get(x, y, z) != null) && cube.get(x, y, z).isCanDrop() /* && !Patch[x][y].isVanishing() */) {
+                    if (cube.isOccupied(x, y, z) && cube.get(x, y, z).isCanDrop() /* && !Patch[x][y].isVanishing() */) {
                         cube.get(x, y, z).y++;
                         cube.set(x, y + 1, z, cube.get(x, y, z));
                         cube.get(x, y + 1, z).setDropping(true);
@@ -233,6 +235,7 @@ public abstract class Level {
         game.steps++;
     }
 
+
 //	protected String getLastGameName() {
 //		return "save/" + game.getUserName() + "/" + game.getName() + ".xml";
 //	}
@@ -277,6 +280,100 @@ public abstract class Level {
         return userReacted;
     }
 
+    protected void markMagneticConnections() {
+        for (int z = 0; z < this.zSize; z++) {
+            for (int y = preview; y < this.ySize; y++) {
+                for (int x = 0; x < this.xSize; x++) {
+
+                    boolean stickyXNeg = false;
+                    boolean stickyXPos = false;
+                    boolean stickyZPos = false;
+                    boolean stickyZNeg = false;
+                    boolean stickyYPos = false;
+                    boolean stickyYNeg = false;
+                    // int attribute =
+                    // (RcPatch.ATTRIBUTE_DROPPING|RcPatch.ATTRIBUTE_MOVINGLEFT|RcPatch.ATTRIBUTE_MOVINGRIGHT)
+                    // ;
+                    // ---CHECK FOR STICKY STONES
+                    Stone stone = cube.get(x, y, z);
+                    if (stone != null /*&& stone.isMagnetic()*/) {
+//                        if ((x < this.xSize - 1) && (cube.get(x + 1, y, z) != null) && (stone.isMagneticTo(cube.get(x + 1, y, z))))
+                        if (stone.isMagneticTo(cube.get(x + 1, y, z)))
+                            stickyXPos = true;
+//                        if ((x > 0) && (cube.get(x - 1, y, z) != null) && (stone.isMagneticTo(cube.get(x - 1, y, z))))
+                        if (stone.isMagneticTo(cube.get(x - 1, y, z)))
+                            stickyXNeg = true;
+                        if (stone.isMagneticTo(cube.get(x, y, z + 1)))
+                            stickyZPos = true;
+                        if (stone.isMagneticTo(cube.get(x, y, z - 1)))
+                            stickyZNeg = true;
+                        if (stone.isMagneticTo(cube.get(x, y + 1, z)))
+                            stickyYPos = true;
+                        if (stone.isMagneticTo(cube.get(x, y - 1, z)))
+                            stickyYNeg = true;
+
+                        if (stickyXPos && !stone.getXPosAttached()) {
+                            //first time to detect
+                            playSound(AudioManager.STICKY);
+                            stone.setXPosAttached(true);
+                        }
+                        if (!stickyXPos && stone.getXPosAttached()) {
+                            //first time to detect
+                            stone.setXPosAttached(false);
+                        }
+                        if (stickyXNeg && !stone.getXNegAttached()) {
+                            //first time to detect
+                            playSound(AudioManager.STICKY);
+                            stone.setXNegAttached(true);
+                        }
+                        if (!stickyXNeg && stone.getXNegAttached()) {
+                            //first time to detect
+                            stone.setXNegAttached(false);
+                        }
+
+                        if (stickyZPos && !stone.getZPosAttached()) {
+                            //first time to detect
+                            playSound(AudioManager.STICKY);
+                            stone.setZPosAttached(true);
+                        }
+                        if (!stickyZPos && stone.getZPosAttached()) {
+                            //first time to detect
+                            stone.setZPosAttached(false);
+                        }
+                        if (stickyZNeg && !stone.getZNegAttached()) {
+                            //first time to detect
+                            playSound(AudioManager.STICKY);
+                            stone.setZNegAttached(true);
+                        }
+                        if (!stickyZNeg && stone.getZNegAttached()) {
+                            //first time to detect
+                            stone.setZNegAttached(false);
+                        }
+
+                        if (stickyYPos && !stone.getYPosAttached()) {
+                            //first time to detect
+                            playSound(AudioManager.STICKY);
+                            stone.setYPosAttached(true);
+                        }
+                        if (!stickyYPos && stone.getYPosAttached()) {
+                            //first time to detect
+                            stone.setYPosAttached(false);
+                        }
+                        if (stickyYNeg && !stone.getYNegAttached()) {
+                            //first time to detect
+                            playSound(AudioManager.STICKY);
+                            stone.setYNegAttached(true);
+                        }
+                        if (!stickyYNeg && stone.getYNegAttached()) {
+                            //first time to detect
+                            stone.setYNegAttached(false);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public void markMoveLeftOption() {
         // ---Stones of same type on top of each other should vanish
 //		clearTemporaryAttributes();
@@ -313,51 +410,6 @@ public abstract class Level {
         } while (changedOnce.getBooleanValue());
     }
 
-    protected void markStickyPatches() {
-        for (int z = 0; z < this.zSize; z++) {
-            for (int y = preview; y < this.ySize; y++) {
-                for (int x = 0; x < this.xSize; x++) {
-
-                    boolean stickyLeft  = false;
-                    boolean stickyRight = false;
-                    // int attribute =
-                    // (RcPatch.ATTRIBUTE_DROPPING|RcPatch.ATTRIBUTE_MOVINGLEFT|RcPatch.ATTRIBUTE_MOVINGRIGHT)
-                    // ;
-                    // ---CHECK FOR STICKY STONES
-                    Stone stone = cube.get(x, y, z);
-                    if (stone != null) {
-                        if ((x < this.xSize - 1) && (cube.get(x + 1, y, z) != null) && (stone.getType() == cube.get(x + 1, y, z).getType()))
-//						if ((Patch[x][y].isDropping() == Patch[x + 1][y].isDropping())
-//								&& (Patch[x][y].isMovingRight() == Patch[x + 1][y].isMovingRight())
-//								&& (Patch[x][y].isMovingLeft() == Patch[x + 1][y].isMovingLeft()))
-                            stickyRight = true;
-                        if ((x > 0) && (cube.get(x - 1, y, z) != null) && (stone.getType() == cube.get(x - 1, y, z).getType()))
-//						if ((Patch[x][y].isDropping() == Patch[x - 1][y].isDropping())
-//								&& (Patch[x][y].isMovingRight() == Patch[x - 1][y].isMovingRight())
-//								&& (Patch[x][y].isMovingLeft() == Patch[x - 1][y].isMovingLeft()))
-                            stickyLeft = true;
-                        if (stickyRight && !stone.isRightAttached()) {
-                            playSound(AudioManager.STICKY);
-//						Tools.play(AtlasManager.getAssetsFolderName() + "/sound/sticky.wav");
-                            stone.setRightAttached(true);
-                        }
-                        if (!stickyRight && stone.isRightAttached()) {
-                            stone.setRightAttached(false);
-                        }
-                        if (stickyLeft && !stone.isLeftAttached()) {
-                            playSound(AudioManager.STICKY);
-//						Tools.play(AtlasManager.getAssetsFolderName() + "/sound/sticky.wav");
-                            stone.setLeftAttached(true);
-                        }
-                        if (!stickyLeft && stone.isLeftAttached()) {
-                            stone.setLeftAttached(false);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     protected void markStoneDroppingOption(RcBoolean aThereWasAChange, int x, int y, int z) {
         // ---CHECK IF WE CANNOT DROP
         boolean cannotDrop = false;
@@ -368,15 +420,23 @@ public abstract class Level {
             // ---WE ARE At THE BOTTOM
         else if (y == this.ySize - 1) cannotDrop = true;
 
+        else if (stone.isCannotDrop()) cannotDrop = true;
+
             // ---THERE IS A STONE UNDER US THAT CANNOT DROP
-        else if ((cube.get(x, y + 1, z) != null) && cube.get(x, y + 1, z).isCannotDrop()) cannotDrop = true;
-
+//        else if (cube.isOccupied(x, y + 1, z) && cube.get(x, y + 1, z).isCannotDrop()) cannotDrop = true;
+        else if (cube.getDropOptions(x, y + 1, z) == StoneOption.cannotDrop) cannotDrop = true;
             // ---THERE IS A STICKY STONE LEFT FROM US THAT CANNOT DROP
-        else if ((x != 0) && (cube.get(x - 1, y, z) != null) && (stone.getType() == cube.get(x - 1, y, z).getType()) && cube.get(x - 1, y, z).isCannotDrop()) cannotDrop = true;
-
+        else if ((x != 0) && cube.isOccupied(x - 1, y, z) && stone.isMagneticTo(cube.get(x - 1, y, z)) && cube.get(x - 1, y, z).isCannotDrop()) cannotDrop = true;
             // ---THERE IS A STICKY STONE RIGHT FROM US THAT CANNOT DROP
-        else if ((x != this.xSize - 1) && (cube.get(x + 1, y, z) != null) && (stone.getType() == cube.get(x + 1, y, z).getType()) && cube.get(x + 1, y, z).isCannotDrop()) cannotDrop = true;
+        else if ((x != this.xSize - 1) && cube.isOccupied(x + 1, y, z) && stone.isMagneticTo(cube.get(x + 1, y, z)) && cube.get(x + 1, y, z).isCannotDrop()) cannotDrop = true;
+
+        else if ((z != 0) && cube.isOccupied(x, y, z - 1) && stone.isMagneticTo(cube.get(x, y, z - 1)) && cube.get(x, y, z - 1).isCannotDrop()) cannotDrop = true;
+        else if ((z != this.zSize - 1) && cube.isOccupied(x, y, z + 1) && stone.isMagneticTo(cube.get(x, y, z + 1)) && cube.get(x, y, z + 1).isCannotDrop()) cannotDrop = true;
+        else if ((y != 0) && cube.isOccupied(x, y - 1, z) && stone.isMagneticTo(cube.get(x, y - 1, z)) && cube.get(x, y - 1, z).isCannotDrop()) cannotDrop = true;
+        else if ((y != this.ySize - 1) && cube.isOccupied(x, y + 1, z) && stone.isMagneticTo(cube.get(x, y + 1, z)) && cube.get(x, y + 1, z).isCannotDrop()) cannotDrop = true;
+
         if (cannotDrop && !stone.isCannotDrop()) {
+//            logger.info("a");
             aThereWasAChange.setTrue();
             stone.setCannotDrop(true);
             droppingStones.remove(stone);
@@ -385,23 +445,25 @@ public abstract class Level {
             }
         }
         if (!cannotDrop && stone.isCannotDrop()) {
+//            logger.info("b");
             aThereWasAChange.setTrue();
             stone.setCannotDrop(false);
         }
         // ---CHECK IF WE CAN DROP
         if (!cannotDrop) {
             // ---THERE IS SPACE FOR DROPPING OR A DROPPING STONE UNDER US
-            if ((y != this.ySize - 1) && ((cube.get(x, y + 1, z) == null) || cube.get(x, y + 1, z).isCanDrop())) {
+            if ((y != this.ySize - 1) && (!cube.isOccupied(x, y + 1, z) || cube.get(x, y + 1, z).isCanDrop())) {
                 // ---THERE IS NO STICKY STONE LEFT FROM US OR IT CAN DROP TOO
-                if ((x == 0) || (cube.get(x - 1, y, z) == null) || (stone.getType() != cube.get(x - 1, y, z).getType()) || !cube.get(x - 1, y, z).isCannotDrop()) {
+                if ((x == 0) || !cube.isOccupied(x - 1, y, z) || (stone.getType() != cube.get(x - 1, y, z).getType()) || !cube.get(x - 1, y, z).isCannotDrop()) {
                     // ---THERE IS NO STICKY STONE RIGHT FROM US OR IT CAN DROP TOO
-                    if ((x == this.xSize - 1) || (cube.get(x + 1, y, z) == null) || (stone.getType() != cube.get(x + 1, y, z).getType()) || !cube.get(x + 1, y, z).isCannotDrop()) {
+                    if ((x == this.xSize - 1) || !cube.isOccupied(x + 1, y, z) || !stone.isMagneticTo(cube.get(x + 1, y, z)) || !cube.get(x + 1, y, z).isCannotDrop()) {
 //						if (x == 1 && y == 5)
 //							logger.info(String.format("1=%b 2=%b 3=%b", (x == width - 1) || (patch[x + 1][y] == null), (patch[x + 1][y] != null) && (patch[x][y].getType() != patch[x + 1][y].getType()),(patch[x + 1][y] != null) && !patch[x + 1][y].isCannotDrop()));
                         if (!stone.isCanDrop()) {
                             stone.setCanDrop(true);
                             droppingStones.add(stone);
                             aThereWasAChange.setTrue();
+//                            logger.info("c");
                         } else {
                             droppingStones.add(stone);
                         }
@@ -409,6 +471,8 @@ public abstract class Level {
                 } else logger.error("2");
             } else logger.error("1");
         }
+//        if (aThereWasAChange.getBooleanValue())
+//            logger.info("there was a change");
     }
 
     protected void markStoneMoveLeftOption(RcBoolean aThereWasAChange, int x, int y, int z) {
@@ -524,13 +588,15 @@ public abstract class Level {
 
     protected boolean markVanishingOption(RcBoolean aThereWasAChange, int x, int y, int z) {
         boolean vanish = false;
+        Stone   stone  = cube.get(x, y, z);
+//        if ((y != this.ySize - 1) && (cube.get(x, y + 1, z) != null))
+
         // ---The patch below us might be the same
-        Stone stone = cube.get(x, y, z);
-        if ((y != this.ySize - 1) && (cube.get(x, y + 1, z) != null))
-            if (stone.getType() == cube.get(x, y + 1, z).getType()) vanish = true;
+        if (stone.isVanishingWith(cube.get(x, y + 1, z))) vanish = true;
         // ---The patch above us might be the same
-        if ((y != preview) && (cube.get(x, y - 1, z) != null))
-            if (stone.getType() == cube.get(x, y - 1, z).getType()) vanish = true;
+//        if ((y != preview) && (cube.get(x, y - 1, z) != null))
+//            if (stone.getType() == cube.get(x, y - 1, z).getType()) vanish = true;
+        if (stone.isVanishingWith(cube.get(x, y - 1, z))) vanish = true;
         if (vanish && !stone.isVanishing()) {
             aThereWasAChange.setTrue();
             stone.setisVanishing(true);
@@ -605,7 +671,7 @@ public abstract class Level {
     }
 
     protected boolean queryTilt() {
-        return game.queryTilt(cube);
+        return game.isCanBeWon() && game.queryTilt(cube);
     }
 
     protected boolean queryWin() {
@@ -658,7 +724,9 @@ public abstract class Level {
         return false;
     }
 
-    public boolean readFromDisk() {
+    public boolean readFromDisk(int levelNumber) {
+        int[] fileNumber = new int[]{7, 7, 29, 8, 4, 42, 43, 11, 44, 45, 46, 23, 17, 18, 19, 25};
+
         // only if this is a real game type and not the UI type
         if (!game.name.equals(GameName.UI.name())) {
             try {
@@ -668,7 +736,7 @@ public abstract class Level {
 //                    recording = mapper.readValue(recordingFile, getRecording().getClass());
 //                    update(getRecording().getGdo());
 //                }
-                readLegacy();
+                readLegacy(fileNumber[levelNumber % fileNumber.length]);
                 return true;
             } catch (IOException e) {
                 logger.info(e.getMessage(), e);
@@ -677,25 +745,41 @@ public abstract class Level {
         return false;
     }
 
-    private void readLegacy() throws IOException {
+    private void readLegacy(int levelNumber) throws IOException {
         //C array[z][y][x] is stored as
         // [0][0][0],[0][0][1],[0][0][2],[0][1][0],[0][1][1],[0][1][2]
         // [1][0][0],[1][0][1],[1][0][2],[1][1][0],[1][1][1],[1][1][2]
         // [2][0][0],[2][0][1],[2][0][2],[2][1][0],[2][1][1],[2][1][2]
         //        int level = 2;
-        try (FileInputStream fis = new FileInputStream("level/level005.lvl");
+        Map<Integer, Integer> statistics = new HashMap<>();
+        try (FileInputStream fis = new FileInputStream(String.format("level/level%03d.lvl", levelNumber));
              DataInputStream dis = new DataInputStream(fis)) {
-            for (int z = 0; z < this.zSize; z++) {
+            for (int z = this.zSize - 1; z > 0; z--) {
                 for (int y = 0; y < this.ySize; y++) {
                     for (int x = 0; x < this.xSize; x++) {
-                        int stoneType = dis.readByte();
+                        int a         = dis.readByte();
+                        int b         = dis.readByte();
+                        int stoneType = a + (b << 8);
                         if (stoneType != 0) {
-                            cube.set(y, z, x, createStoneAndUpdateScore(y, z, x, stoneType - 1));
+                            cube.set(y, z, x, createStoneAndUpdateScore(y, z, x, stoneType));
+                            Integer count = statistics.get(stoneType);
+                            if (count == null) {
+                                count = 0;
+                            }
+                            count++;
+                            statistics.put(stoneType, count);
                         }
                     }
                 }
             }
         }
+        logger.info("###########");
+        logger.info(String.format("%4s %5s", "type", "Count"));
+        for (Integer type : statistics.keySet()) {
+            logger.info(String.format("%4d %5d", type, statistics.get(type)));
+        }
+        logger.info("###########");
+
     }
 
     protected abstract void removeStone(Stone stone);
@@ -738,6 +822,20 @@ public abstract class Level {
         setUserReacted(true);
     }
 
+    public void rotateCubeMinusY() {
+        Cube buffer = new Cube(xSize, ySize, zSize);
+        for (int z = 0; z < zSize; z++) {
+            for (int y = 0; y < ySize; y++) {
+                for (int x = 0; x < xSize; x++) {
+                    Stone stone = cube.get(x, y, z);
+                    buffer.set(xSize - 1 - z, y, x, stone);
+                }
+            }
+        }
+        cube.set(buffer);
+        setUserReacted(true);
+    }
+
     public void rotateCubeMinusZ() {
         Cube buffer = new Cube(xSize, ySize, zSize);
         for (int z = 0; z < zSize; z++) {
@@ -759,6 +857,20 @@ public abstract class Level {
                 for (int x = 0; x < xSize; x++) {
                     Stone stone = cube.get(x, y, z);
                     buffer.set(x, z, zSize - 1 - y, stone);
+                }
+            }
+        }
+        cube.set(buffer);
+        setUserReacted(true);
+    }
+
+    public void rotateCubePlusY() {
+        Cube buffer = new Cube(xSize, ySize, zSize);
+        for (int z = 0; z < zSize; z++) {
+            for (int y = 0; y < ySize; y++) {
+                for (int x = 0; x < xSize; x++) {
+                    Stone stone = cube.get(x, y, z);
+                    buffer.set(z, y, zSize - 1 - x, stone);
                 }
             }
         }
@@ -812,7 +924,7 @@ public abstract class Level {
             for (int z = 0; z < this.zSize; z++) {
                 for (int y = this.ySize - 1; y >= preview; y--) {
                     for (int x = 0; x < this.xSize; x++) {
-                        if (cube.get(x, y, z) != null) {
+                        if (cube.isOccupied(x, y, z)) {
                             markStoneDroppingOption(changedOnce, x, y, z);
                             markStoneMoveLeftOption(changedOnce, x, y, z);
                             markStoneMoveRightOption(changedOnce, x, y, z);
@@ -834,7 +946,7 @@ public abstract class Level {
 //			Tools.play(AtlasManager.getAssetsFolderName() + "/sound/vanish.wav");
             return GamePhase.vanishing;
         }
-        markStickyPatches();
+        markMagneticConnections();
         testIntegrity();
         if (!droppingStones.isEmpty()) return GamePhase.dropping;
         if (!pushingLeftStones.isEmpty()) return GamePhase.pushingLeft;

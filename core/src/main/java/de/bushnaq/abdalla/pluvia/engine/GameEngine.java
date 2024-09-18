@@ -47,7 +47,6 @@ import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
-import net.mgsx.gltf.scene3d.scene.SceneSkybox;
 import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,10 +60,11 @@ import java.util.List;
  * @author kunterbunt
  */
 public class GameEngine implements ScreenListener, ApplicationListener, InputProcessor, RenderEngineExtension {
-    public static final  int                        FONT_SIZE        = 9;
-    private static final float                      SCROLL_SPEED     = 0.2f;
-    private static final int                        TOUCH_DELTA_X    = 1;
-    private static final int                        TOUCH_DELTA_Y    = 1;
+    private static final float                      CUBE_ROTATION_SPEED = 200f;
+    public static final  int                        FONT_SIZE           = 9;
+    private static final float                      SCROLL_SPEED        = 0.2f;
+    private static final int                        TOUCH_DELTA_X       = 1;
+    private static final int                        TOUCH_DELTA_Y       = 1;
     private              AboutDialog                aboutDialog;
     private              AtlasManager               atlasManager;
     private              AudioManager               audioManager;
@@ -76,34 +76,41 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     private              float                      centerZD;
     public               Context                    context;
     private final        IContextFactory            contextFactory;
-    private final        GameObject<GameEngine>     cube             = null;
-    private              StonePlane                 cubeXPlane;
-    private              Vector3                    cubeXPlaneTranslation;    // intermediate value
-    private              StonePlane                 cubeYPlane;
-    private              Vector3                    cubeYPlaneTranslation;    // intermediate value
-    private              StonePlane                 cubeZPlane;
-    private              Vector3                    cubeZPlaneTranslation;    // intermediate value
+    private final        GameObject<GameEngine>     cube                = null;
+    private              StonePlane                 cubeXNegPlane;
+    private              Vector3                    cubeXNegPlaneTranslation;    // intermediate value
+    private              StonePlane                 cubeXPosPlane;
+    private              Vector3                    cubeXPosPlaneTranslation;    // intermediate value
+    private              StonePlane                 cubeYNegPlane;
+    private              Vector3                    cubeYNegPlaneTranslation;    // intermediate value
+    private              StonePlane                 cubeYPosPlane;
+    private              Vector3                    cubeYPosPlaneTranslation;    // intermediate value
+    private              StonePlane                 cubeZNegPlane;
+    private              Vector3                    cubeZNegPlaneTranslation;    // intermediate value
+    private              StonePlane                 cubeZPosPlane;
+    private              Vector3                    cubeZPosPlaneTranslation;    // intermediate value
     private              Cubemap                    diffuseCubemap;
-    private final        boolean                    enableProfiling  = true;
+    private final        boolean                    enableProfiling     = true;
     private              Cubemap                    environmentDayCubemap;
     private              Cubemap                    environmentNightCubemap;
     private              InfoDialog                 info;
-    private final        InputMultiplexer           inputMultiplexer = new InputMultiplexer();
-    private              boolean                    isUpdateContext;
-    private final        List<VisLabel>             labels           = new ArrayList<>();
-    private final        Logger                     logger           = LoggerFactory.getLogger(this.getClass());
+    private final        InputMultiplexer           inputMultiplexer    = new InputMultiplexer();
+    //    private              boolean                    isUpdateContext;
+    private final        List<VisLabel>             labels              = new ArrayList<>();
+    private final        Logger                     logger              = LoggerFactory.getLogger(this.getClass());
     private              MainDialog                 mainDialog;
     private              MessageDialog              messageDialog;
-    private final        Meter<GameEngine>          meter            = null;
+    private final        Meter<GameEngine>          meter               = null;
     public               ModelManager               modelManager;
     private              OptionsDialog              optionsDialog;
     private              PauseDialog                pauseDialog;
     private              GLProfiler                 profiler;
     public               RenderEngine3D<GameEngine> renderEngine;
-    private final        float                      rotateAngle      = 2f;
-    private              Rotate                     rotateCube       = Rotate.NONE;
-    private              float                      rotateCubeXAngle = 0;
-    private              int                        rotateCubeZAngle;
+    private final        float                      rotateAngle         = 2f;
+    private              Rotate                     rotateCube          = Rotate.NONE;
+    private              float                      rotateCubeXAngle    = 0;
+    private              float                      rotateCubeYAngle    = 0;
+    private              float                      rotateCubeZAngle    = 0;
     private              ScoreDialog                scoreDialog;
     private              boolean                    showFps;
     private              Cubemap                    specularCubemap;
@@ -150,8 +157,11 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             renderEngine.setSceneBoxMin(new Vector3(-20, -50, -30));
             renderEngine.setSceneBoxMax(new Vector3(20, 20, 2));
             renderEngine.getDepthOfFieldEffect().setFocalDepth(10f);
+            renderEngine.setShadowEnabled(false);
+            renderEngine.setDayAmbientLight(.8f, .8f, .8f, 1f);
+            renderEngine.setNightAmbientLight(.8f, .8f, .8f, 1f);
             createEnvironment();
-            modelManager.create(renderEngine.isPbr());
+            modelManager.create(atlasManager, renderEngine.isPbr());
             audioManager = new AudioManager(context);
             createStage();
             context.readScoreFromDisk(this);
@@ -184,34 +194,61 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     private void createCube() {
         {
 //        cubeYPlane = new StonePlane(context.game.getxSize(), context.game.getzSize());
-            cubeYPlane            = new StonePlane(7, 7);
-            cubeYPlaneTranslation = new Vector3(0, -3.5f - .1f, 0);
+            cubeYNegPlane            = new StonePlane(7, 7);
+            cubeYNegPlaneTranslation = new Vector3(0, -3.5f - .1f, 0);
             for (int x = 0; x < 7; x++) {
                 for (int z = 0; z < 7; z++) {
                     GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
 //                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, .9f, .01f, .9f);
                     go.update();
                     renderEngine.addDynamic(go);
-                    cubeYPlane.set(x, z, go);
+                    cubeYNegPlane.set(x, z, go);
                 }
             }
         }
         {
-            cubeZPlane            = new StonePlane(7, 7);
-            cubeZPlaneTranslation = new Vector3(0, 0, -3.5f - .1f);
+//        cubeYPlane = new StonePlane(context.game.getxSize(), context.game.getzSize());
+            cubeYPosPlane            = new StonePlane(7, 7);
+            cubeYPosPlaneTranslation = new Vector3(0, 3.5f + .1f, 0);
+            for (int x = 0; x < 7; x++) {
+                for (int z = 0; z < 7; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, .9f, .01f, .9f);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeYPosPlane.set(x, z, go);
+                }
+            }
+        }
+        {
+            cubeZNegPlane            = new StonePlane(7, 7);
+            cubeZNegPlaneTranslation = new Vector3(0, 0, -3.5f - .1f);
             for (int x = 0; x < 7; x++) {
                 for (int z = 0; z < 7; z++) {
                     GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
 //                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, 7, 7, .01f);
                     go.update();
                     renderEngine.addDynamic(go);
-                    cubeZPlane.set(x, z, go);
+                    cubeZNegPlane.set(x, z, go);
                 }
             }
         }
         {
-            cubeXPlane            = new StonePlane(7, 7);
-            cubeXPlaneTranslation = new Vector3(-3.5f - .1f, 0, 0);
+            cubeZPosPlane            = new StonePlane(7, 7);
+            cubeZPosPlaneTranslation = new Vector3(0, 0, 3.5f + .1f);
+            for (int x = 0; x < 7; x++) {
+                for (int z = 0; z < 7; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, 7, 7, .01f);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeZPosPlane.set(x, z, go);
+                }
+            }
+        }
+        {
+            cubeXNegPlane            = new StonePlane(7, 7);
+            cubeXNegPlaneTranslation = new Vector3(-3.5f - .1f, 0, 0);
 //            cubeXPlane            = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
             for (int y = 0; y < 7; y++) {
                 for (int z = 0; z < 7; z++) {
@@ -219,7 +256,21 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 //                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, .01f, 7, 7);
                     go.update();
                     renderEngine.addDynamic(go);
-                    cubeXPlane.set(y, z, go);
+                    cubeXNegPlane.set(y, z, go);
+                }
+            }
+        }
+        {
+            cubeXPosPlane            = new StonePlane(7, 7);
+            cubeXPosPlaneTranslation = new Vector3(3.5f + .1f, 0, 0);
+//            cubeXPlane            = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+            for (int y = 0; y < 7; y++) {
+                for (int z = 0; z < 7; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, .01f, 7, 7);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeXPosPlane.set(y, z, go);
                 }
             }
         }
@@ -232,8 +283,8 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             setupImageBasedLightingByFaceNames("clouds", "jpg", "jpg", "jpg", 10);
 //			setupImageBasedLightingByFaceNames("moonless_golf_2k", "jpg", "jpg", "jpg", 10);
             // setup skybox
-            renderEngine.setDaySkyBox(new SceneSkybox(environmentDayCubemap));
-            renderEngine.setNightSkyBox(new SceneSkybox(environmentNightCubemap));
+//            renderEngine.setDaySkyBox(new SceneSkybox(environmentDayCubemap));
+//            renderEngine.setNightSkyBox(new SceneSkybox(environmentNightCubemap));
             renderEngine.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
             renderEngine.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
             renderEngine.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
@@ -359,6 +410,10 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         return camController;
     }
 
+    public InputMultiplexer getInputMultiplexer() {
+        return inputMultiplexer;
+    }
+
 //	private void exit() {
 //		Gdx.app.exit();
 //	}
@@ -372,17 +427,13 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 //		printWriter.close();
 //	}
 
-    public InputMultiplexer getInputMultiplexer() {
-        return inputMultiplexer;
+    public MainDialog getMainDialog() {
+        return mainDialog;
     }
 
 //    public int getMaxFramesPerSecond() {
 //        return maxFramesPerSecond;
 //    }
-
-    public MainDialog getMainDialog() {
-        return mainDialog;
-    }
 
     public MessageDialog getMessageDialog() {
         return messageDialog;
@@ -396,7 +447,11 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         return rotateCubeXAngle;
     }
 
-    public int getRotateCubeZAngle() {
+    public float getRotateCubeYAngle() {
+        return rotateCubeYAngle;
+    }
+
+    public float getRotateCubeZAngle() {
         return rotateCubeZAngle;
     }
 
@@ -411,37 +466,37 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     @Override
     public boolean keyDown(final int keycode) {
         switch (keycode) {
+            case Input.Keys.E:
+//                if (context.isDebugMode()) {
+//                    centerYD = -SCROLL_SPEED;
+//                }
+                viewAngleSpeed = rotateAngle;
+                return true;
+            case Input.Keys.Q:
+//                if (context.isDebugMode()) {
+//                    centerYD = SCROLL_SPEED;
+//                }
+                viewAngleSpeed = -rotateAngle;
+                return true;
             case Input.Keys.A:
-                if (context.isDebugMode()) {
+                if (renderEngine.isDebugMode()) {
                     centerXD = -SCROLL_SPEED;
                 }
-                viewAngleSpeed = -rotateAngle;
 
                 return true;
             case Input.Keys.D:
-                if (context.isDebugMode()) {
+                if (renderEngine.isDebugMode()) {
                     centerXD = SCROLL_SPEED;
                 }
-                viewAngleSpeed = rotateAngle;
                 return true;
             case Input.Keys.W:
-                if (context.isDebugMode()) {
+                if (renderEngine.isDebugMode()) {
                     centerZD = -SCROLL_SPEED;
                 }
                 return true;
             case Input.Keys.S:
-                if (context.isDebugMode()) {
+                if (renderEngine.isDebugMode()) {
                     centerZD = SCROLL_SPEED;
-                }
-                return true;
-            case Input.Keys.E:
-                if (context.isDebugMode()) {
-                    centerYD = -SCROLL_SPEED;
-                }
-                return true;
-            case Input.Keys.Q:
-                if (context.isDebugMode()) {
-                    centerYD = SCROLL_SPEED;
                 }
                 return true;
 
@@ -453,23 +508,50 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                 togglePause();
                 return true;
             case Input.Keys.PRINT_SCREEN:
-                if (context.isDebugMode()) {
+                if (renderEngine.isDebugMode()) {
                     queueScreenshot();
                 }
                 return true;
 
             case Input.Keys.LEFT:
+//            case Input.Keys.A:
                 rotateCube = Rotate.PLUS_X;
                 return true;
             case Input.Keys.RIGHT:
+//            case Input.Keys.D:
                 rotateCube = Rotate.MINUS_X;
                 return true;
             case Input.Keys.UP:
+//            case Input.Keys.W:
                 rotateCube = Rotate.PLUS_Z;
                 return true;
             case Input.Keys.DOWN:
+//            case Input.Keys.S:
                 rotateCube = Rotate.MINUS_Z;
                 return true;
+            case Input.Keys.NUM_6:
+                rotateCube = Rotate.PLUS_Y;
+                return true;
+            case Input.Keys.NUM_4:
+                rotateCube = Rotate.MINUS_Y;
+                return true;
+
+            case Input.Keys.PAGE_UP:
+                if (context.getLevelNumber() > 0) {
+                    context.setLevelNumber(context.getLevelNumber() - 1);
+                    context.levelManager.disposeLevel();
+                    if (context.levelManager.readFromDisk(context.getLevelNumber())) {
+                        context.levelManager.createLevel(String.format("level %03d", context.getLevelNumber()));
+                    }
+                }
+                break;
+            case Input.Keys.PAGE_DOWN:
+                context.setLevelNumber(context.getLevelNumber() + 1);
+                context.levelManager.disposeLevel();
+                if (context.levelManager.readFromDisk(context.getLevelNumber())) {
+                    context.levelManager.createLevel(String.format("level %03d", context.getLevelNumber()));
+                }
+                break;
 
             case Input.Keys.F1:
                 renderEngine.setGammaCorrected(!renderEngine.isGammaCorrected());
@@ -527,22 +609,16 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     @Override
     public boolean keyUp(final int keycode) {
         switch (keycode) {
-            case Input.Keys.A:
-            case Input.Keys.D:
-            case Input.Keys.LEFT:
-            case Input.Keys.RIGHT:
-                centerXD = 0;
+            case Input.Keys.Q:
+            case Input.Keys.E:
+//                centerXD = 0;
                 viewAngleSpeed = 0f;
                 return true;
             case Input.Keys.W:
             case Input.Keys.S:
             case Input.Keys.UP:
             case Input.Keys.DOWN:
-                centerZD = 0;
-                return true;
-            case Input.Keys.Q:
-            case Input.Keys.E:
-                centerYD = 0;
+//                centerZD = 0;
                 return true;
         }
         return false;
@@ -565,39 +641,6 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 
     @Override
     public void render() {
-        switch (rotateCube) {
-            case NONE:
-                break;
-            case PLUS_X:
-                if (rotateCubeXAngle > 90) {
-                    rotateCube = Rotate.NONE;
-                    context.levelManager.rotateCubePlusX();
-                    rotateCubeXAngle = 0;
-                } else rotateCubeXAngle += 1;
-                break;
-            case MINUS_X:
-                if (rotateCubeXAngle < -90) {
-                    rotateCube = Rotate.NONE;
-                    context.levelManager.rotateCubeMinusX();
-                    rotateCubeXAngle = 0;
-                } else rotateCubeXAngle -= 1;
-
-                break;
-            case PLUS_Z:
-                if (rotateCubeZAngle > 90) {
-                    rotateCube = Rotate.NONE;
-                    context.levelManager.rotateCubePlusZ();
-                    rotateCubeZAngle = 0;
-                } else rotateCubeZAngle += 1;
-                break;
-            case MINUS_Z:
-                if (rotateCubeZAngle < -90) {
-                    rotateCube = Rotate.NONE;
-                    context.levelManager.rotateCubeMinusZ();
-                    rotateCubeZAngle = 0;
-                } else rotateCubeZAngle -= 1;
-                break;
-        }
 //		int error1 = Gdx.gl.glGetError();
 //		if (error1 != 0)
 //			logger.error("glGetError=" + error1);
@@ -627,13 +670,74 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     private void render(final long currentTime) throws Exception {
         final float deltaTime = Gdx.graphics.getDeltaTime();
 
-        if (isUpdateContext) {
-            isUpdateContext = false;
-            dispose();
-            create();
+        switch (rotateCube) {
+            case NONE:
+                break;
+            case PLUS_X:
+                if (rotateCubeXAngle > 90) {
+                    rotateCube = Rotate.NONE;
+                    context.levelManager.rotateCubePlusX();
+                    rotateCubeXAngle = 0;
+                } else rotateCubeXAngle += deltaTime * CUBE_ROTATION_SPEED;
+                break;
+            case MINUS_X:
+                if (rotateCubeXAngle < -90) {
+                    rotateCube = Rotate.NONE;
+                    context.levelManager.rotateCubeMinusX();
+                    rotateCubeXAngle = 0;
+                } else rotateCubeXAngle -= deltaTime * CUBE_ROTATION_SPEED;
+
+                break;
+            case PLUS_Z:
+                if (rotateCubeZAngle > 90) {
+                    rotateCube = Rotate.NONE;
+                    context.levelManager.rotateCubePlusZ();
+                    rotateCubeZAngle = 0;
+                } else rotateCubeZAngle += deltaTime * CUBE_ROTATION_SPEED;
+                break;
+            case MINUS_Z:
+                if (rotateCubeZAngle < -90) {
+                    rotateCube = Rotate.NONE;
+                    context.levelManager.rotateCubeMinusZ();
+                    rotateCubeZAngle = 0;
+                } else rotateCubeZAngle -= deltaTime * CUBE_ROTATION_SPEED;
+                break;
+            case PLUS_Y:
+                if (rotateCubeYAngle > 90) {
+                    rotateCube = Rotate.NONE;
+                    context.levelManager.rotateCubePlusY();
+                    rotateCubeYAngle = 0;
+                } else rotateCubeYAngle += deltaTime * CUBE_ROTATION_SPEED;
+                break;
+            case MINUS_Y:
+                if (rotateCubeYAngle < -90) {
+                    rotateCube = Rotate.NONE;
+                    context.levelManager.rotateCubeMinusY();
+                    rotateCubeYAngle = 0;
+                } else rotateCubeYAngle -= deltaTime * CUBE_ROTATION_SPEED;
+
+                break;
         }
+//        if (isUpdateContext) {
+//            isUpdateContext = false;
+//            dispose();
+//            create();
+//        }
         viewAngle += viewAngleSpeed;
-        renderEngine.updateCamera(centerXD, centerYD, centerZD);
+//        renderEngine.updateCamera(centerXD, centerYD, centerZD);
+        if (centerXD != 0f || centerYD != 0f || centerZD != 0f) {
+
+            Vector3 lookAt = camera.lookat.cpy();
+//            Vector3 position = camera.position.cpy();
+            lookAt.add(centerXD, centerYD, centerZD);
+//            position.add(centerXD, centerYD, centerZD);
+            camera.translate(centerXD, centerYD, centerZD);
+            camera.lookAt(lookAt);
+            camera.update();
+            centerXD = 0;
+            centerYD = 0;
+            centerZD = 0;
+        }
         updateScore();
         renderCube(currentTime);
         renderStones(currentTime);
@@ -682,91 +786,154 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     private void renderCube(final long currentTime) {
         float scale = .9f;
         if (context.game.getySize() != 0) {
-            if (cubeYPlane != null) {
+            if (cubeYNegPlane != null) {
                 for (int x = 0; x < context.game.getxSize(); x++) {
                     for (int z = 0; z < context.game.getzSize(); z++) {
-                        GameObject<GameEngine> go = cubeYPlane.get(x, z);
-                        go.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
-                        go.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
-                        go.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
-                        translationBuffer.set(cubeYPlaneTranslation);
-                        translationBuffer.x += x - 3f;
-                        translationBuffer.z += z - 3f;
-                        go.instance.transform.translate(translationBuffer);
-                        go.instance.transform.scale(scale, 0.1f, scale);
+                        {
+                            GameObject<GameEngine> go = cubeYNegPlane.get(x, z);
+                            go.instance.transform.setToRotation(Vector3.Y, getViewAngle() + getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, getRotateCubeZAngle());
+                            translationBuffer.set(cubeYNegPlaneTranslation);
+                            translationBuffer.x += x - 3f;
+                            translationBuffer.z += z - 3f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(scale, 0.1f, scale);
 //                        go.instance.transform.rotate(Vector3.Z, -90);
-                        go.update();
+                            go.update();
+                        }
+                        {
+                            GameObject<GameEngine> go = cubeYPosPlane.get(x, z);
+                            go.instance.transform.setToRotation(Vector3.Y, getViewAngle() + getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, getRotateCubeZAngle());
+                            translationBuffer.set(cubeYPosPlaneTranslation);
+                            translationBuffer.x += x - 3f;
+                            translationBuffer.z += z - 3f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(scale, 0.1f, scale);
+                            go.instance.transform.rotate(Vector3.Z, 180);
+                            go.update();
+                        }
                     }
                 }
             }
 
-            if (cubeZPlane != null) {
+            if (cubeZNegPlane != null) {
                 for (int x = 0; x < context.game.getxSize(); x++) {
                     for (int y = 0; y < context.game.getySize(); y++) {
-                        GameObject<GameEngine> go = cubeZPlane.get(x, y);
-                        go.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
-                        go.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
-                        go.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
-                        translationBuffer.set(cubeZPlaneTranslation);
-                        translationBuffer.x += x - 3f;
-                        translationBuffer.y += y - 3f;
-                        go.instance.transform.translate(translationBuffer);
-                        go.instance.transform.scale(scale, scale, 0.1f);
-                        go.instance.transform.rotate(Vector3.X, 90);
-                        go.update();
+                        {
+                            GameObject<GameEngine> go = cubeZNegPlane.get(x, y);
+                            go.instance.transform.setToRotation(Vector3.Y, getViewAngle() + getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, getRotateCubeZAngle());
+                            translationBuffer.set(cubeZNegPlaneTranslation);
+                            translationBuffer.x += x - 3f;
+                            translationBuffer.y += y - 3f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(scale, scale, 0.1f);
+                            go.instance.transform.rotate(Vector3.X, 90);
+                            go.update();
+                        }
+                        {
+                            GameObject<GameEngine> go = cubeZPosPlane.get(x, y);
+                            go.instance.transform.setToRotation(Vector3.Y, getViewAngle() + getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, getRotateCubeZAngle());
+                            translationBuffer.set(cubeZPosPlaneTranslation);
+                            translationBuffer.x += x - 3f;
+                            translationBuffer.y += y - 3f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(scale, scale, 0.1f);
+                            go.instance.transform.rotate(Vector3.X, -90);
+                            go.update();
+                        }
                     }
                 }
             }
 
-            if (cubeXPlane != null) {
+            if (cubeXNegPlane != null) {
                 for (int y = 0; y < context.game.getySize(); y++) {
                     for (int z = 0; z < context.game.getzSize(); z++) {
-                        GameObject<GameEngine> go = cubeXPlane.get(y, z);
-                        go.instance.transform.setToRotation(Vector3.Y, renderEngine.getGameEngine().getViewAngle());
-                        go.instance.transform.rotate(Vector3.X, renderEngine.getGameEngine().getRotateCubeXAngle());
-                        go.instance.transform.rotate(Vector3.Z, renderEngine.getGameEngine().getRotateCubeZAngle());
-                        translationBuffer.set(cubeXPlaneTranslation);
-                        translationBuffer.y += y - 3f;
-                        translationBuffer.z += z - 3f;
-                        go.instance.transform.translate(translationBuffer);
-                        go.instance.transform.scale(0.1f, scale, scale);
-                        go.instance.transform.rotate(Vector3.Z, -90);
-                        go.update();
+                        {
+                            GameObject<GameEngine> go = cubeXNegPlane.get(y, z);
+                            go.instance.transform.setToRotation(Vector3.Y, getViewAngle() + getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, getRotateCubeZAngle());
+                            translationBuffer.set(cubeXNegPlaneTranslation);
+                            translationBuffer.y += y - 3f;
+                            translationBuffer.z += z - 3f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(0.1f, scale, scale);
+                            go.instance.transform.rotate(Vector3.Z, -90);
+                            go.update();
+                        }
+                        {
+                            GameObject<GameEngine> go = cubeXPosPlane.get(y, z);
+                            go.instance.transform.setToRotation(Vector3.Y, getViewAngle() + getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, getRotateCubeZAngle());
+                            translationBuffer.set(cubeXPosPlaneTranslation);
+                            translationBuffer.y += y - 3f;
+                            translationBuffer.z += z - 3f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(0.1f, scale, scale);
+                            go.instance.transform.rotate(Vector3.Z, 90);
+                            go.update();
+                        }
                     }
                 }
             }
         } else {
             Vector3 hide = new Vector3(0, 0, 1000);
             //hide
-            if (cubeYPlane != null) {
+            if (cubeYNegPlane != null) {
                 for (int x = 0; x < context.game.getxSize(); x++) {
                     for (int z = 0; z < context.game.getzSize(); z++) {
-                        GameObject<GameEngine> go = cubeYPlane.get(x, z);
-                        go.instance.transform.setToTranslation(hide);
-//                        go.instance.transform.scale(1, 1, 1);
-                        go.update();
+                        {
+                            GameObject<GameEngine> go = cubeYNegPlane.get(x, z);
+                            go.instance.transform.setToTranslation(hide);
+                            go.update();
+                        }
+                        {
+                            GameObject<GameEngine> go = cubeYPosPlane.get(x, z);
+                            go.instance.transform.setToTranslation(hide);
+                            go.update();
+                        }
                     }
                 }
             }
 
-            if (cubeZPlane != null) {
+            if (cubeZNegPlane != null) {
                 for (int x = 0; x < context.game.getxSize(); x++) {
                     for (int y = 0; y < context.game.getzSize(); y++) {
-                        GameObject<GameEngine> go = cubeZPlane.get(x, y);
-                        go.instance.transform.setToTranslation(hide);
-//                        go.instance.transform.scale(1, 1, 1);
-                        go.update();
+                        {
+                            GameObject<GameEngine> go = cubeZNegPlane.get(x, y);
+                            go.instance.transform.setToTranslation(hide);
+                            go.update();
+                        }
+                        {
+                            GameObject<GameEngine> go = cubeZPosPlane.get(x, y);
+                            go.instance.transform.setToTranslation(hide);
+                            go.update();
+                        }
                     }
                 }
             }
 
-            if (cubeXPlane != null) {
+            if (cubeXNegPlane != null) {
                 for (int y = 0; y < context.game.getySize(); y++) {
                     for (int z = 0; z < context.game.getzSize(); z++) {
-                        GameObject<GameEngine> go = cubeXPlane.get(y, z);
-                        go.instance.transform.setToTranslation(hide);
-//                        go.instance.transform.scale(1, 1, 1);
-                        go.update();
+                        {
+                            GameObject<GameEngine> go = cubeXNegPlane.get(y, z);
+                            go.instance.transform.setToTranslation(hide);
+                            go.update();
+                        }
+                        {
+                            GameObject<GameEngine> go = cubeXPosPlane.get(y, z);
+                            go.instance.transform.setToTranslation(hide);
+                            go.update();
+                        }
                     }
                 }
             }
@@ -886,11 +1053,14 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         }
     }
 
+    //    @Override
+//    public void resize(final int width, final int height) {
+//        scheduleContextUpdate();
+//    }
     @Override
     public void resize(final int width, final int height) {
-        scheduleContextUpdate();
-//		render2DMaster.width = width;
-//		render2DMaster.height = height;
+        renderEngine.renderEngine2D.width  = width;
+        renderEngine.renderEngine2D.height = height;
     }
 
     @Override
@@ -904,10 +1074,9 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
      *
      * @throws Exception
      */
-    public void scheduleContextUpdate() {
-        isUpdateContext = true;
-    }
-
+//    public void scheduleContextUpdate() {
+//        isUpdateContext = true;
+//    }
     @Override
     public boolean scrolled(final float amountX, final float amountY) {
 
@@ -937,10 +1106,10 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 //	// iblBuilder.dispose();
 //}
     private void setupImageBasedLightingByFaceNames(final String name, final String diffuseExtension, final String environmentExtension, final String specularExtension, final int specularIterations) {
-        diffuseCubemap          = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), AtlasManager.getAssetsFolderName() + "/textures/" + name + "/diffuse/diffuse_", "_0." + diffuseExtension, EnvironmentUtil.FACE_NAMES_FULL);
-        environmentDayCubemap   = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), AtlasManager.getAssetsFolderName() + "/textures/" + name + "/environmentDay/environment_", "_0." + environmentExtension, EnvironmentUtil.FACE_NAMES_FULL);
-        environmentNightCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), AtlasManager.getAssetsFolderName() + "/textures/" + name + "/environmentNight/environment_", "_0." + environmentExtension, EnvironmentUtil.FACE_NAMES_FULL);
-        specularCubemap         = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), AtlasManager.getAssetsFolderName() + "/textures/" + name + "/specular/specular_", "_", "." + specularExtension, specularIterations, EnvironmentUtil.FACE_NAMES_FULL);
+        diffuseCubemap          = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), AtlasManager.getAssetsFolderName() + "/cubemaps/" + name + "/diffuse/diffuse_", "_0." + diffuseExtension, EnvironmentUtil.FACE_NAMES_FULL);
+        environmentDayCubemap   = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), AtlasManager.getAssetsFolderName() + "/cubemaps/" + name + "/environmentDay/environment_", "_0." + environmentExtension, EnvironmentUtil.FACE_NAMES_FULL);
+        environmentNightCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), AtlasManager.getAssetsFolderName() + "/cubemaps/" + name + "/environmentNight/environment_", "_0." + environmentExtension, EnvironmentUtil.FACE_NAMES_FULL);
+        specularCubemap         = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), AtlasManager.getAssetsFolderName() + "/cubemaps/" + name + "/specular/specular_", "_", "." + specularExtension, specularIterations, EnvironmentUtil.FACE_NAMES_FULL);
         brdfLUT                 = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
 
         // // setup quick IBL (image based lighting)

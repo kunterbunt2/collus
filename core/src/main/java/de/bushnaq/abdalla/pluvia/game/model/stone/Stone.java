@@ -1,4 +1,20 @@
 /*
+ * Copyright (C) 2024 Abdalla Bushnaq
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  * Created on 10.07.2004 TODO To change the template for this generated file go to Window - Preferences - Java - Code Style - Code Templates
  */
 package de.bushnaq.abdalla.pluvia.game.model.stone;
@@ -6,35 +22,47 @@ package de.bushnaq.abdalla.pluvia.game.model.stone;
 import de.bushnaq.abdalla.engine.RenderEngine3D;
 import de.bushnaq.abdalla.engine.Renderable;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
+import de.bushnaq.abdalla.pluvia.game.StoneOption;
 import de.bushnaq.abdalla.pluvia.util.RcBoolean;
 
 /**
  * @author kunterbunt
  */
 public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
-    private final RcBoolean canDrop         = new RcBoolean(false);
-    private final RcBoolean canMoveLeft     = new RcBoolean(false);
-    private final RcBoolean canMoveRight    = new RcBoolean(false);
-    private final RcBoolean cannotDrop      = new RcBoolean(false);
-    private final RcBoolean cannotMoveLeft  = new RcBoolean(false);
-    private final RcBoolean cannotMoveRight = new RcBoolean(false);
-    private final RcBoolean dropping        = new RcBoolean(false);
-    private final RcBoolean leftAttached    = new RcBoolean(false);
-    private final RcBoolean movingLeft      = new RcBoolean(false);
-    private final RcBoolean movingRight     = new RcBoolean(false);
-    public final  String    name;
-    private final RcBoolean pushingLeft     = new RcBoolean(false);
-    private final RcBoolean pushingRight    = new RcBoolean(false);
-    private final RcBoolean rightAttached   = new RcBoolean(false);
-    public        int       score           = 0;
-    public        float     tx              = 0;
-    public        float     ty              = 0;
-    public        int       type            = 0;
-    public        float     tz              = 0;
-    private final RcBoolean vanishing       = new RcBoolean(false);
-    public        int       x               = 0;
-    public        int       y               = 0;
-    public        int       z               = 0;
+    public static final int       CLEAR_CUBE      = 13;
+    public static final int       FIXED_CUBE      = 14;//is not affected by gravity
+    public static final int       INVISIBLE_CUBE  = 14;
+    public static final int       MAGNETIC_STONE1 = 10;//magnetically attaches to type MAGNETIC_STONE1 stones
+    public static final int       MAGNETIC_STONE2 = 11;//magnetically attaches to type MAGNETIC_STONE2 stones
+    public static final int       MAGNETIC_STONE3 = 12;//magnetically attaches to type MAGNETIC_STONE3 stones
+    public static final int       UHU_CUBE        = 9;//magnetically attaches to any type stones
+    private final       RcBoolean canDrop         = new RcBoolean(false);
+    private final       RcBoolean canMoveLeft     = new RcBoolean(false);
+    private final       RcBoolean canMoveRight    = new RcBoolean(false);
+    private final       RcBoolean cannotDrop      = new RcBoolean(false);
+    private final       RcBoolean cannotMoveLeft  = new RcBoolean(false);
+    private final       RcBoolean cannotMoveRight = new RcBoolean(false);
+    private final       RcBoolean dropping        = new RcBoolean(false);
+    private final       RcBoolean movingLeft      = new RcBoolean(false);
+    private final       RcBoolean movingRight     = new RcBoolean(false);
+    public final        String    name;
+    private final       RcBoolean pushingLeft     = new RcBoolean(false);
+    private final       RcBoolean pushingRight    = new RcBoolean(false);
+    public              int       score           = 0;
+    public              float     tx              = 0;
+    public              float     ty              = 0;
+    public              int       type            = 0;
+    public              float     tz              = 0;
+    private final       RcBoolean vanishing       = new RcBoolean(false);
+    public              int       x               = 0;
+    private final       RcBoolean xNegAttached    = new RcBoolean(false);
+    private final       RcBoolean xPosAttached    = new RcBoolean(false);
+    public              int       y               = 0;
+    private final       RcBoolean yNegAttached    = new RcBoolean(false);
+    private final       RcBoolean yPosAttached    = new RcBoolean(false);
+    public              int       z               = 0;
+    private final       RcBoolean zNegAttached    = new RcBoolean(false);
+    private final       RcBoolean zPosAttached    = new RcBoolean(false);
 
     public Stone(RenderEngine3D<GameEngine> renderEngine, int x, int y, int z, int aType) {
         set3DRenderer(new Stone3DRenderer(this));
@@ -44,6 +72,19 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         this.z = z;
         name   = String.format("x=%d y=%d z=%d", x, y, z);
         get3DRenderer().create(renderEngine);
+    }
+
+    public boolean canVanish() {
+        switch (this.type) {
+            case MAGNETIC_STONE1:
+            case MAGNETIC_STONE2:
+            case MAGNETIC_STONE3:
+            case UHU_CUBE:
+            case CLEAR_CUBE:
+                return false;
+            default:
+                return true;
+        }
     }
 
     public boolean clearCommandAttributes() {
@@ -169,23 +210,89 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
 
     public String getGlueStatusAsString() {
         String attribute = "G:";
-        if (isLeftAttached())
+
+        if (getXNegAttached())
             attribute += "L";
         else
-            attribute += "-";
-        if (isRightAttached())
+            attribute += "_";
+
+
+        if (getZNegAttached())
+            attribute += "B";
+        else
+            attribute += "_";
+
+        if (getZPosAttached())
+            attribute += "F";
+        else
+            attribute += "_";
+
+        if (getYNegAttached())
+            attribute += "U";
+        else
+            attribute += "_";
+
+        if (getYPosAttached())
+            attribute += "D";
+        else
+            attribute += "_";
+
+        if (getXPosAttached())
             attribute += "R";
         else
-            attribute += "-";
+            attribute += "_";
+
         return attribute;
+    }
+
+    public StoneOption getMagneticOptions(Stone neighbor) {
+        if (neighbor == null)
+            return StoneOption.empty;
+        else if (isMagneticTo(neighbor))
+            return StoneOption.attached;
+        return StoneOption.unattached;
     }
 
     public int getType() {
         return type;
     }
 
+    public boolean getXNegAttached() {
+        return xNegAttached.getBooleanValue();
+    }
+
+    public boolean getXPosAttached() {
+        return xPosAttached.getBooleanValue();
+    }
+
+    public boolean getYNegAttached() {
+        return yNegAttached.getBooleanValue();
+    }
+
+    public boolean getYPosAttached() {
+        return yPosAttached.getBooleanValue();
+    }
+
+    public boolean getZNegAttached() {
+        return zNegAttached.getBooleanValue();
+    }
+
+    public boolean getZPosAttached() {
+        return zPosAttached.getBooleanValue();
+    }
+
+    public boolean isAffectedByGravity() {
+        switch (this.type) {
+            case FIXED_CUBE:
+//            case UHU_CUBE:
+                return false;
+            default:
+                return true;
+        }
+    }
+
     public boolean isCanDrop() {
-        return canDrop.getBooleanValue();
+        return canDrop.getBooleanValue() && isAffectedByGravity();
     }
 
     public boolean isCanMoveLeft() {
@@ -197,7 +304,7 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
     }
 
     public boolean isCannotDrop() {
-        return cannotDrop.getBooleanValue();
+        return cannotDrop.getBooleanValue() || !isAffectedByGravity();
     }
 
     public boolean isCannotMoveLeft() {
@@ -212,8 +319,20 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         return dropping.getBooleanValue();
     }
 
-    public boolean isLeftAttached() {
-        return leftAttached.getBooleanValue();
+    public boolean isMagneticTo(Stone neighbor) {
+        if (neighbor != null) {
+            switch (this.type) {
+                case MAGNETIC_STONE1:
+                case MAGNETIC_STONE2:
+                case MAGNETIC_STONE3:
+                    return this.type == neighbor.type;
+                case UHU_CUBE:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        return false;
     }
 
     public boolean isMoving() {
@@ -236,12 +355,26 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         return pushingRight.getBooleanValue();
     }
 
-    public boolean isRightAttached() {
-        return rightAttached.getBooleanValue();
-    }
-
     public boolean isVanishing() {
         return vanishing.getBooleanValue();
+    }
+
+    public boolean isVanishingWith(Stone neighbor) {
+        if (neighbor == null)
+            return false;
+        if (neighbor.getType() == type) {
+            switch (this.type) {
+                case MAGNETIC_STONE1:
+                case MAGNETIC_STONE2:
+                case MAGNETIC_STONE3:
+                case FIXED_CUBE:
+                case CLEAR_CUBE:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+        return false;
     }
 
     public void set(int x, int y, int z) {
@@ -278,10 +411,6 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         dropping.setBooleanValue(aDropping);
     }
 
-    public void setLeftAttached(boolean aLeftAttached) {
-        leftAttached.setBooleanValue(aLeftAttached);
-    }
-
     public void setMovingLeft(boolean aMovingLeft) {
         movingLeft.setBooleanValue(aMovingLeft);
     }
@@ -298,10 +427,6 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         pushingRight.setBooleanValue(aPushingRight);
     }
 
-    public void setRightAttached(boolean aRightAttached) {
-        rightAttached.setBooleanValue(aRightAttached);
-    }
-
     public void setTx(float tx) {
         this.tx = tx;
     }
@@ -314,8 +439,31 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         this.tz = tz;
     }
 
+    public void setXNegAttached(boolean xNegAttached) {
+        this.xNegAttached.setBooleanValue(xNegAttached);
+    }
+
+    public void setXPosAttached(boolean xPosAttached) {
+        this.xPosAttached.setBooleanValue(xPosAttached);
+    }
+
+    public void setYNegAttached(boolean yNegAttached) {
+        this.yNegAttached.setBooleanValue(yNegAttached);
+    }
+
+    public void setYPosAttached(boolean yPosAttached) {
+        this.yPosAttached.setBooleanValue(yPosAttached);
+    }
+
+    public void setZNegAttached(boolean zNegAttached) {
+        this.zNegAttached.setBooleanValue(zNegAttached);
+    }
+
+    public void setZPosAttached(boolean zPosAttached) {
+        this.zPosAttached.setBooleanValue(zPosAttached);
+    }
+
     public void setisVanishing(boolean aCanVanish) {
         vanishing.setBooleanValue(aCanVanish);
     }
-
 }

@@ -112,7 +112,7 @@ public abstract class AbstractDialog {
         getGameEngine().context.levelManager = new LevelManager(getGameEngine().renderEngine, game);
 //		universe.GameThread.clearLevel();
         if (resume) {
-            if (!getGameEngine().context.levelManager.readFromDisk()) {
+            if (!getGameEngine().context.levelManager.readFromDisk(getGameEngine().context.getLevelNumber())) {
                 // we failed to read the level
                 // What is the next seed?
                 getGameEngine().context.levelManager.disposeLevel();
@@ -139,7 +139,7 @@ public abstract class AbstractDialog {
                 getGameEngine().context.levelManager.setGameSeed(seed);
             }
         }
-        getGameEngine().context.levelManager.createLevel();
+        getGameEngine().context.levelManager.createLevel("");
         game.startTimer();
         {
             MovingCamera camera   = getGameEngine().renderEngine.getCamera();
@@ -147,11 +147,11 @@ public abstract class AbstractDialog {
             Vector3      lookAt   = new Vector3();
             if (game.getySize() == 0) {
                 position.x = 0;
-                position.y = 4;
+                position.y = 7;
                 position.z = game.cameraZPosition;
-                lookAt.x   = -3.5f;
+                lookAt.x   = 0;
                 lookAt.y   = 0;
-                lookAt.z   = -3.5f;
+                lookAt.z   = 0;
             } else {
                 position.x = 0;
                 position.y = (float) game.getySize();

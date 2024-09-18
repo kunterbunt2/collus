@@ -39,41 +39,45 @@ import java.util.Iterator;
  * @author kunterbunt
  */
 public class ModelManager {
-    private static final Color        DIAMON_BLUE_COLOR             = new Color(0x006ab6ff);
-    private static final Color        GRAY_COLOR                    = new Color(0x404853ff);
-    public static final  int          MAX_NUMBER_OF_BUBBLE_MODELS   = 10;
-    public static final  int          MAX_NUMBER_OF_FIRELY_MODELS   = 10;
-    public static final  int          MAX_NUMBER_OF_FLY_MODELS      = 10;
-    public static final  int          MAX_NUMBER_OF_RAIN_MODELS     = 12;
-    private static final int          MAX_NUMBER_OF_STONE_MODELS    = 14;
-    public static final  int          MAX_NUMBER_OF_TURTLE_MODELS   = 1;
-    private static final Color        POST_GREEN_COLOR              = new Color(0x00614eff);
-    private static final Color        SCARLET_COLOR                 = new Color(0xb00233ff);
-    public static        int          MAX_NUMBER_OF_BUILDING_MODELS = 8;
-    public static        int          MAX_NUMBER_OF_FISH_MODELS     = 8;
+    private static final Color        DIAMON_BLUE_COLOR                  = new Color(0x006ab6ff);
+    private static final Color        GRAY_COLOR                         = new Color(0x404853ff);
+    public static final  int          MAX_NUMBER_OF_BUBBLE_MODELS        = 10;
+    public static final  int          MAX_NUMBER_OF_FIRELY_MODELS        = 10;
+    public static final  int          MAX_NUMBER_OF_FLY_MODELS           = 10;
+    private static final int          MAX_NUMBER_OF_NORMAL_STONE_MODELS  = 8;
+    public static final  int          MAX_NUMBER_OF_RAIN_MODELS          = 12;
+    private static final int          MAX_NUMBER_OF_SPECIAL_STONE_MODELS = 6;
+    private static final int          MAX_NUMBER_OF_STONE_MODELS         = 15;
+    public static final  int          MAX_NUMBER_OF_TURTLE_MODELS        = 1;
+    private static final Color        POST_GREEN_COLOR                   = new Color(0x00614eff);
+    private static final Color        SCARLET_COLOR                      = new Color(0xb00233ff);
+    public static        int          MAX_NUMBER_OF_BUILDING_MODELS      = 8;
+    public static        int          MAX_NUMBER_OF_FISH_MODELS          = 8;
     public               Model        backPlate;                                                                        // game grid glass background
-    public               SceneAsset[] bubbleModel                   = new SceneAsset[MAX_NUMBER_OF_BUBBLE_MODELS];    // for bubbles
-    public               Model[]      buildingCube                  = new Model[MAX_NUMBER_OF_BUILDING_MODELS];        // for city scene
+    public               SceneAsset[] bubbleModel                        = new SceneAsset[MAX_NUMBER_OF_BUBBLE_MODELS];    // for bubbles
+    public               Model[]      buildingCube                       = new Model[MAX_NUMBER_OF_BUILDING_MODELS];        // for city scene
     public               Model        cube;
     public               Model        cubeTrans1;
-    public               SceneAsset[] firelyModel                   = new SceneAsset[MAX_NUMBER_OF_FIRELY_MODELS];    // for fly
-    public               Model[]      fishCube                      = new Model[MAX_NUMBER_OF_FISH_MODELS];            // for fish
-    public               SceneAsset[] flyModel                      = new SceneAsset[MAX_NUMBER_OF_FLY_MODELS];        // for firefly
+    public               SceneAsset[] fireflyModel                       = new SceneAsset[MAX_NUMBER_OF_FIRELY_MODELS];    // for fly
+    public               Model[]      fishCube                           = new Model[MAX_NUMBER_OF_FISH_MODELS];            // for fish
+    public               SceneAsset[] flyModel                           = new SceneAsset[MAX_NUMBER_OF_FLY_MODELS];        // for firefly
     public               Model        levelCube;                                                                        // level edges
     public               Model        mirror;                                                                            // mirror square
-    public               SceneAsset[] rainModel                     = new SceneAsset[MAX_NUMBER_OF_RAIN_MODELS];    // for firefly
-    public               Model        shadow;
+    public               SceneAsset[] rainModel                          = new SceneAsset[MAX_NUMBER_OF_RAIN_MODELS];    // for firefly
+    public               SceneAsset   shadow1;
+    public               SceneAsset   shadow2;
     public               Model        square;                                                                            // used for the ground
-    public               SceneAsset[] stone                         = new SceneAsset[MAX_NUMBER_OF_STONE_MODELS];    // for stones
-    public               SceneAsset[] turtleCube                    = new SceneAsset[MAX_NUMBER_OF_TURTLE_MODELS];    // for turtles
+    public               SceneAsset[] stone                              = new SceneAsset[MAX_NUMBER_OF_STONE_MODELS];    // for stones
+    public               SceneAsset   stoneFrameElement;
+    public               SceneAsset[] turtleCube                         = new SceneAsset[MAX_NUMBER_OF_TURTLE_MODELS];    // for turtles
     public               Model        water;                                                                            // water square
 
     public ModelManager() {
     }
 
-    public void create(boolean isPbr) throws Exception {
+    public void create(AtlasManager atlasManager, boolean isPbr) throws Exception {
         final ModelBuilder modelBuilder = new ModelBuilder();
-        createStoneModels(isPbr);
+        createStoneModels(atlasManager, isPbr);
         createBuildingModels(isPbr, modelBuilder);
         createFishModels(isPbr, modelBuilder);
         createFireflyModels(isPbr, modelBuilder);
@@ -172,15 +176,15 @@ public class ModelManager {
         Color[] colors = new Color[]{Color.WHITE, POST_GREEN_COLOR, SCARLET_COLOR, DIAMON_BLUE_COLOR, GRAY_COLOR, Color.CORAL, Color.RED, Color.GREEN, Color.BLUE, Color.GOLD, Color.MAGENTA, Color.YELLOW, Color.BLACK};
         if (isPbr) {
             for (int i = 0; i < MAX_NUMBER_OF_FLY_MODELS; i++) {
-                firelyModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/firefly.glb")));
-                Material m = firelyModel[i].scene.model.materials.get(0);
+                fireflyModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/firefly.glb")));
+                Material m = fireflyModel[i].scene.model.materials.get(0);
                 m.set(PBRColorAttribute.createBaseColorFactor(colors[i]));
             }
         } else {
             for (int i = 0; i < MAX_NUMBER_OF_FLY_MODELS; i++) {
-                firelyModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/firefly.glb")));
-                removePbrNature(firelyModel[i]);
-                Material m = firelyModel[i].scene.model.materials.get(0);
+                fireflyModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/firefly.glb")));
+                removePbrNature(fireflyModel[i]);
+                Material m = fireflyModel[i].scene.model.materials.get(0);
                 m.set(ColorAttribute.createDiffuse(colors[i]));
                 m.set(ColorAttribute.createSpecular(Color.WHITE));
                 m.set(FloatAttribute.createShininess(16f));
@@ -280,12 +284,13 @@ public class ModelManager {
     }
 
     private void createShadowModel(final ModelBuilder modelBuilder) {
-        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.GRAY);
-        final Attribute metallic  = PBRFloatAttribute.createMetallic(0.1f);
-        final Attribute roughness = PBRFloatAttribute.createRoughness(0.5f);
-//        final Attribute blending  = new BlendingAttribute(0.2f); // opacity is set by pbrMetallicRoughness below
-        final Material material = new Material(metallic, roughness, color);
-        shadow = createSquare(modelBuilder, 0.5f, 0.5f, material);
+//        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.GRAY);
+//        final Attribute metallic  = PBRFloatAttribute.createMetallic(0.1f);
+//        final Attribute roughness = PBRFloatAttribute.createRoughness(0.5f);
+//        final Material material = new Material(metallic, roughness, color);
+//        shadow = createSquare(modelBuilder, 0.5f, 0.5f, material);
+        shadow1 = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/shadow-1.glb")));
+        shadow2 = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/shadow-2.glb")));
     }
 
     private Model createSquare(final ModelBuilder modelBuilder, final float sx, final float sz, final Material material) {
@@ -307,44 +312,55 @@ public class ModelManager {
         }
     }
 
-    private void createStoneModels(boolean isPbr) {
-        Color[] colorList = {Color.NAVY, Color.RED, Color.GREEN, Color.CORAL, Color.GOLD, Color.MAGENTA, Color.YELLOW, Color.DARK_GRAY, Color.DARK_GRAY, Color.BROWN, POST_GREEN_COLOR, SCARLET_COLOR, DIAMON_BLUE_COLOR, GRAY_COLOR, Color.WHITE};
+    private void createStoneModels(AtlasManager atlasManager, boolean isPbr) {
+//        Color[] colorList = {//
+//                null,//0
+//                Color.NAVY,//1
+//                Color.RED,//2
+//                Color.GREEN,//3
+//                Color.CORAL,//4
+//                Color.GOLD,//5
+//                Color.MAGENTA,//6
+//                Color.YELLOW,//7
+//                Color.BROWN,//8
+//                Color.DARK_GRAY,//9
+//                Color.LIGHT_GRAY,//10
+//                Color.GRAY,//11
+//                Color.WHITE,//12
+//                Color.BLACK,//13
+//                Color.ORANGE,//14
+//        };
 
 
-        CubeModel[] cubes = new CubeModel[]{ //
-                new CubeModel(null, AtlasManager.getAssetsFolderName() + "/models/stone1.glb"), //
-//				new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone2.glb"), //
-//				new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone3.glb"), //
-//				new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone4.glb"), //
-//				new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone5.glb"), //
-//				new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone6.glb"), //
-//				new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone7.glb"), //
-//				new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone8.glb") //
-        };
-        if (isPbr) {
-            for (int i = 0; i < MAX_NUMBER_OF_STONE_MODELS; i++) {
-                stone[i] = new GLBLoader().load(Gdx.files.internal(cubes[i % cubes.length].gltfModel));
-//                if (cubes[i % cubes.length].color != null)
-                {
-                    Material m = stone[i].scene.model.materials.get(0);
-                    m.set(PBRColorAttribute.createBaseColorFactor(colorList[i]));
-                }
-            }
-        } else {
-            for (int i = 0; i < MAX_NUMBER_OF_STONE_MODELS; i++) {
-                stone[i] = new GLBLoader().load(Gdx.files.internal(cubes[i % cubes.length].gltfModel));
-                removePbrNature(stone[i]);
-                for (Material m : stone[i].scene.model.materials) {
-                    if (m.id.equals("Frame")) {
-                        m.set(ColorAttribute.createSpecular(Color.WHITE));
-                    }
-                    if (m.id.equals("Faces")) {
-                        ColorAttribute attribute = (ColorAttribute) m.get(ColorAttribute.Diffuse);
-                        m.set(ColorAttribute.createSpecular(attribute.color));
-                    }
-                }
-            }
+//        CubeModel[] cubes = new CubeModel[]{ //
+//                new CubeModel(null, AtlasManager.getAssetsFolderName() + "/models/stone1.glb"), //
+//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone2.glb"), //
+//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone3.glb"), //
+//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone4.glb"), //
+//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone5.glb"), //
+//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone6.glb"), //
+//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone7.glb"), //
+//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone8.glb") //
+//        };
+        for (int i = 1; i <= MAX_NUMBER_OF_NORMAL_STONE_MODELS; i++) {
+            stone[i] = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + String.format("/models/stone-%02d.glb", i)));
         }
+        for (int i = 1; i <= MAX_NUMBER_OF_SPECIAL_STONE_MODELS; i++) {
+//            if (MAX_NUMBER_OF_NORMAL_STONE_MODELS + i == 13)
+//            {
+//                SceneAsset asset = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + String.format("/models/stone-%02d-material.glb", MAX_NUMBER_OF_NORMAL_STONE_MODELS + i)));
+//                stone[MAX_NUMBER_OF_NORMAL_STONE_MODELS + i] = asset;
+//                for (int s = 0; s < 6; s++) {
+//                    Material            m         = asset.scene.model.materials.get(s);
+//                    PBRTextureAttribute attribute = (PBRTextureAttribute) m.get(PBRTextureAttribute.BaseColorTexture);
+//                    attribute.set(atlasManager.stoneTextureRegion[s]);
+//                    int a = 0;
+//                }
+//            }
+//            else
+            stone[MAX_NUMBER_OF_NORMAL_STONE_MODELS + i] = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + String.format("/models/stone-%02d-full.glb", MAX_NUMBER_OF_NORMAL_STONE_MODELS + i)));
+        }
+        stoneFrameElement = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + "/models/stone-frame-element.glb"));
     }
 
     private void createTransparentCube(ModelBuilder modelBuilder) {
