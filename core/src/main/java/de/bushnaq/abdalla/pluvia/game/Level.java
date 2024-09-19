@@ -57,8 +57,8 @@ public abstract class Level {
     public        int        maxAnimationPhase    = 12;
     protected     int        nrOfStones           = 0;                                        // Number of different patches (colors) in the game
     //    protected     int        preview              = 0;                                        // Number of rows that the user can preview before they actually drop into the game
-    private final Set<Stone> pushingLeftStones    = new HashSet<>();
-    private final Set<Stone> pushingRightStones   = new HashSet<>();
+//    private final Set<Stone> pushingLeftStones    = new HashSet<>();
+//    private final Set<Stone> pushingRightStones   = new HashSet<>();
     PersistentRandomGenerator rand;
     private final Recording recording;
     private       boolean   tilt        = false;                                    // mark that game has finished
@@ -374,41 +374,41 @@ public abstract class Level {
         }
     }
 
-    public void markMoveLeftOption() {
-        // ---Stones of same type on top of each other should vanish
-//		clearTemporaryAttributes();
-        RcBoolean changedOnce = new RcBoolean(false);
-        do {
-            changedOnce.setFalse();
-            for (int z = 0; z < this.zSize; z++) {
-                for (int y = 0; y < this.ySize; y++) {
-                    for (int x = 0; x < this.xSize; x++) {
-                        if (cube.get(x, y, z) != null) {
-                            markStoneMoveLeftOption(changedOnce, x, y, z);
-                        }
-                    }
-                }
-            }
-        } while (changedOnce.getBooleanValue());
-    }
+//    public void markMoveLeftOption() {
+//        // ---Stones of same type on top of each other should vanish
+////		clearTemporaryAttributes();
+//        RcBoolean changedOnce = new RcBoolean(false);
+//        do {
+//            changedOnce.setFalse();
+//            for (int z = 0; z < this.zSize; z++) {
+//                for (int y = 0; y < this.ySize; y++) {
+//                    for (int x = 0; x < this.xSize; x++) {
+//                        if (cube.get(x, y, z) != null) {
+//                            markStoneMoveLeftOption(changedOnce, x, y, z);
+//                        }
+//                    }
+//                }
+//            }
+//        } while (changedOnce.getBooleanValue());
+//    }
 
-    public void markMoveRightOption() {
-        // ---Stones of same type on top of each other should vanish
-//		clearTemporaryAttributes();
-        RcBoolean changedOnce = new RcBoolean(false);
-        do {
-            changedOnce.setFalse();
-            for (int z = 0; z < this.zSize; z++) {
-                for (int y = 0; y < this.ySize; y++) {
-                    for (int x = 0; x < this.xSize; x++) {
-                        if (cube.get(x, y, z) != null) {
-                            markStoneMoveRightOption(changedOnce, x, y, z);
-                        }
-                    }
-                }
-            }
-        } while (changedOnce.getBooleanValue());
-    }
+//    public void markMoveRightOption() {
+//        // ---Stones of same type on top of each other should vanish
+////		clearTemporaryAttributes();
+//        RcBoolean changedOnce = new RcBoolean(false);
+//        do {
+//            changedOnce.setFalse();
+//            for (int z = 0; z < this.zSize; z++) {
+//                for (int y = 0; y < this.ySize; y++) {
+//                    for (int x = 0; x < this.xSize; x++) {
+//                        if (cube.get(x, y, z) != null) {
+//                            markStoneMoveRightOption(changedOnce, x, y, z);
+//                        }
+//                    }
+//                }
+//            }
+//        } while (changedOnce.getBooleanValue());
+//    }
 
     protected void markStoneDroppingOption(RcBoolean aThereWasAChange, int x, int y, int z) {
         // ---CHECK IF WE CANNOT DROP
@@ -475,116 +475,116 @@ public abstract class Level {
 //            logger.info("there was a change");
     }
 
-    protected void markStoneMoveLeftOption(RcBoolean aThereWasAChange, int x, int y, int z) {
-        // ---CHECK IF WE CANNOT MOVE
-        boolean notFree = false;
-        // ---IF WE CAN DROP OR VANISH, WE CANNOT MOVE!
-        Stone stone = cube.get(x, y, z);
-        if (stone.isVanishing()) notFree = true;
-        else if (stone.isCanDrop()) notFree = true;
-            // ---CHECK IF WE CANNOT MOVE LEFT
-        else if ((x == 0) || ((cube.get(x - 1, y, z) != null) && cube.get(x - 1, y, z).isCannotMoveLeft())) notFree = true;
-        if (notFree && !stone.isCannotMoveLeft()) {
-            stone.setCannotMoveLeft(true);
-            pushingLeftStones.remove(stone);
-            stone.setCanMoveLeft(false);
-            aThereWasAChange.setTrue();
-        } else if (!notFree && stone.isCannotMoveLeft()) {
-            stone.setCannotMoveLeft(false);
-            aThereWasAChange.setTrue();
-        }
-        {
-            boolean isfree = false;
-            // ---CHECK IF WE CAN MOVE LEFT
-            {
-                if (!notFree)
-                    if ((x != 0) && ((cube.get(x - 1, y, z) == null) || cube.get(x - 1, y, z).isCanMoveLeft())) isfree = true;
-                if (isfree && !stone.isCanMoveLeft()) {
-                    stone.setCanMoveLeft(true);
-                    aThereWasAChange.setTrue();
-                }
-                if (!isfree && stone.isCanMoveLeft()) {
-                    stone.setCanMoveLeft(false);
-                    aThereWasAChange.setTrue();
-                }
-            }
-            // ---INHERIT OUR PUSH TO THE LEFT STONE AND STICKING RIGHT ONE
-            if (isfree) {
-                if (stone.isPushingLeft()) {
-                    pushingLeftStones.add(stone);
-                    if ((x != 0) && (cube.get(x - 1, y, z) != null) && !cube.get(x - 1, y, z).isPushingLeft()) {
-                        cube.get(x - 1, y, z).setPushingLeft(true);
-                        pushingLeftStones.add(cube.get(x - 1, y, z));
-                        aThereWasAChange.setTrue();
-                    }
-                    if ((x != this.xSize - 1) && (cube.get(x + 1, y, z) != null) && (stone.getType() == cube.get(x + 1, y, z).getType()) && !cube.get(x + 1, y, z).isPushingLeft()) {
-                        cube.get(x + 1, y, z).setPushingLeft(true);
-                        pushingLeftStones.add(cube.get(x + 1, y, z));
-                        aThereWasAChange.setTrue();
-                    }
-                }
-            }
-        }
-    }
+//    protected void markStoneMoveLeftOption(RcBoolean aThereWasAChange, int x, int y, int z) {
+//        // ---CHECK IF WE CANNOT MOVE
+//        boolean notFree = false;
+//        // ---IF WE CAN DROP OR VANISH, WE CANNOT MOVE!
+//        Stone stone = cube.get(x, y, z);
+//        if (stone.isVanishing()) notFree = true;
+//        else if (stone.isCanDrop()) notFree = true;
+//            // ---CHECK IF WE CANNOT MOVE LEFT
+//        else if ((x == 0) || ((cube.get(x - 1, y, z) != null) && cube.get(x - 1, y, z).isCannotMoveLeft())) notFree = true;
+//        if (notFree && !stone.isCannotMoveLeft()) {
+//            stone.setCannotMoveLeft(true);
+//            pushingLeftStones.remove(stone);
+//            stone.setCanMoveLeft(false);
+//            aThereWasAChange.setTrue();
+//        } else if (!notFree && stone.isCannotMoveLeft()) {
+//            stone.setCannotMoveLeft(false);
+//            aThereWasAChange.setTrue();
+//        }
+//        {
+//            boolean isfree = false;
+//            // ---CHECK IF WE CAN MOVE LEFT
+//            {
+//                if (!notFree)
+//                    if ((x != 0) && ((cube.get(x - 1, y, z) == null) || cube.get(x - 1, y, z).isCanMoveLeft())) isfree = true;
+//                if (isfree && !stone.isCanMoveLeft()) {
+//                    stone.setCanMoveLeft(true);
+//                    aThereWasAChange.setTrue();
+//                }
+//                if (!isfree && stone.isCanMoveLeft()) {
+//                    stone.setCanMoveLeft(false);
+//                    aThereWasAChange.setTrue();
+//                }
+//            }
+//            // ---INHERIT OUR PUSH TO THE LEFT STONE AND STICKING RIGHT ONE
+//            if (isfree) {
+//                if (stone.isPushingLeft()) {
+//                    pushingLeftStones.add(stone);
+//                    if ((x != 0) && (cube.get(x - 1, y, z) != null) && !cube.get(x - 1, y, z).isPushingLeft()) {
+//                        cube.get(x - 1, y, z).setPushingLeft(true);
+//                        pushingLeftStones.add(cube.get(x - 1, y, z));
+//                        aThereWasAChange.setTrue();
+//                    }
+//                    if ((x != this.xSize - 1) && (cube.get(x + 1, y, z) != null) && (stone.getType() == cube.get(x + 1, y, z).getType()) && !cube.get(x + 1, y, z).isPushingLeft()) {
+//                        cube.get(x + 1, y, z).setPushingLeft(true);
+//                        pushingLeftStones.add(cube.get(x + 1, y, z));
+//                        aThereWasAChange.setTrue();
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-    protected void markStoneMoveRightOption(RcBoolean aThereWasAChange, int x, int y, int z) {
-//		boolean canMove = false;
-        // ---CHECK IF WE CANNOT MOVE
-        boolean notFree = false;
-        // ---IF WE CAN VANISH, WE CANNOT DROP OR MOVE!
-        Stone stone = cube.get(x, y, z);
-        if (stone.isVanishing()) notFree = true;
-            // ---IF WE CAN DROP OR VANISH, WE CANNOT MOVE!
-        else if (stone.isCanDrop()) notFree = true;
-            // ---CHECK IF WE CANNOT MOVE RIGHT
-        else if ((x == this.xSize - 1) || ((cube.get(x + 1, y, z) != null) && cube.get(x + 1, y, z).isCannotMoveRight())) notFree = true;
-        if (notFree && !stone.isCannotMoveRight()) {
-            stone.setCannotMoveRight(true);
-            pushingRightStones.remove(stone);
-            stone.setCanMoveRight(false);
-            aThereWasAChange.setTrue();
-        }
-        if (!notFree && stone.isCannotMoveRight()) {
-            stone.setCannotMoveRight(false);
-            aThereWasAChange.setTrue();
-        }
-        {
-            boolean isfree = false;
-            // ---CHECK IF WE CAN MOVE RIGHT
-            {
-                if (!notFree)
-                    if ((x != this.xSize - 1) && ((cube.get(x + 1, y, z) == null) || cube.get(x + 1, y, z).isCanMoveRight())) isfree = true;
-                if (isfree && !stone.isCanMoveRight()) {
-                    stone.setCanMoveRight(true);
-                    aThereWasAChange.setTrue();
-//					canMove = true;
-                }
-                if (!isfree && stone.isCanMoveRight()) {
-                    stone.setCanMoveRight(false);
-                    aThereWasAChange.setTrue();
-                }
-            }
-            // ---INHERIT OUR PUSH TO THE RIGHT STONE AND STICKING LEFT ONE
-            if (isfree) {
-                if (stone.isPushingRight()) {
-                    pushingRightStones.add(stone);
-                    if ((x != this.xSize - 1) && (cube.get(x + 1, y, z) != null) && !cube.get(x + 1, y, z).isPushingRight()) {
-                        cube.get(x + 1, y, z).setPushingRight(true);
-                        pushingRightStones.add(cube.get(x + 1, y, z));
-                        aThereWasAChange.setTrue();
-                    }
-                    if ((x != 0) && (cube.get(x - 1, y, z) != null) && (stone.getType() == cube.get(x - 1, y, z).getType()) && !cube.get(x - 1, y, z).isPushingRight()) {
-                        cube.get(x - 1, y, z).setPushingRight(true);
-                        pushingRightStones.add(cube.get(x - 1, y, z));
-                        aThereWasAChange.setTrue();
-                    }
-                }
-            }
-        }
-//		if (x == W - 1 && canMove)
-//			logger.error("Error");
-//		return canMove;
-    }
+//    protected void markStoneMoveRightOption(RcBoolean aThereWasAChange, int x, int y, int z) {
+////		boolean canMove = false;
+//        // ---CHECK IF WE CANNOT MOVE
+//        boolean notFree = false;
+//        // ---IF WE CAN VANISH, WE CANNOT DROP OR MOVE!
+//        Stone stone = cube.get(x, y, z);
+//        if (stone.isVanishing()) notFree = true;
+//            // ---IF WE CAN DROP OR VANISH, WE CANNOT MOVE!
+//        else if (stone.isCanDrop()) notFree = true;
+//            // ---CHECK IF WE CANNOT MOVE RIGHT
+//        else if ((x == this.xSize - 1) || ((cube.get(x + 1, y, z) != null) && cube.get(x + 1, y, z).isCannotMoveRight())) notFree = true;
+//        if (notFree && !stone.isCannotMoveRight()) {
+//            stone.setCannotMoveRight(true);
+//            pushingRightStones.remove(stone);
+//            stone.setCanMoveRight(false);
+//            aThereWasAChange.setTrue();
+//        }
+//        if (!notFree && stone.isCannotMoveRight()) {
+//            stone.setCannotMoveRight(false);
+//            aThereWasAChange.setTrue();
+//        }
+//        {
+//            boolean isfree = false;
+//            // ---CHECK IF WE CAN MOVE RIGHT
+//            {
+//                if (!notFree)
+//                    if ((x != this.xSize - 1) && ((cube.get(x + 1, y, z) == null) || cube.get(x + 1, y, z).isCanMoveRight())) isfree = true;
+//                if (isfree && !stone.isCanMoveRight()) {
+//                    stone.setCanMoveRight(true);
+//                    aThereWasAChange.setTrue();
+////					canMove = true;
+//                }
+//                if (!isfree && stone.isCanMoveRight()) {
+//                    stone.setCanMoveRight(false);
+//                    aThereWasAChange.setTrue();
+//                }
+//            }
+//            // ---INHERIT OUR PUSH TO THE RIGHT STONE AND STICKING LEFT ONE
+//            if (isfree) {
+//                if (stone.isPushingRight()) {
+//                    pushingRightStones.add(stone);
+//                    if ((x != this.xSize - 1) && (cube.get(x + 1, y, z) != null) && !cube.get(x + 1, y, z).isPushingRight()) {
+//                        cube.get(x + 1, y, z).setPushingRight(true);
+//                        pushingRightStones.add(cube.get(x + 1, y, z));
+//                        aThereWasAChange.setTrue();
+//                    }
+//                    if ((x != 0) && (cube.get(x - 1, y, z) != null) && (stone.getType() == cube.get(x - 1, y, z).getType()) && !cube.get(x - 1, y, z).isPushingRight()) {
+//                        cube.get(x - 1, y, z).setPushingRight(true);
+//                        pushingRightStones.add(cube.get(x - 1, y, z));
+//                        aThereWasAChange.setTrue();
+//                    }
+//                }
+//            }
+//        }
+////		if (x == W - 1 && canMove)
+////			logger.error("Error");
+////		return canMove;
+//    }
 
     protected boolean markVanishingOption(RcBoolean aThereWasAChange, int x, int y, int z) {
         boolean vanish = false;
@@ -608,47 +608,47 @@ public abstract class Level {
         return vanish;
     }
 
-    protected boolean moveOneStepLeft() {
-        markMoveLeftOption();
-        // setStoneOptions();
-        boolean ChangedOnce = false;
-        for (int z = 0; z < this.zSize; z++) {
-            for (int y = 0; y < this.ySize; y++) {
-                for (int x = 0; x < this.xSize; x++) {
-                    Stone stone = cube.get(x, y, z);
-                    if ((stone != null) && stone.isCanMoveLeft() && stone.isPushingLeft()) {
-                        cube.set(x - 1, y, z, cube.get(x, y, z));
-                        stone.x--;
-                        cube.clear(x, y, z);
-                        cube.get(x - 1, y, z).setMovingLeft(true);
-                        ChangedOnce = true;
-                    }
-                }
-            }
-        }
-        return ChangedOnce;
-    }
+//    protected boolean moveOneStepLeft() {
+//        markMoveLeftOption();
+//        // setStoneOptions();
+//        boolean ChangedOnce = false;
+//        for (int z = 0; z < this.zSize; z++) {
+//            for (int y = 0; y < this.ySize; y++) {
+//                for (int x = 0; x < this.xSize; x++) {
+//                    Stone stone = cube.get(x, y, z);
+//                    if ((stone != null) && stone.isCanMoveLeft() && stone.isPushingLeft()) {
+//                        cube.set(x - 1, y, z, cube.get(x, y, z));
+//                        stone.x--;
+//                        cube.clear(x, y, z);
+//                        cube.get(x - 1, y, z).setMovingLeft(true);
+//                        ChangedOnce = true;
+//                    }
+//                }
+//            }
+//        }
+//        return ChangedOnce;
+//    }
 
-    protected boolean moveOneStepRight() {
-        markMoveRightOption();
-        // setStoneOptions();
-        boolean ChangedOnce = false;
-        for (int z = 0; z < this.zSize; z++) {
-            for (int y = 0; y < this.ySize; y++) {
-                for (int x = this.xSize - 1; x >= 0; x--) {
-                    Stone stone = cube.get(x, y, z);
-                    if ((stone != null) && (stone.isCanMoveRight()) && (stone.isPushingRight())) {
-                        cube.set(x + 1, y, z, stone);
-                        stone.x++;
-                        cube.clear(x, y, z);
-                        cube.get(x + 1, y, z).setMovingRight(true);
-                        ChangedOnce = true;
-                    }
-                }
-            }
-        }
-        return ChangedOnce;
-    }
+//    protected boolean moveOneStepRight() {
+//        markMoveRightOption();
+//        // setStoneOptions();
+//        boolean ChangedOnce = false;
+//        for (int z = 0; z < this.zSize; z++) {
+//            for (int y = 0; y < this.ySize; y++) {
+//                for (int x = this.xSize - 1; x >= 0; x--) {
+//                    Stone stone = cube.get(x, y, z);
+//                    if ((stone != null) && (stone.isCanMoveRight()) && (stone.isPushingRight())) {
+//                        cube.set(x + 1, y, z, stone);
+//                        stone.x++;
+//                        cube.clear(x, y, z);
+//                        cube.get(x + 1, y, z).setMovingRight(true);
+//                        ChangedOnce = true;
+//                    }
+//                }
+//            }
+//        }
+//        return ChangedOnce;
+//    }
 
     public void nextRound() {
         if (userCanReact()) {
@@ -896,8 +896,8 @@ public abstract class Level {
     public GamePhase setStoneOptions() {
         // ---Stones of same type on top of each other should vanish
         clearTemporaryAttributes();
-        pushingLeftStones.clear();
-        pushingRightStones.clear();
+//        pushingLeftStones.clear();
+//        pushingRightStones.clear();
         RcBoolean changedOnce = new RcBoolean(false);
         boolean   canVanish   = false;
         do {
@@ -923,8 +923,8 @@ public abstract class Level {
                     for (int x = 0; x < this.xSize; x++) {
                         if (cube.isOccupied(x, y, z)) {
                             markStoneDroppingOption(changedOnce, x, y, z);
-                            markStoneMoveLeftOption(changedOnce, x, y, z);
-                            markStoneMoveRightOption(changedOnce, x, y, z);
+//                            markStoneMoveLeftOption(changedOnce, x, y, z);
+//                            markStoneMoveRightOption(changedOnce, x, y, z);
                         }
                     }
                 }
@@ -946,8 +946,8 @@ public abstract class Level {
         markMagneticConnections();
         testIntegrity();
         if (!droppingStones.isEmpty()) return GamePhase.dropping;
-        if (!pushingLeftStones.isEmpty()) return GamePhase.pushingLeft;
-        if (!pushingRightStones.isEmpty()) return GamePhase.pushingRight;
+//        if (!pushingLeftStones.isEmpty()) return GamePhase.pushingLeft;
+//        if (!pushingRightStones.isEmpty()) return GamePhase.pushingRight;
         return GamePhase.waiting;
     }
 
@@ -961,14 +961,14 @@ public abstract class Level {
                 for (int x = 0; x < this.xSize; x++) {
                     Stone stone = cube.get(x, y, z);
                     if (stone != null) {
-                        if (stone.isPushingLeft() && stone.isCanMoveLeft() && pushingLeftStones.isEmpty()) {
-                            logger.error("pushingLeftStones is empty, but at least one stone is still pushing left");
-                            System.exit(1);
-                        }
-                        if (stone.isPushingRight() && stone.isCanMoveRight() && pushingRightStones.isEmpty()) {
-                            logger.error("pushingRightStones is empty, but at least one stone is still pushing right");
-                            System.exit(1);
-                        }
+//                        if (stone.isPushingLeft() && stone.isCanMoveLeft() && pushingLeftStones.isEmpty()) {
+//                            logger.error("pushingLeftStones is empty, but at least one stone is still pushing left");
+//                            System.exit(1);
+//                        }
+//                        if (stone.isPushingRight() && stone.isCanMoveRight() && pushingRightStones.isEmpty()) {
+//                            logger.error("pushingRightStones is empty, but at least one stone is still pushing right");
+//                            System.exit(1);
+//                        }
                         if (stone.isDropping() && droppingStones.isEmpty()) {
                             logger.error("droppingStones is empty, but at least one stone is still dropping");
                             System.exit(1);
@@ -996,8 +996,8 @@ public abstract class Level {
                 case dropping: {
 //				logger.info(String.format("gamePhase=%s", gamePhase.name()));
                     dropStones();
-                    moveOneStepRight();
-                    moveOneStepLeft();
+//                    moveOneStepRight();
+//                    moveOneStepLeft();
                     animationPhase = maxAnimationPhase;
                 }
                 break;
