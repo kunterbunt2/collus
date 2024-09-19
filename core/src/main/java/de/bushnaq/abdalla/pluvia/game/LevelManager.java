@@ -29,9 +29,6 @@ import de.bushnaq.abdalla.pluvia.game.model.stone.Stone;
 import de.bushnaq.abdalla.pluvia.scene.AbstractScene;
 import de.bushnaq.abdalla.pluvia.scene.BubblesScene;
 import de.bushnaq.abdalla.pluvia.scene.RainScene;
-import de.bushnaq.abdalla.pluvia.scene.model.digit.Digit;
-import de.bushnaq.abdalla.pluvia.scene.model.digit.DigitType;
-import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -96,65 +93,65 @@ public class LevelManager extends Level implements Serializable {
 //			renderModelInstances.add(cube);
 //		}
                 // left side
-                for (float y = this.ySize - 0.75f; y >= preview; y -= 0.5f) {
-                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
-                    cube.instance.transform.setToTranslationAndScaling(-0.75f - dx, -(y - dy), -0.25f, cubeSize, cubeSize, cubeSize);
-                    renderModelInstances.add(cube);
-                    count++;
-                }
+//                for (float y = this.ySize - 0.75f; y >= preview; y -= 0.5f) {
+//                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
+//                    cube.instance.transform.setToTranslationAndScaling(-0.75f - dx, -(y - dy), -0.25f, cubeSize, cubeSize, cubeSize);
+//                    renderModelInstances.add(cube);
+//                    count++;
+//                }
                 // right side
-                for (float y = this.ySize - 0.75f; y >= preview; y -= 0.5f) {
-                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
-                    cube.instance.transform.setToTranslationAndScaling(xSize - 0.25f - dx, -(y - dy), 0 - 0.25f, cubeSize, cubeSize, cubeSize);
-                    renderModelInstances.add(cube);
-                    count++;
-                }
+//                for (float y = this.ySize - 0.75f; y >= preview; y -= 0.5f) {
+//                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
+//                    cube.instance.transform.setToTranslationAndScaling(xSize - 0.25f - dx, -(y - dy), 0 - 0.25f, cubeSize, cubeSize, cubeSize);
+//                    renderModelInstances.add(cube);
+//                    count++;
+//                }
                 // left lower side
-                for (float x = -0.75f; x <= this.xSize / 2 - 1.5f - 1f; x += 0.5f) {
-                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
-                    cube.instance.transform.setToTranslationAndScaling(x - dx, -(ySize - dy) + 0.25f, 0 - 0.25f, cubeSize, cubeSize, cubeSize);
-                    renderModelInstances.add(cube);
-                    count++;
-                }
+//                for (float x = -0.75f; x <= this.xSize / 2 - 1.5f - 1f; x += 0.5f) {
+//                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
+//                    cube.instance.transform.setToTranslationAndScaling(x - dx, -(ySize - dy) + 0.25f, 0 - 0.25f, cubeSize, cubeSize, cubeSize);
+//                    renderModelInstances.add(cube);
+//                    count++;
+//                }
                 // game name
                 int position = 0;
-                for (float x = -0.75f + this.xSize / 2 - 0.5f - 1f; x <= this.xSize / 2 + .75f - 1.5f; x += 0.5f) {
-                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.name));
-                    position++;
-                    count++;
-                }
+//                for (float x = -0.75f + this.xSize / 2 - 0.5f - 1f; x <= this.xSize / 2 + .75f - 1.5f; x += 0.5f) {
+//                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.name));
+//                    position++;
+//                    count++;
+//                }
                 // game seed
                 position = 0;
-                for (float x = this.xSize / 2 + .75f - 1.5f + 0.5f; x <= -0.75f + this.xSize / 2 + 1.5f + 1f - 0.5f; x += 0.5f) {
-                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.seed));
-                    position++;
-                    count++;
-                }
+//                for (float x = this.xSize / 2 + .75f - 1.5f + 0.5f; x <= -0.75f + this.xSize / 2 + 1.5f + 1f - 0.5f; x += 0.5f) {
+//                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.seed));
+//                    position++;
+//                    count++;
+//                }
                 // right lower side
-                for (float x = -0.75f + this.xSize / 2 + 1.5f + 1f; x <= this.xSize; x += 0.5f) {
-                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
-                    cube.instance.transform.setToTranslationAndScaling(x - dx, -(ySize - dy) + 0.25f, 0 - 0.25f, cubeSize, cubeSize, cubeSize);
-                    renderModelInstances.add(cube);
-                    count++;
-                }
+//                for (float x = -0.75f + this.xSize / 2 + 1.5f + 1f; x <= this.xSize; x += 0.5f) {
+//                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
+//                    cube.instance.transform.setToTranslationAndScaling(x - dx, -(ySize - dy) + 0.25f, 0 - 0.25f, cubeSize, cubeSize, cubeSize);
+//                    renderModelInstances.add(cube);
+//                    count++;
+//                }
                 // score
                 position = 0;
-                for (float x = -0.75f - 2.5f; x <= -1.25; x += 0.5f) {
-                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.score));
-                    position++;
-                    count++;
-                }
+//                for (float x = -0.75f - 2.5f; x <= -1.25; x += 0.5f) {
+//                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.score));
+//                    position++;
+//                    count++;
+//                }
                 // steps
                 position = 0;
-                for (float x = this.xSize + 0.25f; x <= this.xSize + 0.5 + 2f; x += 0.5f) {
-                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.steps));
-                    position++;
-                    count++;
-                }
+//                for (float x = this.xSize + 0.25f; x <= this.xSize + 0.5 + 2f; x += 0.5f) {
+//                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.steps));
+//                    position++;
+//                    count++;
+//                }
             }
-            for (Digit digit : renderEngine.getGameEngine().context.digitList) {
-                renderEngine.addStatic(digit.get3DRenderer());
-            }
+//            for (Digit digit : renderEngine.getGameEngine().context.digitList) {
+//                renderEngine.addStatic(digit.get3DRenderer());
+//            }
 //            for (Stone stone : renderEngine.getGameEngine().context.stoneList) {
 //                renderEngine.addStatic(stone.get3DRenderer());
 //            }

@@ -81,6 +81,7 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
             case MAGNETIC_STONE3:
             case UHU_CUBE:
             case CLEAR_CUBE:
+            case FIXED_CUBE:
                 return false;
             default:
                 return true;
@@ -227,12 +228,12 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         else
             attribute += "_";
 
-        if (getYNegAttached())
+        if (getYPosAttached())
             attribute += "U";
         else
             attribute += "_";
 
-        if (getYPosAttached())
+        if (getYNegAttached())
             attribute += "D";
         else
             attribute += "_";
@@ -321,15 +322,27 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
 
     public boolean isMagneticTo(Stone neighbor) {
         if (neighbor != null) {
+            switch (neighbor.type) {
+                case MAGNETIC_STONE1:
+                case MAGNETIC_STONE2:
+                case MAGNETIC_STONE3:
+                case FIXED_CUBE:
+                    return this.type == neighbor.type;
+                case UHU_CUBE:
+                    return true;
+//                default:
+//                    return false;
+            }
             switch (this.type) {
                 case MAGNETIC_STONE1:
                 case MAGNETIC_STONE2:
                 case MAGNETIC_STONE3:
+                case FIXED_CUBE:
                     return this.type == neighbor.type;
                 case UHU_CUBE:
                     return true;
-                default:
-                    return false;
+//                default:
+//                    return false;
             }
         }
         return false;

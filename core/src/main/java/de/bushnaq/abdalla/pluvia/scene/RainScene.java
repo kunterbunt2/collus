@@ -57,10 +57,10 @@ public class RainScene extends AbstractScene {
 //        createWater();
         // mirror
         renderEngine.getMirror().setPresent(true);
-        renderEngine.getMirror().setReflectivity(0.1f);
+        renderEngine.getMirror().setReflectivity(0.5f);
         renderEngine.getMirror().setMirrorLevel(-4.949f);
         createMirror(Color.WHITE);
-        createTurtles(1f, 1f, -4.949f);
+        createTurtles(.3f, 2f, -4.949f);
         createRain(.02f, .01f);
     }
 

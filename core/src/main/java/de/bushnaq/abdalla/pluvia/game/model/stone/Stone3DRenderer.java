@@ -29,7 +29,6 @@ import de.bushnaq.abdalla.engine.GameObject;
 import de.bushnaq.abdalla.engine.ObjectRenderer;
 import de.bushnaq.abdalla.engine.RenderEngine3D;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
-import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 
 import static de.bushnaq.abdalla.pluvia.game.model.stone.Stone.*;
@@ -135,10 +134,10 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                     for (Material material : stoneGO.instance.model.materials) {
                         if (material.id.equals("m.base")) {
                             for (Attribute value : material) {
-                                if (value.type == PBRColorAttribute.BaseColorFactor)
-                                    m.set(PBRColorAttribute.createBaseColorFactor(Color.RED));
-                                else
-                                    m.set(value);
+//                                if (value.type == PBRColorAttribute.BaseColorFactor)
+//                                    m.set(PBRColorAttribute.createBaseColorFactor(Color.RED));
+//                                else
+                                m.set(value);
                             }
                         }
                     }
@@ -266,7 +265,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             stone.setTz(z);
         } else if (stone.isDropping()) {
             stone.setTx(x);
-            stone.setTy(y - fraction * TRADER_SIZE_Y);
+            stone.setTy(y + fraction * TRADER_SIZE_Y);
             stone.setTz(z);
         } else if (stone.isMovingLeft()) {
             stone.setTx(x + fraction * TRADER_SIZE_X);
@@ -281,9 +280,9 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             stone.setTy(y);
             stone.setTz(z);
         }
-        float scaleDx = 0;
-        float scaleDz = 0;
-        float scaleDy = 0;
+//        float scaleDx = 0;
+//        float scaleDz = 0;
+//        float scaleDy = 0;
 
 //        if (stone.getXPosAttached()) scaleDx += 0.2f;
 //        if (stone.getXNegAttached()) scaleDx += 0.2f;
@@ -296,7 +295,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
 //        else if (!stone.getXPosAttached() && stone.getXNegAttached()) translation.x = stone.tx - 0.1f;
 //        else
         translation.x = stone.tx;
-        translation.y = -stone.ty;
+        translation.y = stone.ty;
         translation.z = stone.tz;
 
         {
@@ -307,7 +306,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             if (stone.isVanishing()) {
                 stoneGO.instance.transform.scale(fraction, fraction, fraction);
             } else {
-                stoneGO.instance.transform.scale(1f + scaleDx, 1f + scaleDy, 1f + scaleDz);
+                stoneGO.instance.transform.scale(1f, 1f, 1f);
             }
             stoneGO.update();
         }
@@ -344,38 +343,38 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                     new Vector3(-270f, 0f, -90f),//yneg - down
             };
             boolean[] visible = new boolean[]{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-//            if (stone.getXPosAttached()) {
-//                for (int i = 0; i < 24; i++) {
-//                    boolean value = needed[0][i];
-//                    if (value) {
-//                        visible[i] = value;
-//                    }
-//                }
-//            }
-//            if (stone.getXNegAttached()) {
-//                for (int i = 0; i < 24; i++) {
-//                    boolean value = needed[1][i];
-//                    if (value) {
-//                        visible[i] = value;
-//                    }
-//                }
-//            }
-//            if (stone.getZPosAttached()) {
-//                for (int i = 0; i < 24; i++) {
-//                    boolean value = needed[2][i];
-//                    if (value) {
-//                        visible[i] = value;
-//                    }
-//                }
-//            }
-//            if (stone.getZNegAttached()) {
-//                for (int i = 0; i < 24; i++) {
-//                    boolean value = needed[3][i];
-//                    if (value) {
-//                        visible[i] = value;
-//                    }
-//                }
-//            }
+            if (stone.getXPosAttached()) {
+                for (int i = 0; i < 24; i++) {
+                    boolean value = needed[0][i];
+                    if (value) {
+                        visible[i] = value;
+                    }
+                }
+            }
+            if (stone.getXNegAttached()) {
+                for (int i = 0; i < 24; i++) {
+                    boolean value = needed[1][i];
+                    if (value) {
+                        visible[i] = value;
+                    }
+                }
+            }
+            if (stone.getZPosAttached()) {
+                for (int i = 0; i < 24; i++) {
+                    boolean value = needed[2][i];
+                    if (value) {
+                        visible[i] = value;
+                    }
+                }
+            }
+            if (stone.getZNegAttached()) {
+                for (int i = 0; i < 24; i++) {
+                    boolean value = needed[3][i];
+                    if (value) {
+                        visible[i] = value;
+                    }
+                }
+            }
             if (stone.getYPosAttached()) {
                 for (int i = 0; i < 24; i++) {
                     boolean value = needed[4][i];
@@ -426,7 +425,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             if (stone.isVanishing()) {
                 stoneXNegGO.instance.transform.scale(fraction, fraction, fraction);
             } else {
-                stoneXNegGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+                stoneXNegGO.instance.transform.scale(scaling, scaling, scaling);
             }
             stoneXNegGO.update();
         }
@@ -441,7 +440,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             if (stone.isVanishing()) {
                 stoneXPosGO.instance.transform.scale(fraction, fraction, fraction);
             } else {
-                stoneXPosGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+                stoneXPosGO.instance.transform.scale(scaling, scaling, scaling);
             }
             stoneXPosGO.update();
         }
@@ -456,7 +455,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             if (stone.isVanishing()) {
                 stoneYNegGO.instance.transform.scale(fraction, fraction, fraction);
             } else {
-                stoneYNegGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+                stoneYNegGO.instance.transform.scale(scaling, scaling, scaling);
             }
             stoneYNegGO.update();
         }
@@ -471,7 +470,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             if (stone.isVanishing()) {
                 stoneYPosGO.instance.transform.scale(fraction, fraction, fraction);
             } else {
-                stoneYPosGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+                stoneYPosGO.instance.transform.scale(scaling, scaling, scaling);
             }
             stoneYPosGO.update();
         }
@@ -486,7 +485,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             if (stone.isVanishing()) {
                 stoneZNegGO.instance.transform.scale(fraction, fraction, fraction);
             } else {
-                stoneZNegGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+                stoneZNegGO.instance.transform.scale(scaling, scaling, scaling);
             }
             stoneZNegGO.update();
         }
@@ -501,7 +500,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             if (stone.isVanishing()) {
                 stoneZPosGO.instance.transform.scale(fraction, fraction, fraction);
             } else {
-                stoneZPosGO.instance.transform.scale(scaling + scaleDx, scaling, scaling);
+                stoneZPosGO.instance.transform.scale(scaling, scaling, scaling);
             }
             stoneZPosGO.update();
         }

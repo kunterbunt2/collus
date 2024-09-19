@@ -529,10 +529,10 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 //            case Input.Keys.S:
                 rotateCube = Rotate.MINUS_Z;
                 return true;
-            case Input.Keys.NUM_6:
+            case Input.Keys.NUMPAD_6:
                 rotateCube = Rotate.PLUS_Y;
                 return true;
-            case Input.Keys.NUM_4:
+            case Input.Keys.NUMPAD_4:
                 rotateCube = Rotate.MINUS_Y;
                 return true;
 
@@ -670,51 +670,53 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     private void render(final long currentTime) throws Exception {
         final float deltaTime = Gdx.graphics.getDeltaTime();
 
+        float rotationSpeed = deltaTime * CUBE_ROTATION_SPEED;
         switch (rotateCube) {
             case NONE:
                 break;
             case PLUS_X:
-                if (rotateCubeXAngle > 90) {
+                if (rotateCubeXAngle + rotationSpeed > 90) {
                     rotateCube = Rotate.NONE;
                     context.levelManager.rotateCubePlusX();
                     rotateCubeXAngle = 0;
-                } else rotateCubeXAngle += deltaTime * CUBE_ROTATION_SPEED;
+                } else rotateCubeXAngle += rotationSpeed;
                 break;
             case MINUS_X:
-                if (rotateCubeXAngle < -90) {
+                if (rotateCubeXAngle - rotationSpeed < -90) {
                     rotateCube = Rotate.NONE;
                     context.levelManager.rotateCubeMinusX();
                     rotateCubeXAngle = 0;
-                } else rotateCubeXAngle -= deltaTime * CUBE_ROTATION_SPEED;
+                } else rotateCubeXAngle -= rotationSpeed;
 
                 break;
             case PLUS_Z:
-                if (rotateCubeZAngle > 90) {
+                if (rotateCubeZAngle + rotationSpeed > 90) {
                     rotateCube = Rotate.NONE;
                     context.levelManager.rotateCubePlusZ();
                     rotateCubeZAngle = 0;
-                } else rotateCubeZAngle += deltaTime * CUBE_ROTATION_SPEED;
+                } else rotateCubeZAngle += rotationSpeed;
                 break;
             case MINUS_Z:
-                if (rotateCubeZAngle < -90) {
+                if (rotateCubeZAngle - rotationSpeed < -90) {
                     rotateCube = Rotate.NONE;
                     context.levelManager.rotateCubeMinusZ();
                     rotateCubeZAngle = 0;
-                } else rotateCubeZAngle -= deltaTime * CUBE_ROTATION_SPEED;
+                } else rotateCubeZAngle -= rotationSpeed;
                 break;
             case PLUS_Y:
-                if (rotateCubeYAngle > 90) {
-                    rotateCube = Rotate.NONE;
-                    context.levelManager.rotateCubePlusY();
+                if (rotateCubeYAngle + rotationSpeed >= 90) {
+                    logger.info(String.format("rotateCubeYAngle=%f", rotateCubeYAngle));
                     rotateCubeYAngle = 0;
-                } else rotateCubeYAngle += deltaTime * CUBE_ROTATION_SPEED;
+                    rotateCube       = Rotate.NONE;
+                    context.levelManager.rotateCubePlusY();
+                } else rotateCubeYAngle += rotationSpeed;
                 break;
             case MINUS_Y:
-                if (rotateCubeYAngle < -90) {
-                    rotateCube = Rotate.NONE;
-                    context.levelManager.rotateCubeMinusY();
+                if (rotateCubeYAngle - rotationSpeed <= -90) {
                     rotateCubeYAngle = 0;
-                } else rotateCubeYAngle -= deltaTime * CUBE_ROTATION_SPEED;
+                    rotateCube       = Rotate.NONE;
+                    context.levelManager.rotateCubeMinusY();
+                } else rotateCubeYAngle -= rotationSpeed;
 
                 break;
         }
