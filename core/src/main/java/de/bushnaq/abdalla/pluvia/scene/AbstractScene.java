@@ -22,15 +22,19 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import de.bushnaq.abdalla.engine.GameObject;
 import de.bushnaq.abdalla.engine.RenderEngine3D;
 import de.bushnaq.abdalla.engine.Text2D;
+import de.bushnaq.abdalla.engine.physics.PhysicsEngine;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
 import de.bushnaq.abdalla.pluvia.engine.ModelManager;
 import de.bushnaq.abdalla.pluvia.scene.model.fish.Fish;
-import de.bushnaq.abdalla.pluvia.scene.model.turtle.Turtle;
+import de.bushnaq.abdalla.pluvia.scene.model.marble.Marble;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 import org.slf4j.Logger;
@@ -43,18 +47,26 @@ import java.util.Random;
  * @author kunterbunt
  */
 public abstract class AbstractScene {
-    protected static final float                        CITY_SIZE = 3;
-    private static final   float                        WATER_X   = 1000;
-    private static final   float                        WATER_Y   = -3.5f;
-    private static final   float                        WATER_Z   = 1000;
-    protected              int                          index     = 0;
-    protected              Text2D                       levelName;
-    protected              Logger                       logger    = LoggerFactory.getLogger(this.getClass());
-    protected              Text2D                       logo;
-    protected              Random                       rand;
-    protected              RenderEngine3D<GameEngine>   renderEngine;
-    protected              List<GameObject<GameEngine>> renderModelInstances;
-    protected              Text2D                       version;
+    protected static final float CITY_SIZE = 3;
+    private static final   float WATER_X   = 1000;
+    private static final   float WATER_Y   = -3.5f;
+    private static final   float WATER_Z   = 1000;
+    btBoxShape             ballShape1;
+    btBoxShape             ballShape2;
+    btBoxShape             ballShape3;
+    btBoxShape             ballShape4;
+    GameObject<GameEngine> boundariesXNegGameObject;
+    GameObject<GameEngine> boundariesXPosGameObject;
+    GameObject<GameEngine> boundariesZNegGameObject;
+    GameObject<GameEngine> boundariesZPosGameObject;
+    protected int                          index  = 0;
+    protected Text2D                       levelName;
+    protected Logger                       logger = LoggerFactory.getLogger(this.getClass());
+    protected Text2D                       logo;
+    protected Random                       rand;
+    protected RenderEngine3D<GameEngine>   renderEngine;
+    protected List<GameObject<GameEngine>> renderModelInstances;
+    protected Text2D                       version;
 
     public AbstractScene(RenderEngine3D<GameEngine> renderEngine, List<GameObject<GameEngine>> renderModelInstances) {
         this.renderEngine         = renderEngine;
@@ -174,6 +186,81 @@ public abstract class AbstractScene {
         }
     }
 
+    protected void createMarbles(float minSize, float maxSize, float planeLevel) {
+        Vector3     min         = renderEngine.getSceneBox().min;
+        Vector3     max         = renderEngine.getSceneBox().max;
+        BoundingBox boundingBox = new BoundingBox(new Vector3(min.x, planeLevel, min.z), new Vector3(max.x, planeLevel + 1, 0));
+        {
+            Matrix4 m = new Matrix4();
+            m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY(), boundingBox.getCenterZ() - boundingBox.getDepth() / 2 - .5f);
+
+            boundariesZNegGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), null);
+            boundariesZNegGameObject.instance.transform.set(m);
+            renderEngine.addDynamic(boundariesZNegGameObject);
+            boundariesZNegGameObject.update();
+
+            btCollisionObject boxObject1 = new btCollisionObject();
+            ballShape1 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, .9f / 2));
+            boxObject1.setCollisionShape(ballShape1);
+            boxObject1.setWorldTransform(m);
+            renderEngine.physicsEngine.add(boundariesZNegGameObject, boxObject1, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
+        }
+        {
+            Matrix4 m = new Matrix4();
+            m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY(), boundingBox.getCenterZ() + boundingBox.getDepth() / 2 + .5f);
+
+            boundariesZPosGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), null);
+            boundariesZPosGameObject.instance.transform.set(m);
+            renderEngine.addDynamic(boundariesZPosGameObject);
+            boundariesZPosGameObject.update();
+
+            btCollisionObject boxObject1 = new btCollisionObject();
+            ballShape2 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, .9f / 2));
+            boxObject1.setCollisionShape(ballShape2);
+            boxObject1.setWorldTransform(m);
+            renderEngine.physicsEngine.add(boundariesZPosGameObject, boxObject1, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
+        }
+        {
+            Matrix4 m = new Matrix4();
+            m.setToTranslation(boundingBox.getCenterX() - boundingBox.getWidth() / 2 - .5f, boundingBox.getCenterY(), boundingBox.getCenterZ());
+
+            boundariesXPosGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), null);
+            boundariesXPosGameObject.instance.transform.set(m);
+            renderEngine.addDynamic(boundariesXPosGameObject);
+            boundariesXPosGameObject.update();
+
+            btCollisionObject boxObject1 = new btCollisionObject();
+            ballShape3 = new btBoxShape(new Vector3(.9f / 2, .9f / 2, boundingBox.getDepth() / 2 - .1f));
+            boxObject1.setCollisionShape(ballShape3);
+            boxObject1.setWorldTransform(m);
+            renderEngine.physicsEngine.add(boundariesXPosGameObject, boxObject1, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
+        }
+        {
+            Matrix4 m = new Matrix4();
+            m.setToTranslation(boundingBox.getCenterX() + boundingBox.getWidth() / 2 + .5f, boundingBox.getCenterY(), boundingBox.getCenterZ());
+
+            boundariesXNegGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), null);
+            boundariesXNegGameObject.instance.transform.set(m);
+            renderEngine.addDynamic(boundariesXNegGameObject);
+            boundariesXNegGameObject.update();
+
+            btCollisionObject boxObject1 = new btCollisionObject();
+            ballShape4 = new btBoxShape(new Vector3(.45f, .45f, boundingBox.getDepth() / 2 - .1f));
+            boxObject1.setCollisionShape(ballShape4);
+            boxObject1.setWorldTransform(m);
+            renderEngine.physicsEngine.add(boundariesXNegGameObject, boxObject1, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
+        }
+
+
+        for (int i = 0; i < 2/*Math.min(renderEngine.getGameEngine().context.getMaxSceneObjects(), 10)*/; i++) {
+            int         type   = i/*rand.nextInt(ModelManager.MAX_NUMBER_OF_MARBLE_MODELS)*/;
+            float       size   = minSize + (float) Math.random() * (maxSize - minSize);
+            BoundingBox b      = new BoundingBox(new Vector3(min.x, planeLevel + size / 2, min.z), new Vector3(max.x, planeLevel + size / 2, 0));
+            Marble      marble = new Marble(renderEngine, type, size, b);
+            renderEngine.getGameEngine().context.marbleList.add(marble);
+        }
+    }
+
     protected void createMirror(Color color) {
         if (renderEngine.isMirrorPresent()) {
             Model model;
@@ -193,18 +280,6 @@ public abstract class AbstractScene {
         m.set(PBRColorAttribute.createBaseColorFactor(color));
         cube.instance.transform.setToTranslationAndScaling(0f, renderEngine.getMirror().getMirrorLevel(), 0, WATER_X, 0.1f, WATER_Z);
         renderModelInstances.add(cube);
-    }
-
-    protected void createTurtles(float minSize, float maxSize, float planeLevel) {
-        Vector3 min = renderEngine.getSceneBox().min;
-        Vector3 max = renderEngine.getSceneBox().max;
-        for (int i = 0; i < Math.min(renderEngine.getGameEngine().context.getMaxSceneObjects(), 10); i++) {
-            int         type   = rand.nextInt(ModelManager.MAX_NUMBER_OF_TURTLE_MODELS);
-            float       size   = minSize + (float) Math.random() * (maxSize - minSize);
-            BoundingBox b      = new BoundingBox(new Vector3(min.x, planeLevel + size / 2, min.z), new Vector3(max.x, planeLevel + size / 2, 0));
-            Turtle      turtle = new Turtle(renderEngine, type, size, b);
-            renderEngine.getGameEngine().context.turtleList.add(turtle);
-        }
     }
 
     protected void createWater() {

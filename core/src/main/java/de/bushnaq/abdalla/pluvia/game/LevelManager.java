@@ -28,7 +28,7 @@ import de.bushnaq.abdalla.pluvia.engine.GameEngine;
 import de.bushnaq.abdalla.pluvia.game.model.stone.Stone;
 import de.bushnaq.abdalla.pluvia.scene.AbstractScene;
 import de.bushnaq.abdalla.pluvia.scene.BubblesScene;
-import de.bushnaq.abdalla.pluvia.scene.RainScene;
+import de.bushnaq.abdalla.pluvia.scene.MarbleScene;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class LevelManager extends Level implements Serializable {
 //		sceneList.put(GameName.Dragon.name(), new NightFishScene(renderEngine, renderModelInstances));
 //		sceneList.put(GameName.FIVE.name(), new FlyScene(renderEngine, renderModelInstances));
 //		sceneList.put(GameName.SIX.name(), new DeepSeaScene(renderEngine, renderModelInstances));
-        sceneList.put(GameName.UI.name(), new RainScene(renderEngine, renderModelInstances));
+        sceneList.put(GameName.UI.name(), new MarbleScene(renderEngine, renderModelInstances));
     }
 
     private void addToEngine() {
@@ -189,7 +189,7 @@ public class LevelManager extends Level implements Serializable {
             renderEngine.getGameEngine().context.flyList.destroy(renderEngine);
             renderEngine.getGameEngine().context.rainList.destroy(renderEngine);
             renderEngine.getGameEngine().context.bubbleList.destroy(renderEngine);
-            renderEngine.getGameEngine().context.turtleList.destroy(renderEngine);
+            renderEngine.getGameEngine().context.marbleList.destroy(renderEngine);
             renderEngine.getGameEngine().context.digitList.destroy(renderEngine);
         }
     }

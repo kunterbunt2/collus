@@ -33,8 +33,8 @@ import de.bushnaq.abdalla.pluvia.scene.model.digit.Digit;
 import de.bushnaq.abdalla.pluvia.scene.model.firefly.Firefly;
 import de.bushnaq.abdalla.pluvia.scene.model.fish.Fish;
 import de.bushnaq.abdalla.pluvia.scene.model.fly.Fly;
+import de.bushnaq.abdalla.pluvia.scene.model.marble.Marble;
 import de.bushnaq.abdalla.pluvia.scene.model.rain.Rain;
-import de.bushnaq.abdalla.pluvia.scene.model.turtle.Turtle;
 import de.bushnaq.abdalla.pluvia.util.MavenPropertiesProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +68,7 @@ public abstract class Context extends ApplicationProperties implements IContext 
     public           LevelManager       levelManager     = null;
     private          int                levelNumber      = 1;
     protected static Logger             logger           = LoggerFactory.getLogger(Context.class);
+    public           ModelList<Marble>  marbleList       = new ModelList<>();
     private final    OperatingSystem    operatingSystem;
     public           ModelList<Rain>    rainList         = new ModelList<>();
     public           boolean            restart          = false;
@@ -75,7 +76,6 @@ public abstract class Context extends ApplicationProperties implements IContext 
     public           Object             selected         = null;
     public final     StoneList          stoneList        = new StoneList();
     public           long               timeDelta        = 0L;
-    public           ModelList<Turtle>  turtleList       = new ModelList<>();
 
     public Context() {
         try {
@@ -171,8 +171,8 @@ public abstract class Context extends ApplicationProperties implements IContext 
                 for (Bubble bubble : bubbleList) {
                     bubble.advanceInTime(currentTime);
                 }
-                for (Turtle turtle : turtleList) {
-                    turtle.advanceInTime(currentTime);
+                for (Marble marble : marbleList) {
+                    marble.advanceInTime(currentTime);
                 }
                 for (Rain rain : rainList) {
                     rain.advanceInTime(currentTime);

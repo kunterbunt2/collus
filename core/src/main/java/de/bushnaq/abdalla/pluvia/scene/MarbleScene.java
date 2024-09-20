@@ -26,9 +26,9 @@ import java.util.List;
 /**
  * @author kunterbunt
  */
-public class TurtlesScene extends AbstractScene {
+public class MarbleScene extends AbstractScene {
 
-    public TurtlesScene(RenderEngine3D<GameEngine> renderEngine, List<GameObject<GameEngine>> renderModelInstances) {
+    public MarbleScene(RenderEngine3D<GameEngine> renderEngine, List<GameObject<GameEngine>> renderModelInstances) {
         super(renderEngine, renderModelInstances);
     }
 
@@ -44,23 +44,23 @@ public class TurtlesScene extends AbstractScene {
         renderEngine.setDynamicDayTime(true);
         renderEngine.setFixedDayTime(8);
         // white fog
-        renderEngine.getFog().setColor(Color.WHITE);
+        renderEngine.getFog().setColor(Color.BLACK);
         renderEngine.getFog().setBeginDistance(20f);
         renderEngine.getFog().setFullDistance(50f);
         // water
         renderEngine.getWater().setPresent(false);
         // mirror
-        renderEngine.getMirror().setPresent(false);
+        renderEngine.getMirror().setPresent(true);
         renderEngine.getMirror().setReflectivity(0.5f);
-//		createMirror(Color.WHITE);
+        renderEngine.getMirror().setMirrorLevel(-4.949f);
+        createMirror(Color.BLACK);
 
-//		createPlane(Color.WHITE);
-        createTurtles(1f, 1f, 0f);
+        createMarbles(1f, 1f, -4.949f);
     }
 
     @Override
     public Color getInfoColor() {
-        return Color.BLACK;
+        return Color.WHITE;
     }
 
 }

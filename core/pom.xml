@@ -1,59 +1,69 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<!--
+  ~ Copyright (C) 2024 Abdalla Bushnaq
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
-	<parent>
-		<groupId>de.bushnaq.abdalla</groupId>
-		<artifactId>collus</artifactId>
-		<version>0.0.1</version>
-	</parent>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<artifactId>collus-core</artifactId>
-	<name>de.bushnaq.abdalla.collus-core</name>
-	<description>collus-core</description>
+    <parent>
+        <groupId>de.bushnaq.abdalla</groupId>
+        <artifactId>collus</artifactId>
+        <version>0.0.1</version>
+    </parent>
 
-	<properties>
-		<!-- Java Code Compliance Level -->
-		<source.level>17</source.level>
-		<target.level>17</target.level>
-	</properties>
-	<dependencies>
-		<dependency>
-			<groupId>de.bushnaq.abdalla</groupId>
-			<artifactId>game-engine</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
-		<!--
-		<dependency>
-			<groupId>pl.mk5.gdx-fireapp</groupId>
-			<artifactId>gdx-fireapp-core</artifactId>
-			<version>${gdxFireappVersion}</version>
-		</dependency>
-		-->
-	</dependencies>
+    <artifactId>collus-core</artifactId>
+    <name>de.bushnaq.abdalla.collus-core</name>
+    <description>collus-core</description>
 
-	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.2.0</version>
-				<executions></executions>
+    <properties>
+        <!-- Java Code Compliance Level -->
+        <source.level>17</source.level>
+        <target.level>17</target.level>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>de.bushnaq.abdalla</groupId>
+            <artifactId>game-engine</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
-			</plugin>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.12.1</version>
-				<configuration>
-					<source>${source.level}</source>
-					<target>${target.level}</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions></executions>
+
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.12.1</version>
+                <configuration>
+                    <source>${source.level}</source>
+                    <target>${target.level}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

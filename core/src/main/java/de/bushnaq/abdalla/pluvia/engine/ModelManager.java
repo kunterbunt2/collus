@@ -44,11 +44,11 @@ public class ModelManager {
     public static final  int          MAX_NUMBER_OF_BUBBLE_MODELS        = 10;
     public static final  int          MAX_NUMBER_OF_FIRELY_MODELS        = 10;
     public static final  int          MAX_NUMBER_OF_FLY_MODELS           = 10;
+    public static final  int          MAX_NUMBER_OF_MARBLE_MODELS        = 2;
     private static final int          MAX_NUMBER_OF_NORMAL_STONE_MODELS  = 8;
     public static final  int          MAX_NUMBER_OF_RAIN_MODELS          = 12;
     private static final int          MAX_NUMBER_OF_SPECIAL_STONE_MODELS = 6;
     private static final int          MAX_NUMBER_OF_STONE_MODELS         = 15;
-    public static final  int          MAX_NUMBER_OF_TURTLE_MODELS        = 1;
     private static final Color        POST_GREEN_COLOR                   = new Color(0x00614eff);
     private static final Color        SCARLET_COLOR                      = new Color(0xb00233ff);
     public static        int          MAX_NUMBER_OF_BUILDING_MODELS      = 8;
@@ -62,6 +62,7 @@ public class ModelManager {
     public               Model[]      fishCube                           = new Model[MAX_NUMBER_OF_FISH_MODELS];            // for fish
     public               SceneAsset[] flyModel                           = new SceneAsset[MAX_NUMBER_OF_FLY_MODELS];        // for firefly
     public               Model        levelCube;                                                                        // level edges
+    public               SceneAsset[] marbleModel                        = new SceneAsset[MAX_NUMBER_OF_MARBLE_MODELS];    // for turtles
     public               Model        mirror;                                                                            // mirror square
     public               SceneAsset[] rainModel                          = new SceneAsset[MAX_NUMBER_OF_RAIN_MODELS];    // for firefly
     public               SceneAsset   shadow1;
@@ -69,7 +70,6 @@ public class ModelManager {
     public               Model        square;                                                                            // used for the ground
     public               SceneAsset[] stone                              = new SceneAsset[MAX_NUMBER_OF_STONE_MODELS];    // for stones
     public               SceneAsset   stoneFrameElement;
-    public               SceneAsset[] turtleCube                         = new SceneAsset[MAX_NUMBER_OF_TURTLE_MODELS];    // for turtles
     public               Model        water;                                                                            // water square
 
     public ModelManager() {
@@ -83,7 +83,7 @@ public class ModelManager {
         createFireflyModels(isPbr, modelBuilder);
         createFlyModels(isPbr, modelBuilder);
         createBubbleModels(isPbr, modelBuilder);
-        createTurtleModels(isPbr);
+        createMarbleModels(isPbr);
         createRainModels(isPbr, modelBuilder);
         createLevelModels(isPbr, modelBuilder);
         createWaterModel(modelBuilder);
@@ -163,12 +163,12 @@ public class ModelManager {
 //        cube = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + "/models/stone1.glb"));
 //        Material m = cube.scene.model.materials.get(0);
 //        m.set(PBRColorAttribute.createBaseColorFactor(Color.WHITE));
-        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.DARK_GRAY);
-        final Attribute metallic  = PBRFloatAttribute.createMetallic(0.5f);
+        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.WHITE);
+        final Attribute metallic  = PBRFloatAttribute.createMetallic(0.2f);
         final Attribute roughness = PBRFloatAttribute.createRoughness(0.5f);
-        final Attribute blending  = new BlendingAttribute(0.2f); // opacity is set by pbrMetallicRoughness below
-        final Material  material  = new Material(metallic, roughness, color, blending);
-        cube = createSquare(modelBuilder, 0.5f, 0.5f, material);
+//        final Attribute blending  = new BlendingAttribute(0.2f); // opacity is set by pbrMetallicRoughness below
+        final Material material = new Material(metallic, roughness, color);
+        cube = modelBuilder.createBox(1.0f, 1.0f, 1.0f, material, Usage.Position | Usage.Normal);
 
     }
 
@@ -254,6 +254,14 @@ public class ModelManager {
         }
     }
 
+    private void createMarbleModels(boolean isPbr) {
+        for (int i = 0; i < MAX_NUMBER_OF_MARBLE_MODELS; i++) {
+            marbleModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/marble.glb")));
+            Material m = marbleModel[i].scene.model.materials.get(0);
+            m.set(PBRColorAttribute.createBaseColorFactor(getColor(i)));
+        }
+    }
+
     private void createMirrorModel(final ModelBuilder modelBuilder) {
         final ColorAttribute diffuseColor = ColorAttribute.createDiffuse(Color.WHITE);
 //		final TextureAttribute	diffuseTexture	= TextureAttribute.createDiffuse(texture);
@@ -313,23 +321,6 @@ public class ModelManager {
     }
 
     private void createStoneModels(AtlasManager atlasManager, boolean isPbr) {
-//        Color[] colorList = {//
-//                null,//0
-//                Color.NAVY,//1
-//                Color.RED,//2
-//                Color.GREEN,//3
-//                Color.CORAL,//4
-//                Color.GOLD,//5
-//                Color.MAGENTA,//6
-//                Color.YELLOW,//7
-//                Color.BROWN,//8
-//                Color.DARK_GRAY,//9
-//                Color.LIGHT_GRAY,//10
-//                Color.GRAY,//11
-//                Color.WHITE,//12
-//                Color.BLACK,//13
-//                Color.ORANGE,//14
-//        };
 
 
 //        CubeModel[] cubes = new CubeModel[]{ //
@@ -374,30 +365,33 @@ public class ModelManager {
         }
     }
 
-    private void createTurtleModels(boolean isPbr) {
-        if (isPbr) {
-            for (int i = 0; i < MAX_NUMBER_OF_TURTLE_MODELS; i++) {
-                turtleCube[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/turtle.glb")));
-//				Material m = turtleCubePbr[i].scene.model.materials.get(0);
-//				m.set(PBRColorAttribute.createBaseColorFactor(Color.BLACK));
-            }
-        } else {
-            for (int i = 0; i < MAX_NUMBER_OF_TURTLE_MODELS; i++) {
-                turtleCube[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/turtle.glb")));
-                removePbrNature(turtleCube[i]);
-//				Material			m	= turtleCube[i].scene.model.materials.get(0);
-//				PBRColorAttribute	ca	= (PBRColorAttribute) m.get(PBRColorAttribute.BaseColorFactor);
-//				m.set(ColorAttribute.createDiffuse(ca.color));
-            }
-        }
-    }
-
     private void createWaterModel(final ModelBuilder modelBuilder) {
         final ColorAttribute diffuseColor = ColorAttribute.createDiffuse(Color.WHITE);
 //		final TextureAttribute	diffuseTexture	= TextureAttribute.createDiffuse(texture);
         final Material material = new Material(diffuseColor/* , diffuseTexture */);
         material.id = "water";
         water       = createSquare(modelBuilder, 0.5f, 0.5f, material);
+    }
+
+    private Color getColor(int i) {
+        Color[] colorList = {//
+                null,//0
+                Color.NAVY,//1
+                Color.RED,//2
+                Color.GREEN,//3
+                Color.CORAL,//4
+                Color.GOLD,//5
+                Color.MAGENTA,//6
+                Color.YELLOW,//7
+                Color.BROWN,//8
+                Color.DARK_GRAY,//9
+                Color.LIGHT_GRAY,//10
+                Color.GRAY,//11
+                Color.WHITE,//12
+                Color.BLACK,//13
+                Color.ORANGE,//14
+        };
+        return colorList[i % colorList.length];
     }
 
     private void removePbrNature(SceneAsset sceneAsset) {

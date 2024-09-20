@@ -1,4 +1,4 @@
 Turtle
-[GRAY]is the [BOLD]mode for people that have time[]. A good turtle player can spend hours in one game.
+[GRAY]is the [BOLD]mode for people that have time[]. A good marble player can spend hours in one game.
 [GRAY]Same as in the Bird mode up to [BOLD]3 stones can drop simultaneously[] into a game screen [BOLD]size of 5x13 stones[]. There exist stones of [BOLD]8 different colors[], making it less likely to find a match.
-[GRAY]Each turtle game starts with a score count of [BOLD]-5x13 = -65[].
+[GRAY]Each marble game starts with a score count of [BOLD]-5x13 = -65[].
