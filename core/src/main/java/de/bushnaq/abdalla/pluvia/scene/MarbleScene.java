@@ -46,7 +46,7 @@ public class MarbleScene extends AbstractScene {
         renderEngine.setDynamicDayTime(true);
         renderEngine.setFixedDayTime(8);
         // white fog
-        renderEngine.getFog().setColor(Color.WHITE);
+        renderEngine.getFog().setColor(Color.BLACK);
         renderEngine.getFog().setBeginDistance(20f);
         renderEngine.getFog().setFullDistance(50f);
         // water
@@ -55,14 +55,14 @@ public class MarbleScene extends AbstractScene {
         renderEngine.getMirror().setPresent(true);
         renderEngine.getMirror().setReflectivity(0.5f);
         renderEngine.getMirror().setMirrorLevel(MIRROR_LEVEL);
-        createMirror(Color.WHITE);
+        createMirror(Color.BLACK);
 
         createMarbles(.5f, .5f, MIRROR_LEVEL);
     }
 
     @Override
     public Color getInfoColor() {
-        return Color.BLACK;
+        return Color.WHITE;
     }
 
 }
