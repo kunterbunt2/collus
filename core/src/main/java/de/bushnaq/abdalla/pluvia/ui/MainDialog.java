@@ -25,7 +25,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.Sizes;
 import com.kotcrab.vis.ui.VisUI;
-import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisList;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
@@ -41,8 +40,8 @@ import java.io.InputStreamReader;
  * @author kunterbunt
  */
 public class MainDialog extends AbstractDialog {
-    protected static final int      DIALOG_HEIGHT = 150 * 4;
-    private                VisLabel descriptionLabel;
+    protected static final int DIALOG_HEIGHT = 150 * 4;
+//    private                VisLabel descriptionLabel;
 
     private final VisList<String> listView = new VisList<>();
     Music music;
@@ -60,10 +59,10 @@ public class MainDialog extends AbstractDialog {
         final Sizes sizes = VisUI.getSizes();
         {
             getTable().row();
-            VisLabel label = new VisLabel("Main Menu");
-            label.setColor(LIGHT_BLUE_COLOR);
-            label.setAlignment(Align.center);
-            getTable().add(label)./* width(DIALOG_WIDTH * 4 * sizes.scaleFactor). */pad(0, 16, 16, 16).center().colspan(3);
+//            VisLabel label = new VisLabel("Main Menu");
+//            label.setColor(LIGHT_BLUE_COLOR);
+//            label.setAlignment(Align.center);
+//            getTable().add(label)./* width(DIALOG_WIDTH * 4 * sizes.scaleFactor). */pad(0, 16, 16, 16).center().colspan(3);
         }
         {
             getTable().row();
@@ -138,12 +137,12 @@ public class MainDialog extends AbstractDialog {
             table2.row();
             listView.setItems("Bird", "Rabbit", "Turtle", "Dragon");
             listView.setAlignment(Align.center);
-            listView.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {
-                    updateDesciption(sizes);
-                }
-            });
+//            listView.addListener(new ChangeListener() {
+//                @Override
+//                public void changed(ChangeEvent event, Actor actor) {
+//                    updateDescription(sizes);
+//                }
+//            });
 
             table2.add(listView).center().width(BUTTON_WIDTH * sizes.scaleFactor).pad(16);
         }
@@ -163,7 +162,7 @@ public class MainDialog extends AbstractDialog {
         {
             table3.pad(32);
 //			table3.setWidth(DIALOG_WIDTH * 4 * sizes.scaleFactor);
-            updateDesciption(sizes);
+//            updateDescription(sizes);
         }
 
     }
@@ -231,22 +230,22 @@ public class MainDialog extends AbstractDialog {
         createGame(checkedIndex, true, -1);
     }
 
-    private void updateDesciption(Sizes sizes) {
-        try {
-            String   fileName    = listView.getSelected() + ".txt";
-            String   description = readFile(this.getClass().getResourceAsStream(fileName));
-            String[] split       = description.split("\n");
-            table3.clear();
-            for (String line : split) {
-                table3.row();
-                descriptionLabel = new VisLabel(line);
-                descriptionLabel.setWrap(true);
-                descriptionLabel.setAlignment(Align.topLeft);
-                table3.add(descriptionLabel).width(DIALOG_WIDTH * 3 * sizes.scaleFactor).pad(0).space(0, 0, 3, 0).left().top();
-            }
-            packAndPosition();
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
+//    private void updateDescription(Sizes sizes) {
+//        try {
+//            String   fileName    = listView.getSelected() + ".txt";
+//            String   description = readFile(this.getClass().getResourceAsStream(fileName));
+//            String[] split       = description.split("\n");
+//            table3.clear();
+//            for (String line : split) {
+//                table3.row();
+//                descriptionLabel = new VisLabel(line);
+//                descriptionLabel.setWrap(true);
+//                descriptionLabel.setAlignment(Align.topLeft);
+//                table3.add(descriptionLabel).width(DIALOG_WIDTH * 3 * sizes.scaleFactor).pad(0).space(0, 0, 3, 0).left().top();
+//            }
+//            packAndPosition();
+//        } catch (IOException e) {
+//            logger.error(e.getMessage(), e);
+//        }
+//    }
 }

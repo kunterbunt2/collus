@@ -42,9 +42,9 @@ public class ModelManager {
     private static final Color        DIAMON_BLUE_COLOR                  = new Color(0x006ab6ff);
     private static final Color        GRAY_COLOR                         = new Color(0x404853ff);
     public static final  int          MAX_NUMBER_OF_BUBBLE_MODELS        = 10;
-    public static final  int          MAX_NUMBER_OF_FIRELY_MODELS        = 10;
+    public static final  int          MAX_NUMBER_OF_FIREFLY_MODELS       = 10;
     public static final  int          MAX_NUMBER_OF_FLY_MODELS           = 10;
-    public static final  int          MAX_NUMBER_OF_MARBLE_MODELS        = 2;
+    public static final  int          MAX_NUMBER_OF_MARBLE_MODELS        = 1;
     private static final int          MAX_NUMBER_OF_NORMAL_STONE_MODELS  = 8;
     public static final  int          MAX_NUMBER_OF_RAIN_MODELS          = 12;
     private static final int          MAX_NUMBER_OF_SPECIAL_STONE_MODELS = 6;
@@ -58,7 +58,7 @@ public class ModelManager {
     public               Model[]      buildingCube                       = new Model[MAX_NUMBER_OF_BUILDING_MODELS];        // for city scene
     public               Model        cube;
     public               Model        cubeTrans1;
-    public               SceneAsset[] fireflyModel                       = new SceneAsset[MAX_NUMBER_OF_FIRELY_MODELS];    // for fly
+    public               SceneAsset[] fireflyModel                       = new SceneAsset[MAX_NUMBER_OF_FIREFLY_MODELS];    // for fly
     public               Model[]      fishCube                           = new Model[MAX_NUMBER_OF_FISH_MODELS];            // for fish
     public               SceneAsset[] flyModel                           = new SceneAsset[MAX_NUMBER_OF_FLY_MODELS];        // for firefly
     public               Model        levelCube;                                                                        // level edges
@@ -217,13 +217,13 @@ public class ModelManager {
     private void createFlyModels(boolean isPbr, final ModelBuilder modelBuilder) {
 //		Color[] colors = new Color[] { Color.WHITE, POST_GREEN_COLOR, SCARLET_COLOR, DIAMON_BLUE_COLOR, GRAY_COLOR, Color.CORAL, Color.RED, Color.GREEN, Color.BLUE, Color.GOLD, Color.MAGENTA, Color.YELLOW, Color.BLACK };
         if (isPbr) {
-            for (int i = 0; i < MAX_NUMBER_OF_FIRELY_MODELS; i++) {
+            for (int i = 0; i < MAX_NUMBER_OF_FIREFLY_MODELS; i++) {
                 flyModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/fly.glb")));
 //				Material m = flyModelPbr[i].scene.model.materials.get(0);
 //				m.set(PBRColorAttribute.createBaseColorFactor(colors[i]));
             }
         } else {
-            for (int i = 0; i < MAX_NUMBER_OF_FIRELY_MODELS; i++) {
+            for (int i = 0; i < MAX_NUMBER_OF_FIREFLY_MODELS; i++) {
 
                 flyModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/fly.glb")));
                 removePbrNature(flyModel[i]);
@@ -258,6 +258,8 @@ public class ModelManager {
         for (int i = 0; i < MAX_NUMBER_OF_MARBLE_MODELS; i++) {
             marbleModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/marble.glb")));
             Material m = marbleModel[i].scene.model.materials.get(0);
+//            int[]    ints = ColorUtils.RGBtoHSV(getColor(i));
+//            m.set(PBRColorAttribute.createBaseColorFactor(new Color(ColorUtils.HSVtoRGB(ints[0], ints[1], ints[2] / 4))));
             m.set(PBRColorAttribute.createBaseColorFactor(getColor(i)));
         }
     }
@@ -375,7 +377,7 @@ public class ModelManager {
 
     private Color getColor(int i) {
         Color[] colorList = {//
-                null,//0
+                Color.WHITE,//0
                 Color.NAVY,//1
                 Color.RED,//2
                 Color.GREEN,//3

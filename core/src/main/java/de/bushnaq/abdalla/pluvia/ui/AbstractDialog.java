@@ -146,6 +146,7 @@ public abstract class AbstractDialog {
             Vector3      position = new Vector3();
             Vector3      lookAt   = new Vector3();
             if (game.getySize() == 0) {
+                //menu
                 position.x = 0;
                 position.y = 7;
                 position.z = game.cameraZPosition;

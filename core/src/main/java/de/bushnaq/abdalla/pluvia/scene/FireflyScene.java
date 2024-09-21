@@ -78,7 +78,7 @@ public class FireflyScene extends AbstractScene {
         Vector3 min = renderEngine.getSceneBox().min;
         Vector3 max = renderEngine.getSceneBox().max;
         for (int i = 0; i < Math.min(renderEngine.getGameEngine().context.getMaxSceneObjects(), 500); i++) {
-            int         type = rand.nextInt(ModelManager.MAX_NUMBER_OF_FIRELY_MODELS);
+            int         type = rand.nextInt(ModelManager.MAX_NUMBER_OF_FIREFLY_MODELS);
             float       size = minSize + (float) Math.random() * (maxSize - minSize);
             BoundingBox b    = new BoundingBox(new Vector3(min.x + 4f, 1 + size / 2, min.z), new Vector3(max.x - 4f, 4f, -10));
             Firefly     fly  = new Firefly(renderEngine, type, size, b);

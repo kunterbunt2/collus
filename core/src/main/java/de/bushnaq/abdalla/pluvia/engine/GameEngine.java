@@ -60,63 +60,64 @@ import java.util.List;
  * @author kunterbunt
  */
 public class GameEngine implements ScreenListener, ApplicationListener, InputProcessor, RenderEngineExtension {
-    private static final float                      CUBE_ROTATION_SPEED = 200f;
-    public static final  int                        FONT_SIZE           = 9;
-    private static final float                      SCROLL_SPEED        = 0.2f;
-    private static final int                        TOUCH_DELTA_X       = 1;
-    private static final int                        TOUCH_DELTA_Y       = 1;
-    private              AboutDialog                aboutDialog;
-    private              AtlasManager               atlasManager;
-    private              AudioManager               audioManager;
-    private              Texture                    brdfLUT;
-    private              MyCameraInputController    camController;
-    private              MovingCamera               camera;
-    private              float                      centerXD;
-    private              float                      centerYD;
-    private              float                      centerZD;
-    public               Context                    context;
-    private final        IContextFactory            contextFactory;
-    private final        GameObject<GameEngine>     cube                = null;
-    private              StonePlane                 cubeXNegPlane;
-    private              Vector3                    cubeXNegPlaneTranslation;    // intermediate value
-    private              StonePlane                 cubeXPosPlane;
-    private              Vector3                    cubeXPosPlaneTranslation;    // intermediate value
-    private              StonePlane                 cubeYNegPlane;
-    private              Vector3                    cubeYNegPlaneTranslation;    // intermediate value
-    private              StonePlane                 cubeYPosPlane;
-    private              Vector3                    cubeYPosPlaneTranslation;    // intermediate value
-    private              StonePlane                 cubeZNegPlane;
-    private              Vector3                    cubeZNegPlaneTranslation;    // intermediate value
-    private              StonePlane                 cubeZPosPlane;
-    private              Vector3                    cubeZPosPlaneTranslation;    // intermediate value
-    private              Cubemap                    diffuseCubemap;
-    private final        boolean                    enableProfiling     = true;
-    private              Cubemap                    environmentDayCubemap;
-    private              Cubemap                    environmentNightCubemap;
-    private              InfoDialog                 info;
-    private final        InputMultiplexer           inputMultiplexer    = new InputMultiplexer();
+    private static final float                   CUBE_ROTATION_SPEED = 200f;
+    public static final  int                     FONT_SIZE           = 9;
+    private static final float                   SCROLL_SPEED        = 0.2f;
+    private static final int                     TOUCH_DELTA_X       = 1;
+    private static final int                     TOUCH_DELTA_Y       = 1;
+    private              AboutDialog             aboutDialog;
+    private              AtlasManager            atlasManager;
+    private              AudioManager            audioManager;
+    private              Texture                 brdfLUT;
+    private              MyCameraInputController camController;
+    private              MovingCamera            camera;
+    private              float                   centerXD;
+    private              float                   centerYD;
+    private              float                   centerZD;
+    MyContactListener contactListener;
+    public        Context                    context;
+    private final IContextFactory            contextFactory;
+    private final GameObject<GameEngine>     cube             = null;
+    private       StonePlane                 cubeXNegPlane;
+    private       Vector3                    cubeXNegPlaneTranslation;    // intermediate value
+    private       StonePlane                 cubeXPosPlane;
+    private       Vector3                    cubeXPosPlaneTranslation;    // intermediate value
+    private       StonePlane                 cubeYNegPlane;
+    private       Vector3                    cubeYNegPlaneTranslation;    // intermediate value
+    private       StonePlane                 cubeYPosPlane;
+    private       Vector3                    cubeYPosPlaneTranslation;    // intermediate value
+    private       StonePlane                 cubeZNegPlane;
+    private       Vector3                    cubeZNegPlaneTranslation;    // intermediate value
+    private       StonePlane                 cubeZPosPlane;
+    private       Vector3                    cubeZPosPlaneTranslation;    // intermediate value
+    private       Cubemap                    diffuseCubemap;
+    private final boolean                    enableProfiling  = true;
+    private       Cubemap                    environmentDayCubemap;
+    private       Cubemap                    environmentNightCubemap;
+    private       InfoDialog                 info;
+    private final InputMultiplexer           inputMultiplexer = new InputMultiplexer();
     //    private              boolean                    isUpdateContext;
-    private final        List<VisLabel>             labels              = new ArrayList<>();
-    private final        Logger                     logger              = LoggerFactory.getLogger(this.getClass());
-    private              MainDialog                 mainDialog;
-    private              MessageDialog              messageDialog;
-    private final        Meter<GameEngine>          meter               = null;
-    public               ModelManager               modelManager;
-    private              OptionsDialog              optionsDialog;
-    private              PauseDialog                pauseDialog;
-    private              GLProfiler                 profiler;
-    public               RenderEngine3D<GameEngine> renderEngine;
-    private final        float                      rotateAngle         = 2f;
-    private              Rotate                     rotateCube          = Rotate.NONE;
-    private              float                      rotateCubeXAngle    = 0;
-    private              float                      rotateCubeYAngle    = 0;
-    private              float                      rotateCubeZAngle    = 0;
-    private              ScoreDialog                scoreDialog;
-    private              boolean                    showFps;
-    private              Cubemap                    specularCubemap;
-    private              Stage                      stage;
-    private              StringBuilder              stringBuilder;
-    private              boolean                    takeScreenShot;
+    private final List<VisLabel>             labels           = new ArrayList<>();
+    private final Logger                     logger           = LoggerFactory.getLogger(this.getClass());
+    private       MainDialog                 mainDialog;
+    private       MessageDialog              messageDialog;
+    private final Meter<GameEngine>          meter            = null;
+    public        ModelManager               modelManager;
+    private       OptionsDialog              optionsDialog;
+    private       PauseDialog                pauseDialog;
+    private       GLProfiler                 profiler;
+    public        RenderEngine3D<GameEngine> renderEngine;
+    private final float                      rotateAngle      = 2f;
+    private       Rotate                     rotateCube       = Rotate.NONE;
+    private       float                      rotateCubeXAngle = 0;
+    private       float                      rotateCubeYAngle = 0;
+    private       float                      rotateCubeZAngle = 0;
+    private       ScoreDialog                scoreDialog;
+    private       boolean                    showFps;
+    private       Cubemap                    specularCubemap;
+    private       Stage                      stage;
+    private       StringBuilder              stringBuilder;
+    private       boolean                    takeScreenShot;
     GameObject<GameEngine> testCube;
     private Integer touchX = null;
     private Integer touchY = null;
@@ -161,6 +162,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             renderEngine.setShadowEnabled(false);
             renderEngine.setDayAmbientLight(.8f, .8f, .8f, 1f);
             renderEngine.setNightAmbientLight(.8f, .8f, .8f, 1f);
+            contactListener = new MyContactListener(this);
             createEnvironment();
             modelManager.create(atlasManager, renderEngine.isPbr());
             audioManager = new AudioManager(context);
@@ -194,13 +196,11 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 
     private void createCube() {
         {
-//        cubeYPlane = new StonePlane(context.game.getxSize(), context.game.getzSize());
             cubeYNegPlane            = new StonePlane(7, 7);
             cubeYNegPlaneTranslation = new Vector3(0, -3.5f - .1f, 0);
             for (int x = 0; x < 7; x++) {
                 for (int z = 0; z < 7; z++) {
                     GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
-//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, .9f, .01f, .9f);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeYNegPlane.set(x, z, go);
@@ -208,13 +208,11 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             }
         }
         {
-//        cubeYPlane = new StonePlane(context.game.getxSize(), context.game.getzSize());
             cubeYPosPlane            = new StonePlane(7, 7);
             cubeYPosPlaneTranslation = new Vector3(0, 3.5f + .1f, 0);
             for (int x = 0; x < 7; x++) {
                 for (int z = 0; z < 7; z++) {
                     GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
-//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, .9f, .01f, .9f);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeYPosPlane.set(x, z, go);
@@ -227,7 +225,6 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             for (int x = 0; x < 7; x++) {
                 for (int z = 0; z < 7; z++) {
                     GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
-//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, 7, 7, .01f);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeZNegPlane.set(x, z, go);
@@ -240,7 +237,6 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             for (int x = 0; x < 7; x++) {
                 for (int z = 0; z < 7; z++) {
                     GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
-//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, 7, 7, .01f);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeZPosPlane.set(x, z, go);
@@ -250,11 +246,9 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         {
             cubeXNegPlane            = new StonePlane(7, 7);
             cubeXNegPlaneTranslation = new Vector3(-3.5f - .1f, 0, 0);
-//            cubeXPlane            = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
             for (int y = 0; y < 7; y++) {
                 for (int z = 0; z < 7; z++) {
                     GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
-//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, .01f, 7, 7);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeXNegPlane.set(y, z, go);
@@ -264,11 +258,9 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         {
             cubeXPosPlane            = new StonePlane(7, 7);
             cubeXPosPlaneTranslation = new Vector3(3.5f + .1f, 0, 0);
-//            cubeXPlane            = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
             for (int y = 0; y < 7; y++) {
                 for (int z = 0; z < 7; z++) {
                     GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
-//                    go.instance.transform.setToTranslationAndScaling(0, 0, 0, .01f, 7, 7);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeXPosPlane.set(y, z, go);
@@ -354,6 +346,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             disposeStage();
             audioManager.dispose();
             disposeEnvironment();
+            contactListener.dispose();
             renderEngine.dispose();
             atlasManager.dispose();
             disposeInputProcessor();
@@ -789,8 +782,8 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         float scale = .9f;
         if (context.game.getySize() != 0) {
             if (cubeYNegPlane != null) {
-                for (int x = 0; x < context.game.getxSize(); x++) {
-                    for (int z = 0; z < context.game.getzSize(); z++) {
+                for (int x = 0; x < 7; x++) {
+                    for (int z = 0; z < 7; z++) {
                         {
                             GameObject<GameEngine> go = cubeYNegPlane.get(x, z);
                             go.instance.transform.setToRotation(Vector3.Y, getViewAngle() + getRotateCubeYAngle());
@@ -822,8 +815,8 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             }
 
             if (cubeZNegPlane != null) {
-                for (int x = 0; x < context.game.getxSize(); x++) {
-                    for (int y = 0; y < context.game.getySize(); y++) {
+                for (int x = 0; x < 7; x++) {
+                    for (int y = 0; y < 7; y++) {
                         {
                             GameObject<GameEngine> go = cubeZNegPlane.get(x, y);
                             go.instance.transform.setToRotation(Vector3.Y, getViewAngle() + getRotateCubeYAngle());
@@ -855,8 +848,8 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             }
 
             if (cubeXNegPlane != null) {
-                for (int y = 0; y < context.game.getySize(); y++) {
-                    for (int z = 0; z < context.game.getzSize(); z++) {
+                for (int y = 0; y < 7; y++) {
+                    for (int z = 0; z < 7; z++) {
                         {
                             GameObject<GameEngine> go = cubeXNegPlane.get(y, z);
                             go.instance.transform.setToRotation(Vector3.Y, getViewAngle() + getRotateCubeYAngle());
@@ -890,8 +883,8 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             Vector3 hide = new Vector3(0, 0, 1000);
             //hide
             if (cubeYNegPlane != null) {
-                for (int x = 0; x < context.game.getxSize(); x++) {
-                    for (int z = 0; z < context.game.getzSize(); z++) {
+                for (int x = 0; x < 7; x++) {
+                    for (int z = 0; z < 7; z++) {
                         {
                             GameObject<GameEngine> go = cubeYNegPlane.get(x, z);
                             go.instance.transform.setToTranslation(hide);
@@ -907,8 +900,8 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             }
 
             if (cubeZNegPlane != null) {
-                for (int x = 0; x < context.game.getxSize(); x++) {
-                    for (int y = 0; y < context.game.getzSize(); y++) {
+                for (int x = 0; x < 7; x++) {
+                    for (int y = 0; y < 7; y++) {
                         {
                             GameObject<GameEngine> go = cubeZNegPlane.get(x, y);
                             go.instance.transform.setToTranslation(hide);
@@ -924,8 +917,8 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             }
 
             if (cubeXNegPlane != null) {
-                for (int y = 0; y < context.game.getySize(); y++) {
-                    for (int z = 0; z < context.game.getzSize(); z++) {
+                for (int y = 0; y < 7; y++) {
+                    for (int z = 0; z < 7; z++) {
                         {
                             GameObject<GameEngine> go = cubeXNegPlane.get(y, z);
                             go.instance.transform.setToTranslation(hide);

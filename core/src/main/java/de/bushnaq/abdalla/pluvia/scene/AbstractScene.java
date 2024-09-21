@@ -26,7 +26,8 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import de.bushnaq.abdalla.engine.GameObject;
 import de.bushnaq.abdalla.engine.RenderEngine3D;
 import de.bushnaq.abdalla.engine.Text2D;
@@ -40,8 +41,11 @@ import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import static de.bushnaq.abdalla.pluvia.engine.ModelManager.MAX_NUMBER_OF_MARBLE_MODELS;
 
 /**
  * @author kunterbunt
@@ -51,22 +55,25 @@ public abstract class AbstractScene {
     private static final   float WATER_X   = 1000;
     private static final   float WATER_Y   = -3.5f;
     private static final   float WATER_Z   = 1000;
-    btBoxShape             ballShape1;
-    btBoxShape             ballShape2;
-    btBoxShape             ballShape3;
-    btBoxShape             ballShape4;
     GameObject<GameEngine> boundariesXNegGameObject;
     GameObject<GameEngine> boundariesXPosGameObject;
     GameObject<GameEngine> boundariesZNegGameObject;
     GameObject<GameEngine> boundariesZPosGameObject;
-    protected int                          index  = 0;
-    protected Text2D                       levelName;
-    protected Logger                       logger = LoggerFactory.getLogger(this.getClass());
-    protected Text2D                       logo;
+    public    btRigidBody.btRigidBodyConstructionInfo constructionInfo;
+    protected int                                     index  = 0;
+    protected Text2D                                  levelName;
+    protected Logger                                  logger = LoggerFactory.getLogger(this.getClass());
+    protected Text2D                                  logo;
+    public    MyMotionState                           motionState;
+    GameObject<GameEngine> planeGameObject;
     protected Random                       rand;
     protected RenderEngine3D<GameEngine>   renderEngine;
     protected List<GameObject<GameEngine>> renderModelInstances;
-    protected Text2D                       version;
+    btBoxShape shape1;
+    btBoxShape shape2;
+    btBoxShape shape3;
+    btBoxShape shape4;
+    protected Text2D version;
 
     public AbstractScene(RenderEngine3D<GameEngine> renderEngine, List<GameObject<GameEngine>> renderModelInstances) {
         this.renderEngine         = renderEngine;
@@ -103,16 +110,14 @@ public abstract class AbstractScene {
         createCity(renderEngine, x, y, z, iteration, maxIteration, scaleX, scaleY, scaleZ, averrageBuildingHight, up);
     }
 
-    private void createCity(final RenderEngine3D<GameEngine> renderEngine, final float x, final float y, final float z, int iteration, int maxIteration, final float scaleX, final float scaleY, final float scaleZ,
-                            float averrageBuildingHight, boolean up) {
+    private void createCity(final RenderEngine3D<GameEngine> renderEngine, final float x, final float y, final float z, int iteration, int maxIteration, final float scaleX, final float scaleY, final float scaleZ, float averrageBuildingHight, boolean up) {
         // we are responsible for the 4 corners
         final float screetSize = 0.02f;
         iteration /= 2;
         // System.out.println(String.format("iteration=%d scale=%f x=%f z=%f", iteration, scale, x, z));
         // int i = 0;
         averrageBuildingHight = averrageBuildingHight + averrageBuildingHight * (0.5f - rand.nextFloat());
-        final TwinBuilding[][] twinChances = {{new TwinBuilding(0.3f, 0.0f, 1, 1)/* 0,0 */, new TwinBuilding(0.0f, 0.3f, 1, -1)}/* 0,1 */,
-                {new TwinBuilding(0.0f, 0.3f, -1, 1)/* 1,0 */, new TwinBuilding(0.3f, 0.0f, -1, -1)}/* 1,1 */};
+        final TwinBuilding[][] twinChances = {{new TwinBuilding(0.3f, 0.0f, 1, 1)/* 0,0 */, new TwinBuilding(0.0f, 0.3f, 1, -1)}/* 0,1 */, {new TwinBuilding(0.0f, 0.3f, -1, 1)/* 1,0 */, new TwinBuilding(0.3f, 0.0f, -1, -1)}/* 1,1 */};
         // z=1, x=1, x=0
         // 0,0
         // 0,1
@@ -160,10 +165,8 @@ public abstract class AbstractScene {
                         final float ys = (maxIteration + 1 - iteration) * scaleY /* ;averrageBuildingHight */ * (0.1f + 3 * rand.nextFloat());
                         final float zs = iteration * scaleZ * twinFactorZs - screetSize;
                         // System.out.println(String.format(" xx=%f zz=%f xs=%f", xx, zz, xs));
-                        if (up)
-                            inst.instance.transform.setToTranslationAndScaling(xx, y /* + ys / 2 + 0.1f */, zz, xs, ys, zs);
-                        else
-                            inst.instance.transform.setToTranslationAndScaling(xx, y - ys / 2 - 0.1f, zz, xs, ys, zs);
+                        if (up) inst.instance.transform.setToTranslationAndScaling(xx, y /* + ys / 2 + 0.1f */, zz, xs, ys, zs);
+                        else inst.instance.transform.setToTranslationAndScaling(xx, y - ys / 2 - 0.1f, zz, xs, ys, zs);
                         inst.update();
 //						gameEngine.renderEngine.addStatic(inst);
                         renderModelInstances.add(inst);
@@ -189,74 +192,117 @@ public abstract class AbstractScene {
     protected void createMarbles(float minSize, float maxSize, float planeLevel) {
         Vector3     min         = renderEngine.getSceneBox().min;
         Vector3     max         = renderEngine.getSceneBox().max;
-        BoundingBox boundingBox = new BoundingBox(new Vector3(min.x, planeLevel, min.z), new Vector3(max.x, planeLevel + 1, 0));
+        BoundingBox boundingBox = new BoundingBox(new Vector3(min.x, planeLevel, min.z), new Vector3(max.x, planeLevel + maxSize, 0));
+        this.constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(0f, null, null, new Vector3(0, 0, 0));
+//        {
+//            Matrix4 m = new Matrix4();
+//            m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY() - 0.5f, boundingBox.getCenterZ());
+//
+//            planeGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), null);
+//            planeGameObject.instance.transform.set(m);
+//            renderEngine.addDynamic(planeGameObject);
+//            planeGameObject.update();
+//
+//            shape1                = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, boundingBox.getDepth() / 2 - .1f));
+//            this.constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(0f, null, shape1, new Vector3(0, 0, 0));
+//            motionState           = new MyMotionState();
+//            motionState.transform = planeGameObject.instance.transform;
+//
+//            planeGameObject.body = new btRigidBody(constructionInfo);
+//            planeGameObject.body.setCollisionShape(shape1);
+//            planeGameObject.body.setMotionState(motionState);
+//            renderEngine.physicsEngine.add(planeGameObject, planeGameObject.body, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
+//
+//        }
         {
             Matrix4 m = new Matrix4();
             m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY(), boundingBox.getCenterZ() - boundingBox.getDepth() / 2 - .5f);
+            shape1 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, .9f / 2));
 
-            boundariesZNegGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), null);
+            boundariesZNegGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), shape1);
             boundariesZNegGameObject.instance.transform.set(m);
-            renderEngine.addDynamic(boundariesZNegGameObject);
+//            renderEngine.addDynamic(boundariesZNegGameObject);
             boundariesZNegGameObject.update();
 
-            btCollisionObject boxObject1 = new btCollisionObject();
-            ballShape1 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, .9f / 2));
-            boxObject1.setCollisionShape(ballShape1);
-            boxObject1.setWorldTransform(m);
-            renderEngine.physicsEngine.add(boundariesZNegGameObject, boxObject1, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
+            this.constructionInfo.setMass(0);
+            this.constructionInfo.setCollisionShape(shape1);
+            motionState           = new MyMotionState();
+            motionState.transform = boundariesZNegGameObject.instance.transform;
+
+            boundariesZNegGameObject.body = new btRigidBody(constructionInfo);
+            boundariesZNegGameObject.body.setCollisionShape(shape1);
+            boundariesZNegGameObject.body.setMotionState(motionState);
+            renderEngine.physicsEngine.add(boundariesZNegGameObject, boundariesZNegGameObject.body, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
         }
         {
             Matrix4 m = new Matrix4();
             m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY(), boundingBox.getCenterZ() + boundingBox.getDepth() / 2 + .5f);
+            shape2 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, .9f / 2));
 
-            boundariesZPosGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), null);
+            boundariesZPosGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), shape2);
             boundariesZPosGameObject.instance.transform.set(m);
-            renderEngine.addDynamic(boundariesZPosGameObject);
+//            renderEngine.addDynamic(boundariesZPosGameObject);
             boundariesZPosGameObject.update();
 
-            btCollisionObject boxObject1 = new btCollisionObject();
-            ballShape2 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, .9f / 2));
-            boxObject1.setCollisionShape(ballShape2);
-            boxObject1.setWorldTransform(m);
-            renderEngine.physicsEngine.add(boundariesZPosGameObject, boxObject1, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
+            this.constructionInfo.setMass(0);
+            this.constructionInfo.setCollisionShape(shape2);
+            motionState           = new MyMotionState();
+            motionState.transform = boundariesZPosGameObject.instance.transform;
+
+            boundariesZPosGameObject.body = new btRigidBody(constructionInfo);
+            boundariesZPosGameObject.body.setCollisionShape(shape2);
+            boundariesZPosGameObject.body.setMotionState(motionState);
+            renderEngine.physicsEngine.add(boundariesZPosGameObject, boundariesZPosGameObject.body, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
         }
         {
             Matrix4 m = new Matrix4();
             m.setToTranslation(boundingBox.getCenterX() - boundingBox.getWidth() / 2 - .5f, boundingBox.getCenterY(), boundingBox.getCenterZ());
+            shape3 = new btBoxShape(new Vector3(.45f, .45f, boundingBox.getDepth() / 2 - .1f));
 
-            boundariesXPosGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), null);
+            boundariesXPosGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), shape3);
             boundariesXPosGameObject.instance.transform.set(m);
-            renderEngine.addDynamic(boundariesXPosGameObject);
+//            renderEngine.addDynamic(boundariesXPosGameObject);
             boundariesXPosGameObject.update();
 
-            btCollisionObject boxObject1 = new btCollisionObject();
-            ballShape3 = new btBoxShape(new Vector3(.9f / 2, .9f / 2, boundingBox.getDepth() / 2 - .1f));
-            boxObject1.setCollisionShape(ballShape3);
-            boxObject1.setWorldTransform(m);
-            renderEngine.physicsEngine.add(boundariesXPosGameObject, boxObject1, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
+            this.constructionInfo.setMass(0);
+            this.constructionInfo.setCollisionShape(shape3);
+            motionState           = new MyMotionState();
+            motionState.transform = boundariesXPosGameObject.instance.transform;
+
+            boundariesXPosGameObject.body = new btRigidBody(constructionInfo);
+            boundariesXPosGameObject.body.setCollisionShape(shape3);
+            boundariesXPosGameObject.body.setMotionState(motionState);
+            renderEngine.physicsEngine.add(boundariesXPosGameObject, boundariesXPosGameObject.body, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
         }
         {
             Matrix4 m = new Matrix4();
             m.setToTranslation(boundingBox.getCenterX() + boundingBox.getWidth() / 2 + .5f, boundingBox.getCenterY(), boundingBox.getCenterZ());
+            shape4 = new btBoxShape(new Vector3(.45f, .45f, boundingBox.getDepth() / 2 - .1f));
 
-            boundariesXNegGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), null);
+            boundariesXNegGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), shape4);
             boundariesXNegGameObject.instance.transform.set(m);
-            renderEngine.addDynamic(boundariesXNegGameObject);
+//            renderEngine.addDynamic(boundariesXNegGameObject);
             boundariesXNegGameObject.update();
 
-            btCollisionObject boxObject1 = new btCollisionObject();
-            ballShape4 = new btBoxShape(new Vector3(.45f, .45f, boundingBox.getDepth() / 2 - .1f));
-            boxObject1.setCollisionShape(ballShape4);
-            boxObject1.setWorldTransform(m);
-            renderEngine.physicsEngine.add(boundariesXNegGameObject, boxObject1, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
+            this.constructionInfo.setMass(0);
+            this.constructionInfo.setCollisionShape(shape4);
+            motionState           = new MyMotionState();
+            motionState.transform = boundariesXNegGameObject.instance.transform;
+
+            boundariesXNegGameObject.body = new btRigidBody(constructionInfo);
+            boundariesXNegGameObject.body.setCollisionShape(shape4);
+            boundariesXNegGameObject.body.setMotionState(motionState);
+            renderEngine.physicsEngine.add(boundariesXNegGameObject, boundariesXNegGameObject.body, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
         }
 
 
-        for (int i = 0; i < 2/*Math.min(renderEngine.getGameEngine().context.getMaxSceneObjects(), 10)*/; i++) {
-            int         type   = i/*rand.nextInt(ModelManager.MAX_NUMBER_OF_MARBLE_MODELS)*/;
+        List<Marble> marbleList = new ArrayList<>();
+        for (int i = 0; i < Math.max(renderEngine.getGameEngine().context.getMaxSceneObjects(), 10); i++) {
+            int         type   = i % MAX_NUMBER_OF_MARBLE_MODELS/*rand.nextInt(MAX_NUMBER_OF_MARBLE_MODELS)*/;
             float       size   = minSize + (float) Math.random() * (maxSize - minSize);
             BoundingBox b      = new BoundingBox(new Vector3(min.x, planeLevel + size / 2, min.z), new Vector3(max.x, planeLevel + size / 2, 0));
-            Marble      marble = new Marble(renderEngine, type, size, b);
+            Marble      marble = new Marble(renderEngine, type, size, b, marbleList);
+            marbleList.add(marble);
             renderEngine.getGameEngine().context.marbleList.add(marble);
         }
     }
@@ -322,7 +368,21 @@ public abstract class AbstractScene {
     }
 
     public void setLevelName(String levelName) {
-        if (this.levelName != null)
-            this.levelName.setText(levelName);
+        if (this.levelName != null) this.levelName.setText(levelName);
     }
+
+    static class MyMotionState extends btMotionState {
+        Matrix4 transform;
+
+        @Override
+        public void getWorldTransform(Matrix4 worldTrans) {
+            worldTrans.set(transform);
+        }
+
+        @Override
+        public void setWorldTransform(Matrix4 worldTrans) {
+            transform.set(worldTrans);
+        }
+    }
+
 }

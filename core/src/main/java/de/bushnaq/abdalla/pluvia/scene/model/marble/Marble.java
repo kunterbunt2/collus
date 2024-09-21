@@ -24,20 +24,23 @@ import de.bushnaq.abdalla.engine.RenderEngine3D;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
 import de.bushnaq.abdalla.pluvia.scene.model.AbstractActor;
 
+import java.util.List;
+
 /**
  * @author kunterbunt
  */
 public class Marble extends AbstractActor {
 
+    static        float      PHYSICS_MARGINE = 0.1f;
     private final GameEngine gameEngine;
 
-    public Marble(RenderEngine3D<GameEngine> renderEngine, int type, float size, BoundingBox cage) {
+    public Marble(RenderEngine3D<GameEngine> renderEngine, int type, float size, BoundingBox cage, List<Marble> marbleList) {
         super(renderEngine, type, size, cage);
         this.gameEngine = renderEngine.getGameEngine();
-        setMaxSpeed(0.05f);
-        setMinSpeed(0.1f);
+        setMaxSpeed(0.02f);
+        setMinSpeed(0.002f);
         set3DRenderer(new Marble3DRenderer(this));
-        choseStartingPoint();
+        choseStartingPoint(marbleList);
         choseStartingSpeed();
         get3DRenderer().create(renderEngine);
     }
@@ -47,21 +50,17 @@ public class Marble extends AbstractActor {
         //hitting the border
     }
 
-    protected void choseStartingPoint() {
-        float w = cage.getWidth() - size;
-        float d = cage.getDepth() - size;
+    protected void choseStartingPoint(List<Marble> marbleList) {
+        float w = cage.getWidth() - size - PHYSICS_MARGINE * 2;
+        float d = cage.getDepth() - size - PHYSICS_MARGINE * 2;
 
-        position.x = cage.getCenterX() - w / 2 + ((float) Math.random() * w);
         position.y = cage.getCenterY();//on the plane
-        position.z = cage.getCenterZ() - d / 2 + ((float) Math.random() * d);
-
-        if (type == 0) {
-            position.x = cage.getCenterX() - w / 2 + 3;
-            position.z = cage.getCenterZ();
-        } else {
-            position.x = cage.getCenterX() + w / 2 - 3;
-            position.z = cage.getCenterZ();
+        do {
+            position.x = cage.getCenterX() - w / 2 + PHYSICS_MARGINE + ((float) Math.random() * w);
+            position.z = cage.getCenterZ() - d / 2 + PHYSICS_MARGINE + ((float) Math.random() * d);
         }
+        while (collisionFound(marbleList));
+
     }
 
     protected void choseStartingSpeed() {
@@ -69,12 +68,22 @@ public class Marble extends AbstractActor {
         speed.y = 0;
         speed.z = Math.signum((float) Math.random() - 0.5f) * (minSpeed + (maxSpeed - minSpeed) * (float) Math.random());
 
-        if (type == 0) {
-            speed.x = maxSpeed;
-            speed.z = 0;
-        } else {
-            speed.x = -maxSpeed;
-            speed.z = 0;
+//        if (type == 0) {
+//            speed.x = maxSpeed;
+//            speed.z = maxSpeed;
+//        } else {
+//            speed.x = -maxSpeed;
+//            speed.z = 0;
+//        }
+    }
+
+    private boolean collisionFound(List<Marble> marbleList) {
+        for (Marble marble : marbleList) {
+            float dx = Math.abs(marble.position.x - position.x);
+            float dz = Math.abs(marble.position.z - position.z);
+            if (dx * dx + dz * dz < size)
+                return true;
         }
+        return false;
     }
 }

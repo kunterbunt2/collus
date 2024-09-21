@@ -28,6 +28,8 @@ import java.util.List;
  */
 public class MarbleScene extends AbstractScene {
 
+    public static final float MIRROR_LEVEL = -4.949f;
+
     public MarbleScene(RenderEngine3D<GameEngine> renderEngine, List<GameObject<GameEngine>> renderModelInstances) {
         super(renderEngine, renderModelInstances);
     }
@@ -44,7 +46,7 @@ public class MarbleScene extends AbstractScene {
         renderEngine.setDynamicDayTime(true);
         renderEngine.setFixedDayTime(8);
         // white fog
-        renderEngine.getFog().setColor(Color.BLACK);
+        renderEngine.getFog().setColor(Color.WHITE);
         renderEngine.getFog().setBeginDistance(20f);
         renderEngine.getFog().setFullDistance(50f);
         // water
@@ -52,15 +54,15 @@ public class MarbleScene extends AbstractScene {
         // mirror
         renderEngine.getMirror().setPresent(true);
         renderEngine.getMirror().setReflectivity(0.5f);
-        renderEngine.getMirror().setMirrorLevel(-4.949f);
-        createMirror(Color.BLACK);
+        renderEngine.getMirror().setMirrorLevel(MIRROR_LEVEL);
+        createMirror(Color.WHITE);
 
-        createMarbles(1f, 1f, -4.949f);
+        createMarbles(.5f, .5f, MIRROR_LEVEL);
     }
 
     @Override
     public Color getInfoColor() {
-        return Color.WHITE;
+        return Color.BLACK;
     }
 
 }

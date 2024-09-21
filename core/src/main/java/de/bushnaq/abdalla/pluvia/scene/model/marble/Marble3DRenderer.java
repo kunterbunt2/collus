@@ -21,9 +21,12 @@ import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btSphereShape;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import de.bushnaq.abdalla.engine.GameObject;
 import de.bushnaq.abdalla.engine.ObjectRenderer;
 import de.bushnaq.abdalla.engine.RenderEngine3D;
@@ -31,6 +34,8 @@ import de.bushnaq.abdalla.engine.physics.PhysicsEngine;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,19 +44,24 @@ import java.util.List;
  * @author kunterbunt
  */
 public class Marble3DRenderer extends ObjectRenderer<GameEngine> {
-    private static final Color                  DIAMON_BLUE_COLOR      = new Color(0x006ab6ff);
-    private static final Color                  GRAY_COLOR             = new Color(0x404853ff);
-    private static final float                  NORMAL_LIGHT_INTENSITY = 2f;
-    private static final Color                  POST_GREEN_COLOR       = new Color(0x00614eff);
-    private static final Color                  SCARLET_COLOR          = new Color(0xb00233ff);
-    private              btCollisionObject      ballObject;
-    private              btSphereShape          ballShape;
-    private              GameObject<GameEngine> gameObject;
-    private              float                  lightIntensity         = 0f;
-    private              boolean                lightIsOne             = false;
-    private final        Marble                 marble;
-    private final        List<PointLight>       pointLight             = new ArrayList<>();
-    private final        Vector3                translation            = new Vector3();        // intermediate value
+    private static final Color                                   DIAMON_BLUE_COLOR      = new Color(0x006ab6ff);
+    private static final Color                                   GRAY_COLOR             = new Color(0x404853ff);
+    private static final float                                   NORMAL_LIGHT_INTENSITY = 2f;
+    private static final Color                                   POST_GREEN_COLOR       = new Color(0x00614eff);
+    private static final Color                                   SCARLET_COLOR          = new Color(0xb00233ff);
+    private static final Vector3                                 localInertia           = new Vector3();
+    public               btRigidBody.btRigidBodyConstructionInfo constructionInfo;
+    private              GameObject<GameEngine>                  gameObject;
+    private              float                                   lightIntensity         = 0f;
+    private              boolean                                 lightIsOne             = false;
+    protected            Logger                                  logger                 = LoggerFactory.getLogger(this.getClass());
+    private final        Marble                                  marble;
+    private final        float                                   mass                   = 1f;
+    public               MyMotionState                           motionState;
+    Vector3 negative = new Vector3(-1, -1, -1);
+    private final List<PointLight> pointLight  = new ArrayList<>();
+    private       btSphereShape    shape;
+    private final Vector3          translation = new Vector3();        // intermediate value
 
     public Marble3DRenderer(final Marble patch) {
         this.marble = patch;
@@ -60,14 +70,26 @@ public class Marble3DRenderer extends ObjectRenderer<GameEngine> {
     @Override
     public void create(final RenderEngine3D<GameEngine> renderEngine) {
         if (gameObject == null) {
-            gameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.marbleModel[marble.getType()].scene.model), null);
+            gameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.marbleModel[marble.getType()].scene.model), marble);
             renderEngine.addDynamic(gameObject);
+//            gameObject.instance.transform.setToTranslation(0, 1, -5f);
             gameObject.update();
-            ballObject = new btCollisionObject();
-            ballShape  = new btSphereShape(marble.getSize());
-            ballObject.setCollisionShape(ballShape);
-            ballObject.setWorldTransform(gameObject.instance.transform);
-            renderEngine.physicsEngine.add(gameObject, ballObject, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
+            shape = new btSphereShape(marble.getSize() / 2);
+            if (mass > 0f)
+                shape.calculateLocalInertia(mass, localInertia);
+            else
+                localInertia.set(0, 0, 0);
+            this.constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(mass, null, shape, localInertia);
+//            constructionInfo.setFriction(.01f);
+            motionState           = new MyMotionState();
+            motionState.transform = gameObject.instance.transform;
+
+            gameObject.body = new btRigidBody(constructionInfo);
+//            gameObject.body.applyImpulse(new Vector3(-7, 0, 0), new Vector3(0, 0, 0));
+            gameObject.body.setCollisionShape(shape);
+            gameObject.body.setMotionState(motionState);
+//            gameObject.body.setLinearFactor(new Vector3(1f, 0f, 1f));
+            renderEngine.physicsEngine.add(gameObject, gameObject.body, PhysicsEngine.MARBLE_FLAG, PhysicsEngine.ALL_FLAG);
         }
     }
 
@@ -77,9 +99,30 @@ public class Marble3DRenderer extends ObjectRenderer<GameEngine> {
         for (PointLight pl : pointLight) {
             renderEngine.remove(pl, true);
         }
-        renderEngine.physicsEngine.remove(gameObject, ballObject);
-        ballObject.dispose();
-        ballShape.dispose();
+        renderEngine.physicsEngine.remove(gameObject, gameObject.body);
+        gameObject.body.dispose();
+        motionState.dispose();
+        shape.dispose();
+        constructionInfo.dispose();
+    }
+
+    public boolean onContactAdded(Object o0, Object o1) {
+//        GameObject go0 = (GameObject) o0;
+        GameObject go1 = (GameObject) o1;
+        if (go1.interactive instanceof Marble m) {
+//            logger.info(String.format("contact %d - %d", marble.type, m.type));
+            Vector3 buffer = marble.speed.cpy();
+            marble.speed.set(m.speed);
+            m.speed.set(buffer);
+        } else if (go1.interactive instanceof btBoxShape shape) {
+            //a marble hit a wall
+            Vector3 extend = shape.getHalfExtentsWithMargin();
+            if (extend.x > extend.z) {
+                marble.speed.z *= -1;
+            } else
+                marble.speed.x *= -1;
+        }
+        return true;
     }
 
     private void tuneLightIntensity() {
@@ -140,9 +183,23 @@ public class Marble3DRenderer extends ObjectRenderer<GameEngine> {
 //            instance.instance.transform.rotateTowardDirection(direction, Vector3.Y);
             gameObject.instance.transform.scale(marble.getSize(), marble.getSize(), marble.getSize());
             gameObject.update();
-            ballObject.setWorldTransform(gameObject.instance.transform);
+            gameObject.body.setWorldTransform(gameObject.instance.transform);
         }
 
+    }
+
+    static class MyMotionState extends btMotionState {
+        Matrix4 transform;
+
+        @Override
+        public void getWorldTransform(Matrix4 worldTrans) {
+            worldTrans.set(transform);
+        }
+
+        @Override
+        public void setWorldTransform(Matrix4 worldTrans) {
+            transform.set(worldTrans);
+        }
     }
 
 }
