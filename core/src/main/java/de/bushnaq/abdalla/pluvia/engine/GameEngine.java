@@ -200,7 +200,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             cubeYNegPlaneTranslation = new Vector3(0, -3.5f - .1f, 0);
             for (int x = 0; x < 7; x++) {
                 for (int z = 0; z < 7; z++) {
-                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.transparentPlane), null);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeYNegPlane.set(x, z, go);
@@ -212,7 +212,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             cubeYPosPlaneTranslation = new Vector3(0, 3.5f + .1f, 0);
             for (int x = 0; x < 7; x++) {
                 for (int z = 0; z < 7; z++) {
-                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.transparentPlane), null);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeYPosPlane.set(x, z, go);
@@ -224,7 +224,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             cubeZNegPlaneTranslation = new Vector3(0, 0, -3.5f - .1f);
             for (int x = 0; x < 7; x++) {
                 for (int z = 0; z < 7; z++) {
-                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.transparentPlane), null);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeZNegPlane.set(x, z, go);
@@ -236,7 +236,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             cubeZPosPlaneTranslation = new Vector3(0, 0, 3.5f + .1f);
             for (int x = 0; x < 7; x++) {
                 for (int z = 0; z < 7; z++) {
-                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.transparentPlane), null);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeZPosPlane.set(x, z, go);
@@ -248,7 +248,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             cubeXNegPlaneTranslation = new Vector3(-3.5f - .1f, 0, 0);
             for (int y = 0; y < 7; y++) {
                 for (int z = 0; z < 7; z++) {
-                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.transparentPlane), null);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeXNegPlane.set(y, z, go);
@@ -260,7 +260,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             cubeXPosPlaneTranslation = new Vector3(3.5f + .1f, 0, 0);
             for (int y = 0; y < 7; y++) {
                 for (int z = 0; z < 7; z++) {
-                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.cube), null);
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(modelManager.transparentPlane), null);
                     go.update();
                     renderEngine.addDynamic(go);
                     cubeXPosPlane.set(y, z, go);

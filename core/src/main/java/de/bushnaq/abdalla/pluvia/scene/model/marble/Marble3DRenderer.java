@@ -51,6 +51,7 @@ public class Marble3DRenderer extends ObjectRenderer<GameEngine> {
     private static final Color                                   SCARLET_COLOR          = new Color(0xb00233ff);
     private static final Vector3                                 localInertia           = new Vector3();
     public               btRigidBody.btRigidBodyConstructionInfo constructionInfo;
+    private final        Vector3                                 direction              = new Vector3();
     private              GameObject<GameEngine>                  gameObject;
     private              float                                   lightIntensity         = 0f;
     private              boolean                                 lightIsOne             = false;
@@ -58,10 +59,11 @@ public class Marble3DRenderer extends ObjectRenderer<GameEngine> {
     private final        Marble                                  marble;
     private final        float                                   mass                   = 1f;
     public               MyMotionState                           motionState;
-    Vector3 negative = new Vector3(-1, -1, -1);
-    private final List<PointLight> pointLight  = new ArrayList<>();
-    private       btSphereShape    shape;
-    private final Vector3          translation = new Vector3();        // intermediate value
+    private final        List<PointLight>                        pointLight             = new ArrayList<>();
+    private final        Vector3                                 rotation               = new Vector3();
+    private final        Vector3                                 rotationSpeed          = new Vector3();
+    private              btSphereShape                           shape;
+    private final        Vector3                                 translation            = new Vector3();        // intermediate value
 
     public Marble3DRenderer(final Marble patch) {
         this.marble = patch;
@@ -172,6 +174,10 @@ public class Marble3DRenderer extends ObjectRenderer<GameEngine> {
     @Override
     public void update(final float x, final float y, final float z, final RenderEngine3D<GameEngine> renderEngine, final long currentTime, final float timeOfDay, final int index, final boolean selected) throws Exception {
         translation.set(marble.position);
+        direction.set(marble.speed).nor();
+        Vector3 perpendicular = direction.crs(Vector3.Y);
+        rotation.x += marble.speed.len() * 100;
+        rotation.x %= 360;
 
         for (PointLight pl : pointLight) {
             pl.setPosition(translation);
@@ -180,7 +186,7 @@ public class Marble3DRenderer extends ObjectRenderer<GameEngine> {
         tuneLightIntensity();
         {
             gameObject.instance.transform.setToTranslation(translation);
-//            instance.instance.transform.rotateTowardDirection(direction, Vector3.Y);
+            gameObject.instance.transform.rotate(perpendicular, -rotation.x);
             gameObject.instance.transform.scale(marble.getSize(), marble.getSize(), marble.getSize());
             gameObject.update();
             gameObject.body.setWorldTransform(gameObject.instance.transform);

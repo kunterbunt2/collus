@@ -44,7 +44,7 @@ public class ModelManager {
     public static final  int          MAX_NUMBER_OF_BUBBLE_MODELS        = 10;
     public static final  int          MAX_NUMBER_OF_FIREFLY_MODELS       = 10;
     public static final  int          MAX_NUMBER_OF_FLY_MODELS           = 10;
-    public static final  int          MAX_NUMBER_OF_MARBLE_MODELS        = 1;
+    public static final  int          MAX_NUMBER_OF_MARBLE_MODELS        = 5;
     private static final int          MAX_NUMBER_OF_NORMAL_STONE_MODELS  = 8;
     public static final  int          MAX_NUMBER_OF_RAIN_MODELS          = 12;
     private static final int          MAX_NUMBER_OF_SPECIAL_STONE_MODELS = 6;
@@ -70,6 +70,7 @@ public class ModelManager {
     public               Model        square;                                                                            // used for the ground
     public               SceneAsset[] stone                              = new SceneAsset[MAX_NUMBER_OF_STONE_MODELS];    // for stones
     public               SceneAsset   stoneFrameElement;
+    public               Model        transparentPlane;
     public               Model        water;                                                                            // water square
 
     public ModelManager() {
@@ -93,6 +94,7 @@ public class ModelManager {
         createTransparentCube(modelBuilder);
         createShadowModel(modelBuilder);
         createCube(modelBuilder);
+        createTransparentPlane(modelBuilder);
     }
 
     private void createBackPlateModel(boolean isPbr, final ModelBuilder modelBuilder) {
@@ -155,21 +157,11 @@ public class ModelManager {
     }
 
     private void createCube(final ModelBuilder modelBuilder) {
-//        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.GRAY);
-//        final Attribute metallic  = PBRFloatAttribute.createMetallic(0f);
-//        final Attribute roughness = PBRFloatAttribute.createRoughness(1f);
-//        final Material  material  = new Material(metallic, roughness, color);
-////        cube = modelBuilder.createBox(1f, 1f, 1f, material, Usage.Position | Usage.Normal);
-//        cube = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + "/models/stone1.glb"));
-//        Material m = cube.scene.model.materials.get(0);
-//        m.set(PBRColorAttribute.createBaseColorFactor(Color.WHITE));
         final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.WHITE);
         final Attribute metallic  = PBRFloatAttribute.createMetallic(0.2f);
         final Attribute roughness = PBRFloatAttribute.createRoughness(0.5f);
-//        final Attribute blending  = new BlendingAttribute(0.2f); // opacity is set by pbrMetallicRoughness below
-        final Material material = new Material(metallic, roughness, color);
+        final Material  material  = new Material(metallic, roughness, color);
         cube = modelBuilder.createBox(1.0f, 1.0f, 1.0f, material, Usage.Position | Usage.Normal);
-
     }
 
     private void createFireflyModels(boolean isPbr, final ModelBuilder modelBuilder) {
@@ -256,11 +248,11 @@ public class ModelManager {
 
     private void createMarbleModels(boolean isPbr) {
         for (int i = 0; i < MAX_NUMBER_OF_MARBLE_MODELS; i++) {
-            marbleModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + "/models/marble.glb")));
-            Material m = marbleModel[i].scene.model.materials.get(0);
+            marbleModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + String.format("/models/marble-%02d.glb", i + 1))));
+//            Material m = marbleModel[i].scene.model.materials.get(0);
 //            int[]    ints = ColorUtils.RGBtoHSV(getColor(i));
 //            m.set(PBRColorAttribute.createBaseColorFactor(new Color(ColorUtils.HSVtoRGB(ints[0], ints[1], ints[2] / 4))));
-            m.set(PBRColorAttribute.createBaseColorFactor(getColor(i)));
+//            m.set(PBRColorAttribute.createBaseColorFactor(getColor(i)));
         }
     }
 
@@ -365,6 +357,15 @@ public class ModelManager {
             final Material  material  = new Material(metallic, roughness, color, blending);
             cubeTrans1 = modelBuilder.createBox(1.0f, 1.0f, 1.0f, material, Usage.Position | Usage.Normal);
         }
+    }
+
+    private void createTransparentPlane(final ModelBuilder modelBuilder) {
+        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.DARK_GRAY);
+        final Attribute metallic  = PBRFloatAttribute.createMetallic(0.5f);
+        final Attribute roughness = PBRFloatAttribute.createRoughness(0.5f);
+        final Attribute blending  = new BlendingAttribute(0.2f); // opacity is set by pbrMetallicRoughness below
+        final Material  material  = new Material(metallic, roughness, color, blending);
+        transparentPlane = createSquare(modelBuilder, 0.5f, 0.5f, material);
     }
 
     private void createWaterModel(final ModelBuilder modelBuilder) {
