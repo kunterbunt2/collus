@@ -22,7 +22,6 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.Sizes;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisList;
@@ -101,7 +100,7 @@ public class MainDialog extends AbstractDialog {
         {
             table1.row();
 
-            VisTextButton button = new VisTextButton("About Pluvia");
+            VisTextButton button = new VisTextButton("About Collus");
 
             addHoverEffect(button);
             button.addListener(new ChangeListener() {
@@ -133,19 +132,19 @@ public class MainDialog extends AbstractDialog {
 //			label.setColor(LIGHT_BLUE_COLOR);
 //			table3.add(label).center().pad(12);
 //		}
-        {
-            table2.row();
-            listView.setItems("Bird", "Rabbit", "Turtle", "Dragon");
-            listView.setAlignment(Align.center);
-//            listView.addListener(new ChangeListener() {
-//                @Override
-//                public void changed(ChangeEvent event, Actor actor) {
-//                    updateDescription(sizes);
-//                }
-//            });
-
-            table2.add(listView).center().width(BUTTON_WIDTH * sizes.scaleFactor).pad(16);
-        }
+//        {
+//            table2.row();
+//            listView.setItems("Bird", "Rabbit", "Turtle", "Dragon");
+//            listView.setAlignment(Align.center);
+////            listView.addListener(new ChangeListener() {
+////                @Override
+////                public void changed(ChangeEvent event, Actor actor) {
+////                    updateDescription(sizes);
+////                }
+////            });
+//
+//            table2.add(listView).center().width(BUTTON_WIDTH * sizes.scaleFactor).pad(16);
+//        }
         {
             getTable().row();
             VisTextButton button = new VisTextButton("Exit Game");
@@ -227,7 +226,7 @@ public class MainDialog extends AbstractDialog {
     private void startAction() {
         setVisible(false);
         int checkedIndex = listView.getSelectedIndex();
-        createGame(checkedIndex, true, -1);
+        createGame(0, true, -1);
     }
 
 //    private void updateDescription(Sizes sizes) {
