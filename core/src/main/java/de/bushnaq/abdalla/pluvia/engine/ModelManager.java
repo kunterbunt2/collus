@@ -249,17 +249,12 @@ public class ModelManager {
     private void createMarbleModels(boolean isPbr) {
         for (int i = 0; i < MAX_NUMBER_OF_MARBLE_MODELS; i++) {
             marbleModel[i] = new GLBLoader().load(Gdx.files.internal(String.format(AtlasManager.getAssetsFolderName() + String.format("/models/marble-%02d.glb", i + 1))));
-//            Material m = marbleModel[i].scene.model.materials.get(0);
-//            int[]    ints = ColorUtils.RGBtoHSV(getColor(i));
-//            m.set(PBRColorAttribute.createBaseColorFactor(new Color(ColorUtils.HSVtoRGB(ints[0], ints[1], ints[2] / 4))));
-//            m.set(PBRColorAttribute.createBaseColorFactor(getColor(i)));
         }
     }
 
     private void createMirrorModel(final ModelBuilder modelBuilder) {
         final ColorAttribute diffuseColor = ColorAttribute.createDiffuse(Color.WHITE);
-//		final TextureAttribute	diffuseTexture	= TextureAttribute.createDiffuse(texture);
-        final Material material = new Material(diffuseColor/* , diffuseTexture */);
+        final Material       material     = new Material(diffuseColor);
         material.id = "mirror";
         mirror      = createSquare(modelBuilder, 0.5f, 0.5f, material);
     }
@@ -285,6 +280,11 @@ public class ModelManager {
         }
     }
 
+    /**
+     * models used to display shadow of stone on the wall
+     *
+     * @param modelBuilder
+     */
     private void createShadowModel(final ModelBuilder modelBuilder) {
 //        final Attribute color     = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.GRAY);
 //        final Attribute metallic  = PBRFloatAttribute.createMetallic(0.1f);

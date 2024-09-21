@@ -347,6 +347,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             audioManager.dispose();
             disposeEnvironment();
             contactListener.dispose();
+            context.levelManager.destroy();
             renderEngine.dispose();
             atlasManager.dispose();
             disposeInputProcessor();
