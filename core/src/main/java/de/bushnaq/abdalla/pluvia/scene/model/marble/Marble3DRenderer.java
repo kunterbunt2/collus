@@ -175,8 +175,9 @@ public class Marble3DRenderer extends ObjectRenderer<GameEngine> {
     public void update(final float x, final float y, final float z, final RenderEngine3D<GameEngine> renderEngine, final long currentTime, final float timeOfDay, final int index, final boolean selected) throws Exception {
         translation.set(marble.position);
         direction.set(marble.speed).nor();
-        Vector3 perpendicular = direction.crs(Vector3.Y);
-        rotation.x += marble.speed.len() * 100;
+        Vector3 perpendicular  = direction.crs(Vector3.Y);
+        float   rotationFactor = 360 / ((float) Math.PI * 2 * marble.getSize());
+        rotation.x += rotationFactor * marble.speed.len();
         rotation.x %= 360;
 
         for (PointLight pl : pointLight) {

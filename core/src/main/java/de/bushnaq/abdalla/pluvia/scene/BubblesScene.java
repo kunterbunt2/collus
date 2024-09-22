@@ -59,8 +59,8 @@ public class BubblesScene extends AbstractScene {
         renderEngine.getMirror().setReflectivity(0.1f);
         renderEngine.getMirror().setMirrorLevel(-4.949f);
         createMirror(Color.WHITE);
-        renderEngine.setDayAmbientLight(.5f, .5f, .5f, 10f);
-        renderEngine.setNightAmbientLight(.8f, .8f, .8f, 1f);
+//        renderEngine.setDayAmbientLight(.5f, .5f, .5f, 10f);
+//        renderEngine.setNightAmbientLight(.8f, .8f, .8f, 1f);
 //        createPlane(Color.WHITE);
 
 //        createBubble(0.02f, 0.5f);

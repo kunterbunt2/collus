@@ -19,6 +19,8 @@
  */
 package de.bushnaq.abdalla.pluvia.scene.model.marble;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import de.bushnaq.abdalla.engine.RenderEngine3D;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
@@ -46,7 +48,9 @@ public class Marble extends AbstractActor {
     }
 
     public void advanceInTime(long currentTime) {
-        position.add(speed);
+        final float deltaTime = Gdx.graphics.getDeltaTime();
+        Vector3     buffer    = speed.cpy().scl(deltaTime * 60);
+        position.add(buffer);
         //hitting the border
     }
 
