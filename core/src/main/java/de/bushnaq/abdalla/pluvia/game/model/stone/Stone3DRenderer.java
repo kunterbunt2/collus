@@ -267,14 +267,14 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             stone.setTx(x);
             stone.setTy(y + fraction * TRADER_SIZE_Y);
             stone.setTz(z);
-        } else if (stone.isMovingLeft()) {
-            stone.setTx(x + fraction * TRADER_SIZE_X);
-            stone.setTy(y);
-            stone.setTz(z);
-        } else if (stone.isMovingRight()) {
-            stone.setTx(x - fraction * TRADER_SIZE_X);
-            stone.setTy(y);
-            stone.setTz(z);
+//        } else if (stone.isMovingLeft()) {
+//            stone.setTx(x + fraction * TRADER_SIZE_X);
+//            stone.setTy(y);
+//            stone.setTz(z);
+//        } else if (stone.isMovingRight()) {
+//            stone.setTx(x - fraction * TRADER_SIZE_X);
+//            stone.setTy(y);
+//            stone.setTz(z);
         } else {
             stone.setTx(x);
             stone.setTy(y);

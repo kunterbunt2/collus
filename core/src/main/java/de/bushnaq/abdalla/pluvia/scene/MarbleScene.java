@@ -39,6 +39,14 @@ public class MarbleScene extends AbstractScene {
         super.create(levelNameString);
         logo.setColor(getInfoColor());
         version.setColor(getInfoColor());
+        //fx
+        renderEngine.getDepthOfFieldEffect().setFocalDepth(15f);
+        renderEngine.getDepthOfFieldEffect().setEnabled(true);
+        renderEngine.getDepthOfFieldEffect().setThreshold(1);
+//        renderEngine.getDepthOfFieldEffect().setGain(2);
+        renderEngine.setRenderBokeh(false);
+
+
         renderEngine.setSkyBox(false);
         renderEngine.setShadowEnabled(true);
         // time
@@ -49,6 +57,7 @@ public class MarbleScene extends AbstractScene {
         renderEngine.getFog().setColor(Color.WHITE);
         renderEngine.getFog().setBeginDistance(20f);
         renderEngine.getFog().setFullDistance(50f);
+        renderEngine.getFog().setEnabled(true);
         // water
         renderEngine.getWater().setPresent(false);
         // mirror

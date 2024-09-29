@@ -207,7 +207,7 @@ public abstract class AbstractDialog {
 
     protected VisDialog createWindow(String title) {
         dialog = new VisDialog(title);
-        dialog.setColor(0.0f, 0.0f, 0.0f, 1.0f);
+        dialog.setColor(1.0f, 1.0f, 1.0f, 1f);
         dialog.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         dialog.setMovable(false);
         getDialog().setBackground((Drawable) null);

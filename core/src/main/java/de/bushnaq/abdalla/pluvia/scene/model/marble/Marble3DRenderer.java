@@ -102,9 +102,11 @@ public class Marble3DRenderer extends ObjectRenderer<GameEngine> {
             renderEngine.remove(pl, true);
         }
         renderEngine.physicsEngine.remove(gameObject, gameObject.body);
+        gameObject.body.getMotionState().dispose();
+        gameObject.body.getCollisionShape().dispose();
         gameObject.body.dispose();
-        motionState.dispose();
-        shape.dispose();
+//        motionState.dispose();
+//        shape.dispose();
         constructionInfo.dispose();
     }
 

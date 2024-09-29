@@ -18,10 +18,13 @@ package de.bushnaq.abdalla.pluvia.scene;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -37,6 +40,7 @@ import de.bushnaq.abdalla.pluvia.engine.ModelManager;
 import de.bushnaq.abdalla.pluvia.scene.model.fish.Fish;
 import de.bushnaq.abdalla.pluvia.scene.model.marble.Marble;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,6 +181,15 @@ public abstract class AbstractScene {
         }
     }
 
+    private Model createCube(float x, float y, float z) {
+        final ModelBuilder modelBuilder = new ModelBuilder();
+        final Attribute    color        = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.WHITE);
+        final Attribute    metallic     = PBRFloatAttribute.createMetallic(0.2f);
+        final Attribute    roughness    = PBRFloatAttribute.createRoughness(0.5f);
+        final Material     material     = new Material(metallic, roughness, color);
+        return modelBuilder.createBox(x, y, z, material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+    }
+
     protected void createFish(float minSize, float maxSize) {
         Vector3     min = renderEngine.getSceneBox().min;
         Vector3     max = renderEngine.getSceneBox().max;
@@ -192,7 +205,7 @@ public abstract class AbstractScene {
     protected void createMarbles(float minSize, float maxSize, float planeLevel) {
         Vector3     min         = renderEngine.getSceneBox().min;
         Vector3     max         = renderEngine.getSceneBox().max;
-        BoundingBox boundingBox = new BoundingBox(new Vector3(min.x, planeLevel, min.z), new Vector3(max.x, planeLevel + maxSize, 0));
+        BoundingBox boundingBox = new BoundingBox(new Vector3(min.x - 30, planeLevel, min.z - 30), new Vector3(max.x + 30, planeLevel + maxSize, 5));
         this.constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(0f, null, null, new Vector3(0, 0, 0));
 //        {
 //            Matrix4 m = new Matrix4();
@@ -216,12 +229,12 @@ public abstract class AbstractScene {
 //        }
         {
             Matrix4 m = new Matrix4();
-            m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY(), boundingBox.getCenterZ() - boundingBox.getDepth() / 2 - .5f);
-            shape1 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, .9f / 2));
+            m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY() - .6f, boundingBox.getCenterZ() - boundingBox.getDepth() / 2 - .5f);
+            shape1 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2, .9f / 2, .1f));
 
-            boundariesZNegGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), shape1);
+            boundariesZNegGameObject = new GameObject<>(new ModelInstanceHack(createCube(boundingBox.getWidth(), 1, .1f)), shape1);
             boundariesZNegGameObject.instance.transform.set(m);
-//            renderEngine.addDynamic(boundariesZNegGameObject);
+            renderEngine.addDynamic(boundariesZNegGameObject);
             boundariesZNegGameObject.update();
 
             this.constructionInfo.setMass(0);
@@ -236,12 +249,12 @@ public abstract class AbstractScene {
         }
         {
             Matrix4 m = new Matrix4();
-            m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY(), boundingBox.getCenterZ() + boundingBox.getDepth() / 2 + .5f);
-            shape2 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, .9f / 2));
+            m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY() - .6f, boundingBox.getCenterZ() + boundingBox.getDepth() / 2 + .5f);
+            shape2 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, .1f));
 
-            boundariesZPosGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), shape2);
+            boundariesZPosGameObject = new GameObject<>(new ModelInstanceHack(createCube(boundingBox.getWidth(), 1, .1f)), shape2);
             boundariesZPosGameObject.instance.transform.set(m);
-//            renderEngine.addDynamic(boundariesZPosGameObject);
+            renderEngine.addDynamic(boundariesZPosGameObject);
             boundariesZPosGameObject.update();
 
             this.constructionInfo.setMass(0);
@@ -256,12 +269,12 @@ public abstract class AbstractScene {
         }
         {
             Matrix4 m = new Matrix4();
-            m.setToTranslation(boundingBox.getCenterX() - boundingBox.getWidth() / 2 - .5f, boundingBox.getCenterY(), boundingBox.getCenterZ());
-            shape3 = new btBoxShape(new Vector3(.45f, .45f, boundingBox.getDepth() / 2 - .1f));
+            m.setToTranslation(boundingBox.getCenterX() - boundingBox.getWidth() / 2 - .5f, boundingBox.getCenterY() - .6f, boundingBox.getCenterZ());
+            shape3 = new btBoxShape(new Vector3(.1f, .45f, boundingBox.getDepth() / 2));
 
-            boundariesXPosGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), shape3);
+            boundariesXPosGameObject = new GameObject<>(new ModelInstanceHack(createCube(.1f, 1, boundingBox.getDepth())), shape3);
             boundariesXPosGameObject.instance.transform.set(m);
-//            renderEngine.addDynamic(boundariesXPosGameObject);
+            renderEngine.addDynamic(boundariesXPosGameObject);
             boundariesXPosGameObject.update();
 
             this.constructionInfo.setMass(0);
@@ -276,12 +289,12 @@ public abstract class AbstractScene {
         }
         {
             Matrix4 m = new Matrix4();
-            m.setToTranslation(boundingBox.getCenterX() + boundingBox.getWidth() / 2 + .5f, boundingBox.getCenterY(), boundingBox.getCenterZ());
-            shape4 = new btBoxShape(new Vector3(.45f, .45f, boundingBox.getDepth() / 2 - .1f));
+            m.setToTranslation(boundingBox.getCenterX() + boundingBox.getWidth() / 2 + .5f, boundingBox.getCenterY() - .6f, boundingBox.getCenterZ());
+            shape4 = new btBoxShape(new Vector3(.1f, .45f, boundingBox.getDepth() / 2));
 
-            boundariesXNegGameObject = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.cube), shape4);
+            boundariesXNegGameObject = new GameObject<>(new ModelInstanceHack(createCube(.1f, 1, boundingBox.getDepth())), shape4);
             boundariesXNegGameObject.instance.transform.set(m);
-//            renderEngine.addDynamic(boundariesXNegGameObject);
+            renderEngine.addDynamic(boundariesXNegGameObject);
             boundariesXNegGameObject.update();
 
             this.constructionInfo.setMass(0);
@@ -305,6 +318,7 @@ public abstract class AbstractScene {
             marbleList.add(marble);
             renderEngine.getGameEngine().context.marbleList.add(marble);
         }
+        constructionInfo.dispose();
     }
 
     protected void createMirror(Color color) {
@@ -348,6 +362,27 @@ public abstract class AbstractScene {
                 cube.instance.transform.setToTranslationAndScaling(0f, -30f, 0f, 100f, 0.1f, 100f);
                 renderModelInstances.add(cube);
             }
+        }
+    }
+
+    public void destroy() {
+        destroy(boundariesXNegGameObject);
+        boundariesXNegGameObject = null;
+        destroy(boundariesXPosGameObject);
+        boundariesXPosGameObject = null;
+        destroy(boundariesZNegGameObject);
+        boundariesZNegGameObject = null;
+        destroy(boundariesZPosGameObject);
+        boundariesZPosGameObject = null;
+    }
+
+    private void destroy(GameObject<GameEngine> gameObject) {
+        if (gameObject != null) {
+            renderEngine.removeDynamic(gameObject);
+            renderEngine.physicsEngine.remove(gameObject, gameObject.body);
+            gameObject.body.getMotionState().dispose();
+            gameObject.body.getCollisionShape().dispose();
+            gameObject.body.dispose();
         }
     }
 

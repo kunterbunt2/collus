@@ -54,8 +54,8 @@ public abstract class Level {
     protected     Game       game                 = null;
     public        GamePhase  gamePhase            = GamePhase.waiting;
     protected     Logger     logger               = LoggerFactory.getLogger(this.getClass());
-    public        int        maxAnimationPhase    = 12;
-    protected     int        nrOfStones           = 0;                                        // Number of different patches (colors) in the game
+    public        int        maxAnimationPhase    = 12 * 4;
+    //    protected     int        nrOfStones           = 0;                                        // Number of different patches (colors) in the game
     //    protected     int        preview              = 0;                                        // Number of rows that the user can preview before they actually drop into the game
 //    private final Set<Stone> pushingLeftStones    = new HashSet<>();
 //    private final Set<Stone> pushingRightStones   = new HashSet<>();
@@ -72,10 +72,10 @@ public abstract class Level {
         this.ySize = game.ySize;
         this.zSize = game.zSize;
 //        this.preview    = game.preview;
-        this.nrOfStones = game.nrOfStones;
-        this.game       = game;
-        cube            = new Cube(xSize, ySize, zSize);
-        rand            = new PersistentRandomGenerator();
+//        this.nrOfStones = game.nrOfStones;
+        this.game = game;
+        cube      = new Cube(xSize, ySize, zSize);
+        rand      = new PersistentRandomGenerator();
         game.reset();
         game.setReset(false);
         recording = new Recording();
@@ -111,20 +111,20 @@ public abstract class Level {
         return somethingHasChanged;
     }
 
-    protected boolean clearPuchingAttributes() {
-        boolean somethingHasChanged = false;
-        for (int z = 0; z < this.zSize; z++) {
-            for (int y = 0; y < this.ySize; y++) {
-                for (int x = 0; x < this.xSize; x++) {
-                    if (cube.get(x, y, z) != null) {
-                        if (cube.get(x, y, z).clearPushingAttributes()) somethingHasChanged = true;
-                    } else {
-                    }
-                }
-            }
-        }
-        return somethingHasChanged;
-    }
+//    protected boolean clearPuchingAttributes() {
+//        boolean somethingHasChanged = false;
+//        for (int z = 0; z < this.zSize; z++) {
+//            for (int y = 0; y < this.ySize; y++) {
+//                for (int x = 0; x < this.xSize; x++) {
+//                    if (cube.get(x, y, z) != null) {
+//                        if (cube.get(x, y, z).clearPushingAttributes()) somethingHasChanged = true;
+//                    } else {
+//                    }
+//                }
+//            }
+//        }
+//        return somethingHasChanged;
+//    }
 
     protected void clearTemporaryAttributes() {
         for (int z = 0; z < this.zSize; z++) {
@@ -154,6 +154,8 @@ public abstract class Level {
     }
 
     public void createLevel(String levelNameString) {
+        tilt      = false;
+        gamePhase = GamePhase.waiting;
         // if this is a level that already (resumed game) has stones, we do not fill it, and we do not generate stones right at the start
         if (queryHeapHeight() == 0) {
 //            fillLevel();
@@ -429,8 +431,9 @@ public abstract class Level {
         else if ((x != 0) && cube.isOccupied(x - 1, y, z) && stone.isMagneticTo(cube.get(x - 1, y, z)) && cube.get(x - 1, y, z).isCannotDrop()) cannotDrop = true;
             // ---THERE IS A STICKY STONE RIGHT FROM US THAT CANNOT DROP
         else if ((x != this.xSize - 1) && cube.isOccupied(x + 1, y, z) && stone.isMagneticTo(cube.get(x + 1, y, z)) && cube.get(x + 1, y, z).isCannotDrop()) cannotDrop = true;
-
+            // ---THERE IS A STICKY STONE BEHIND US THAT CANNOT DROP
         else if ((z != 0) && cube.isOccupied(x, y, z - 1) && stone.isMagneticTo(cube.get(x, y, z - 1)) && cube.get(x, y, z - 1).isCannotDrop()) cannotDrop = true;
+            // ---THERE IS A STICKY STONE IN FRONT OF US THAT CANNOT DROP
         else if ((z != this.zSize - 1) && cube.isOccupied(x, y, z + 1) && stone.isMagneticTo(cube.get(x, y, z + 1)) && cube.get(x, y, z + 1).isCannotDrop()) cannotDrop = true;
         else if ((y != 0) && cube.isOccupied(x, y - 1, z) && stone.isMagneticTo(cube.get(x, y - 1, z)) && cube.get(x, y - 1, z).isCannotDrop()) cannotDrop = true;
         else if ((y != this.ySize - 1) && cube.isOccupied(x, y + 1, z) && stone.isMagneticTo(cube.get(x, y + 1, z)) && cube.get(x, y + 1, z).isCannotDrop()) cannotDrop = true;
@@ -454,22 +457,27 @@ public abstract class Level {
             // ---THERE IS SPACE FOR DROPPING OR A DROPPING STONE UNDER US
             if ((y != 0) && (!cube.isOccupied(x, y - 1, z) || cube.get(x, y - 1, z).isCanDrop())) {
                 // ---THERE IS NO STICKY STONE LEFT FROM US OR IT CAN DROP TOO
-                if ((x == 0) || !cube.isOccupied(x - 1, y, z) || (stone.getType() != cube.get(x - 1, y, z).getType()) || !cube.get(x - 1, y, z).isCannotDrop()) {
+                if ((x == 0) || !cube.isOccupied(x - 1, y, z) || !stone.isMagneticTo(cube.get(x - 1, y, z)) || !cube.get(x - 1, y, z).isCannotDrop()) {
                     // ---THERE IS NO STICKY STONE RIGHT FROM US OR IT CAN DROP TOO
                     if ((x == this.xSize - 1) || !cube.isOccupied(x + 1, y, z) || !stone.isMagneticTo(cube.get(x + 1, y, z)) || !cube.get(x + 1, y, z).isCannotDrop()) {
+                        if ((z == 0) || !cube.isOccupied(x, y, z - 1) || !stone.isMagneticTo(cube.get(x, y, z - 1)) || !cube.get(x, y, z - 1).isCannotDrop()) {
+                            // ---THERE IS NO STICKY STONE RIGHT FROM US OR IT CAN DROP TOO
+                            if ((z == this.zSize - 1) || !cube.isOccupied(x, y, z + 1) || !stone.isMagneticTo(cube.get(x, y, z + 1)) || !cube.get(x, y, z + 1).isCannotDrop()) {
 //						if (x == 1 && y == 5)
 //							logger.info(String.format("1=%b 2=%b 3=%b", (x == width - 1) || (patch[x + 1][y] == null), (patch[x + 1][y] != null) && (patch[x][y].getType() != patch[x + 1][y].getType()),(patch[x + 1][y] != null) && !patch[x + 1][y].isCannotDrop()));
-                        if (!stone.isCanDrop()) {
-                            stone.setCanDrop(true);
-                            droppingStones.add(stone);
-                            aThereWasAChange.setTrue();
+                                if (!stone.isCanDrop()) {
+                                    stone.setCanDrop(true);
+                                    droppingStones.add(stone);
+                                    aThereWasAChange.setTrue();
 //                            logger.info("c");
-                        } else {
-                            droppingStones.add(stone);
-                        }
-                    } else logger.error("3");
-                } else logger.error("2");
-            } else logger.error("1");
+                                } else {
+                                    droppingStones.add(stone);
+                                }
+                            } else logger.error("error 5");
+                        } else logger.error("error 4");
+                    } else logger.error("error 3");
+                } else logger.error("error 2");
+            } else logger.error("error 1");
         }
 //        if (aThereWasAChange.getBooleanValue())
 //            logger.info("there was a change");
@@ -806,86 +814,32 @@ public abstract class Level {
     }
 
     public void rotateCubeMinusX() {
-        Cube buffer = new Cube(xSize, ySize, zSize);
-        for (int z = 0; z < zSize; z++) {
-            for (int y = 0; y < this.ySize; y++) {
-                for (int x = 0; x < xSize; x++) {
-                    Stone stone = cube.get(x, y, z);
-                    buffer.set(x, z, ySize - 1 - y, stone);
-                }
-            }
-        }
-        cube.set(buffer);
+        cube.rotateCubeMinusX();
         setUserReacted(true);
     }
 
     public void rotateCubeMinusY() {
-        Cube buffer = new Cube(xSize, ySize, zSize);
-        for (int z = 0; z < zSize; z++) {
-            for (int y = 0; y < ySize; y++) {
-                for (int x = 0; x < xSize; x++) {
-                    Stone stone = cube.get(x, y, z);
-                    buffer.set(xSize - 1 - z, y, x, stone);
-                }
-            }
-        }
-        cube.set(buffer);
+        cube.rotateCubeMinusY();
         setUserReacted(true);
     }
 
     public void rotateCubeMinusZ() {
-        Cube buffer = new Cube(xSize, ySize, zSize);
-        for (int z = 0; z < zSize; z++) {
-            for (int y = 0; y < ySize; y++) {
-                for (int x = 0; x < xSize; x++) {
-                    Stone stone = cube.get(x, y, z);
-                    buffer.set(y, ySize - 1 - x, z, stone);
-                }
-            }
-        }
-        cube.set(buffer);
+        cube.rotateCubeMinusZ();
         setUserReacted(true);
     }
 
     public void rotateCubePlusX() {
-        Cube buffer = new Cube(xSize, ySize, zSize);
-        for (int z = 0; z < zSize; z++) {
-            for (int y = 0; y < ySize; y++) {
-                for (int x = 0; x < xSize; x++) {
-                    Stone stone = cube.get(x, y, z);
-                    buffer.set(x, zSize - 1 - z, y, stone);
-                }
-            }
-        }
-        cube.set(buffer);
+        cube.rotateCubePlusX();
         setUserReacted(true);
     }
 
     public void rotateCubePlusY() {
-        Cube buffer = new Cube(xSize, ySize, zSize);
-        for (int z = 0; z < zSize; z++) {
-            for (int y = 0; y < ySize; y++) {
-                for (int x = 0; x < xSize; x++) {
-                    Stone stone = cube.get(x, y, z);
-                    buffer.set(z, y, zSize - 1 - x, stone);
-                }
-            }
-        }
-        cube.set(buffer);
+        cube.rotateCubePlusY();
         setUserReacted(true);
     }
 
     public void rotateCubePlusZ() {
-        Cube buffer = new Cube(xSize, ySize, zSize);
-        for (int z = 0; z < zSize; z++) {
-            for (int y = 0; y < ySize; y++) {
-                for (int x = 0; x < xSize; x++) {
-                    Stone stone = cube.get(x, y, z);
-                    buffer.set(zSize - 1 - y, x, z, stone);
-                }
-            }
-        }
-        cube.set(buffer);
+        cube.rotateCubePlusZ();
         setUserReacted(true);
     }
 
@@ -1012,7 +966,7 @@ public abstract class Level {
                         setUserReacted(false);
 //                        generateStones();
                     }
-                    clearPuchingAttributes();
+//                    clearPuchingAttributes();
                     removeVanishedStones();
                     clearCommandAttributes();
                     gamePhase = setStoneOptions();

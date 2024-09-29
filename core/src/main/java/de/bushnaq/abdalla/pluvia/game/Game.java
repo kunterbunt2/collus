@@ -32,7 +32,7 @@ public class Game implements Cloneable {
     protected     String  description;
     private final Logger  logger       = LoggerFactory.getLogger(this.getClass());
     protected     String  name         = null;            // ---Game name
-    protected     int     nrOfStones   = 0;            // ---Max count of different stone types (colors)
+    //    protected     int     nrOfStones   = 0;            // ---Max count of different stone types (colors)
     protected     int     preview      = 0;            // ---Rows of visible stones that will drop in the next moves
     protected     long    relativeTime = 0;
     protected     boolean reset        = false;
@@ -44,12 +44,12 @@ public class Game implements Cloneable {
     protected     int     ySize        = 0;            // ---Size of board
     protected     int     zSize        = 0;
 
-    public Game(String aName, int x, int y, int z, int aNrOfStones, int aPreview, float cameraZPosition, boolean aReset, boolean canBeWon) {
-        this.name            = aName;
-        this.xSize           = x;
-        this.ySize           = y;
-        this.zSize           = z;
-        this.nrOfStones      = aNrOfStones;
+    public Game(String aName, int x, int y, int z, int aPreview, float cameraZPosition, boolean aReset, boolean canBeWon) {
+        this.name  = aName;
+        this.xSize = x;
+        this.ySize = y;
+        this.zSize = z;
+//        this.nrOfStones      = aNrOfStones;
         this.preview         = aPreview;
         this.reset           = aReset;
         this.cameraZPosition = cameraZPosition;
@@ -73,9 +73,9 @@ public class Game implements Cloneable {
         return name;
     }
 
-    public int getNrOfStones() {
-        return nrOfStones;
-    }
+//    public int getNrOfStones() {
+//        return nrOfStones;
+//    }
 
     public int getPreview() {
         return preview;
@@ -161,9 +161,9 @@ public class Game implements Cloneable {
         name = aName;
     }
 
-    public void setNrOfStones(int aNrOfStones) {
-        nrOfStones = aNrOfStones;
-    }
+//    public void setNrOfStones(int aNrOfStones) {
+//        nrOfStones = aNrOfStones;
+//    }
 
     public void setPreview(int aPreview) {
         preview = aPreview;

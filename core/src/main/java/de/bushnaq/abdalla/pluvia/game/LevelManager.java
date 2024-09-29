@@ -40,6 +40,7 @@ import java.util.Map;
  * @author kunterbunt
  */
 public class LevelManager extends Level implements Serializable {
+    private static final int                          ANIMATION_PHASES_SPEED           = 10;
     private static final String                       INVALID_LEVEL_RECORDING_DETECTED = "Invalid Level Recording Detected";
     private static final String                       RESETTING_LEVEL                  = "\n\nResetting level...";
     private static final long                         serialVersionUID                 = 1L;
@@ -191,6 +192,7 @@ public class LevelManager extends Level implements Serializable {
             renderEngine.getGameEngine().context.bubbleList.destroy(renderEngine);
             renderEngine.getGameEngine().context.marbleList.destroy(renderEngine);
             renderEngine.getGameEngine().context.digitList.destroy(renderEngine);
+            sceneList.get(game.name).destroy();
         }
     }
 
@@ -236,7 +238,7 @@ public class LevelManager extends Level implements Serializable {
 
     public void updateFps() {
         if (renderEngine.getGameEngine().context.isEnableTime()) {
-            maxAnimationPhase = Math.max(1, Gdx.graphics.getFramesPerSecond() / 10);
+            maxAnimationPhase = Math.max(1, Gdx.graphics.getFramesPerSecond() / ANIMATION_PHASES_SPEED);
         }
     }
 }

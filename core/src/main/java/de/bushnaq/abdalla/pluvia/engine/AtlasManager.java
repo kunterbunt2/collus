@@ -52,6 +52,7 @@ public class AtlasManager {
     //    public         FontData[]   fontData;
     public         BitmapFont    logoFont;
     public         BitmapFont    modelFont;
+    //protected      Skin          skin;
     public         BitmapFont    smallFont;
     public         AtlasRegion[] stoneTextureRegion;
     public         AtlasRegion   systemTextureRegion;
@@ -76,10 +77,12 @@ public class AtlasManager {
         assetsFolderName = Context.getAppFolderName() + "/assets/";
 
         initTextures();
-        initFonts();
+        initFonts();//old
         for (Texture texture : atlas.getTextures()) {
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
+        //initFonts();
+        //initUI();
     }
 
     private void initFonts() {
@@ -123,9 +126,22 @@ public class AtlasManager {
         stoneTextureRegion[3] = atlas.findRegion("stone-04");
         stoneTextureRegion[4] = atlas.findRegion("stone-05");
         stoneTextureRegion[5] = atlas.findRegion("stone-06");
-        VisUI.load(SkinScale.X2);
-        VisUI.getSkin().getFont("default-font").getData().markupEnabled = true;
-        VisUI.getSkin().getFont("small-font").getData().markupEnabled   = true;
+        VisUI.load(SkinScale.X2);//old
+        VisUI.getSkin().getFont("default-font").getData().markupEnabled = true;//old
+        VisUI.getSkin().getFont("small-font").getData().markupEnabled   = true;//old
         Colors.put("BOLD", new Color(0x1BA1E2FF));
     }
+
+//    private void initUI() {//new not working, text gets corrupted
+////        skin = new Skin(Gdx.files.internal(AtlasManager.getAssetsFolderName() + "/uiskin.json"), atlas);
+////        skin.addRegions(atlas);
+////        skin.add("default-font", aeroFont);
+////        skin.add("font-small", smallFont);
+////        skin.load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + "/uiskin.json"));
+////        skin.setScale(2f);
+////        VisUI.load(skin);
+//        VisUI.load(VisUI.SkinScale.X2);
+////        VisUI.getSkin().getFont("default-font").getData().markupEnabled = true;
+////        VisUI.getSkin().getFont("small-font").getData().markupEnabled   = true;
+//    }
 }

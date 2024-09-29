@@ -465,13 +465,13 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 //                if (context.isDebugMode()) {
 //                    centerYD = -SCROLL_SPEED;
 //                }
-                viewAngleSpeed = rotateAngle;
+                viewAngleSpeed = CUBE_ROTATION_SPEED;
                 return true;
             case Input.Keys.Q:
 //                if (context.isDebugMode()) {
 //                    centerYD = SCROLL_SPEED;
 //                }
-                viewAngleSpeed = -rotateAngle;
+                viewAngleSpeed = -CUBE_ROTATION_SPEED;
                 return true;
             case Input.Keys.A:
                 if (renderEngine.isDebugMode()) {
@@ -534,18 +534,16 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             case Input.Keys.PAGE_UP:
                 if (context.getLevelNumber() > 0) {
                     context.setLevelNumber(context.getLevelNumber() - 1);
-                    context.levelManager.disposeLevel();
-                    if (context.levelManager.readFromDisk(context.getLevelNumber())) {
-                        context.levelManager.createLevel(String.format("level %03d", context.getLevelNumber()));
-                    }
+                    loadLevel();
+//                    context.levelManager.disposeLevel();
+//                    if (context.levelManager.readFromDisk(context.getLevelNumber())) {
+//                        context.levelManager.createLevel(String.format("level %03d", context.getLevelNumber()));
+//                    }
                 }
                 break;
             case Input.Keys.PAGE_DOWN:
                 context.setLevelNumber(context.getLevelNumber() + 1);
-                context.levelManager.disposeLevel();
-                if (context.levelManager.readFromDisk(context.getLevelNumber())) {
-                    context.levelManager.createLevel(String.format("level %03d", context.getLevelNumber()));
-                }
+                loadLevel();
                 break;
 
             case Input.Keys.F1:
@@ -617,6 +615,13 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                 return true;
         }
         return false;
+    }
+
+    private void loadLevel() {
+        context.levelManager.disposeLevel();
+        if (context.levelManager.readFromDisk(context.getLevelNumber())) {
+            context.levelManager.createLevel(String.format("level %03d", context.getLevelNumber()));
+        }
     }
 
     @Override
@@ -719,7 +724,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 //            dispose();
 //            create();
 //        }
-        viewAngle += viewAngleSpeed;
+        viewAngle += deltaTime * viewAngleSpeed;
 //        renderEngine.updateCamera(centerXD, centerYD, centerZD);
         if (centerXD != 0f || centerYD != 0f || centerZD != 0f) {
 
@@ -769,7 +774,10 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                 // What is the next seed?
 //				int lastGameSeed = context.getLastGameSeed();
 //				context.levelManager.setGameSeed(lastGameSeed + 1);
-                if (!mainDialog.isVisible()) mainDialog.setVisible(true);
+                //if (!mainDialog.isVisible()) mainDialog.setVisible(true);
+                context.setLevelNumber(context.getLevelNumber() + 1);
+                loadLevel();
+
             }
         }
     }

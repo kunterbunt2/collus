@@ -73,6 +73,84 @@ public class Cube {
         return get(x, y, z) != null;
     }
 
+    public void rotateCubeMinusX() {
+        Cube buffer = new Cube(xSize, ySize, zSize);
+        for (int z = 0; z < zSize; z++) {
+            for (int y = 0; y < this.ySize; y++) {
+                for (int x = 0; x < xSize; x++) {
+                    Stone stone = get(x, y, z);
+                    buffer.set(x, z, ySize - 1 - y, stone);
+                }
+            }
+        }
+        set(buffer);
+    }
+
+    public void rotateCubeMinusY() {
+        Cube buffer = new Cube(xSize, ySize, zSize);
+        for (int z = 0; z < zSize; z++) {
+            for (int y = 0; y < ySize; y++) {
+                for (int x = 0; x < xSize; x++) {
+                    Stone stone = get(x, y, z);
+                    buffer.set(xSize - 1 - z, y, x, stone);
+                }
+            }
+        }
+        set(buffer);
+    }
+
+    public void rotateCubeMinusZ() {
+        Cube buffer = new Cube(xSize, ySize, zSize);
+        for (int z = 0; z < zSize; z++) {
+            for (int y = 0; y < ySize; y++) {
+                for (int x = 0; x < xSize; x++) {
+                    Stone stone = get(x, y, z);
+                    buffer.set(y, ySize - 1 - x, z, stone);
+                }
+            }
+        }
+        set(buffer);
+    }
+
+    public void rotateCubePlusX() {
+        Cube buffer = new Cube(xSize, ySize, zSize);
+        for (int z = 0; z < zSize; z++) {
+            for (int y = 0; y < ySize; y++) {
+                for (int x = 0; x < xSize; x++) {
+                    Stone stone = get(x, y, z);
+                    buffer.set(x, zSize - 1 - z, y, stone);
+                }
+            }
+        }
+        set(buffer);
+    }
+
+    public void rotateCubePlusY() {
+        Cube buffer = new Cube(xSize, ySize, zSize);
+        for (int z = 0; z < zSize; z++) {
+            for (int y = 0; y < ySize; y++) {
+                for (int x = 0; x < xSize; x++) {
+                    Stone stone = get(x, y, z);
+                    buffer.set(z, y, zSize - 1 - x, stone);
+                }
+            }
+        }
+        set(buffer);
+    }
+
+    public void rotateCubePlusZ() {
+        Cube buffer = new Cube(xSize, ySize, zSize);
+        for (int z = 0; z < zSize; z++) {
+            for (int y = 0; y < ySize; y++) {
+                for (int x = 0; x < xSize; x++) {
+                    Stone stone = get(x, y, z);
+                    buffer.set(zSize - 1 - y, x, z, stone);
+                }
+            }
+        }
+        set(buffer);
+    }
+
     public void set(int x, int y, int z, Stone stone) {
         patch[x][y][z] = stone;
         if (stone != null) {

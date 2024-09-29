@@ -26,7 +26,7 @@ package de.bushnaq.abdalla.pluvia.game;
  */
 public class LegacyGame extends Game {
     public LegacyGame() {
-        super(GameName.LEGACY.name(), 7, 7, 7, 14, 0, 7 + 2, false, true);
+        super(GameName.LEGACY.name(), 7, 7, 7, 0, 7 + 2, false, true);
         description = "legacy game"//
                 + "6 different stones\r\n"//
                 + "with up to 3 stones that can fall at the same time\r\n";

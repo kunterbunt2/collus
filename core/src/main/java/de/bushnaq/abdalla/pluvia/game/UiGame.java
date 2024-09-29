@@ -28,7 +28,7 @@ import de.bushnaq.abdalla.pluvia.game.model.stone.Stone;
  */
 public class UiGame extends Game {
     public UiGame() {
-        super(GameName.UI.name(), 0, 0, 0, 0, 0, 7 + 2, false, false);
+        super(GameName.UI.name(), 0, 0, 0, 0, 7 + 2, false, false);
     }
 
     protected boolean queryTilt(Stone[][][] patch) {
