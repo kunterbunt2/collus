@@ -208,6 +208,10 @@ public class LevelManager extends Level implements Serializable {
         return infoColor;
     }
 
+    public AbstractScene getScene() {
+        return sceneList.get(game.name);
+    }
+
     @Override
     protected boolean isEnableTime() {
         if (renderEngine != null)

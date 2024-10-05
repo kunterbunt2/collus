@@ -28,7 +28,6 @@ import java.util.List;
  */
 public class MarbleScene extends AbstractScene {
 
-    public static final float MIRROR_LEVEL = -4.949f;
 
     public MarbleScene(RenderEngine3D<GameEngine> renderEngine, List<GameObject<GameEngine>> renderModelInstances) {
         super(renderEngine, renderModelInstances);
@@ -64,9 +63,10 @@ public class MarbleScene extends AbstractScene {
         renderEngine.getMirror().setPresent(true);
         renderEngine.getMirror().setReflectivity(0.5f);
         renderEngine.getMirror().setMirrorLevel(MIRROR_LEVEL);
-        createMirror(Color.WHITE);
 
         createMarbles(.5f, .5f, MIRROR_LEVEL);
+        createMirror(Color.WHITE);
+//        createPlane(Color.BLUE);
     }
 
     @Override

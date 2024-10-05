@@ -153,6 +153,8 @@ public abstract class AbstractDialog {
                 lookAt.x   = 0;
                 lookAt.y   = 0;
                 lookAt.z   = 0;
+                if (getGameEngine().getDemo() != null)
+                    getGameEngine().getDemo().setEnabled(true);
             } else {
                 position.x = 0;
                 position.y = (float) game.getySize();
@@ -160,6 +162,7 @@ public abstract class AbstractDialog {
                 lookAt.x   = 0;
                 lookAt.y   = 0;
                 lookAt.z   = 0;
+                getGameEngine().getDemo().setEnabled(false);
             }
             camera.position.set(position);
             camera.up.set(0, 1, 0);

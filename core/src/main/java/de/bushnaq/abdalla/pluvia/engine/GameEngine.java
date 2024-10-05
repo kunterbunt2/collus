@@ -32,6 +32,7 @@ import de.bushnaq.abdalla.engine.*;
 import de.bushnaq.abdalla.engine.camera.MovingCamera;
 import de.bushnaq.abdalla.pluvia.desktop.Context;
 import de.bushnaq.abdalla.pluvia.engine.camera.MyCameraInputController;
+import de.bushnaq.abdalla.pluvia.engine.demo.Demo;
 import de.bushnaq.abdalla.pluvia.game.Game;
 import de.bushnaq.abdalla.pluvia.game.StonePlane;
 import de.bushnaq.abdalla.pluvia.game.model.stone.Stone;
@@ -43,6 +44,7 @@ import de.bushnaq.abdalla.pluvia.scene.model.fly.Fly;
 import de.bushnaq.abdalla.pluvia.scene.model.marble.Marble;
 import de.bushnaq.abdalla.pluvia.scene.model.rain.Rain;
 import de.bushnaq.abdalla.pluvia.ui.*;
+import de.bushnaq.abdalla.pluvia.util.TimeUtil;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -61,6 +63,7 @@ import java.util.List;
  */
 public class GameEngine implements ScreenListener, ApplicationListener, InputProcessor, RenderEngineExtension {
     private static final float                   CUBE_ROTATION_SPEED = 200f;
+    public static final  float                   FIELD_OF_VIEW_Y     = 67f;
     public static final  int                     FONT_SIZE           = 9;
     private static final float                   SCROLL_SPEED        = 0.2f;
     private static final int                     TOUCH_DELTA_X       = 1;
@@ -90,6 +93,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     private       Vector3                    cubeZNegPlaneTranslation;    // intermediate value
     private       StonePlane                 cubeZPosPlane;
     private       Vector3                    cubeZPosPlaneTranslation;    // intermediate value
+    private       Demo                       demo;
     private       Cubemap                    diffuseCubemap;
     private final boolean                    enableProfiling  = true;
     private       Cubemap                    environmentDayCubemap;
@@ -175,6 +179,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 //			createGame(0);
 //			context.selectGamee(0);
 //			context.levelManager = new LevelManager(this, context.game);
+            demo = new Demo(this, true);
 
         } catch (final Throwable e) {
             logger.error(e.getMessage(), e);
@@ -183,7 +188,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     }
 
     private void createCamera() {
-        camera = new MovingCamera(67f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera = new MovingCamera(FIELD_OF_VIEW_Y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         final Vector3 lookat = new Vector3(0, 0, 0);
         camera.position.set(lookat.x + 0f / 2, lookat.y + 0f / 2, lookat.z + 8);
         camera.up.set(0, 1, 0);
@@ -403,6 +408,14 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 
     public MyCameraInputController getCamController() {
         return camController;
+    }
+
+    public MovingCamera getCamera() {
+        return camera;
+    }
+
+    public Demo getDemo() {
+        return demo;
     }
 
     public InputMultiplexer getInputMultiplexer() {
@@ -740,6 +753,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             centerZD = 0;
         }
         updateScore();
+        demo.renderDemo(deltaTime);
         renderCube(currentTime);
         renderStones(currentTime);
         renderDynamicBackground(currentTime);
@@ -974,6 +988,13 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             labels.get(labelIndex).setColor(context.levelManager.getInfoColor());
             labels.get(labelIndex).setText(stringBuilder);
             labelIndex++;
+        }
+        //demo mode
+        if (demo.isEnabled()) {
+            stringBuilder.setLength(0);
+            stringBuilder.append(String.format(" demo time=%s, demo index = %d, ambient music=%s", TimeUtil.create24hDurationString(demo.runningSince(), true, false, true, true, false), demo.index, demo.files[demo.index]));
+            labels.get(labelIndex).getStyle().fontColor = Color.PINK;
+            labels.get(labelIndex++).setText(stringBuilder);
         }
         //camera properties
         {

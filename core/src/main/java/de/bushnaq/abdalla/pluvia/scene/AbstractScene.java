@@ -55,10 +55,11 @@ import static de.bushnaq.abdalla.pluvia.engine.ModelManager.MAX_NUMBER_OF_MARBLE
  * @author kunterbunt
  */
 public abstract class AbstractScene {
-    protected static final float CITY_SIZE = 3;
-    private static final   float WATER_X   = 1000;
-    private static final   float WATER_Y   = -3.5f;
-    private static final   float WATER_Z   = 1000;
+    protected static final float CITY_SIZE    = 3;
+    public static final    float MIRROR_LEVEL = -4.949f;
+    private static final   float WATER_X      = 1000;
+    private static final   float WATER_Y      = -3.5f;
+    private static final   float WATER_Z      = 1000;
     GameObject<GameEngine> boundariesXNegGameObject;
     GameObject<GameEngine> boundariesXPosGameObject;
     GameObject<GameEngine> boundariesZNegGameObject;
@@ -73,10 +74,11 @@ public abstract class AbstractScene {
     protected Random                       rand;
     protected RenderEngine3D<GameEngine>   renderEngine;
     protected List<GameObject<GameEngine>> renderModelInstances;
-    btBoxShape shape1;
-    btBoxShape shape2;
-    btBoxShape shape3;
-    btBoxShape shape4;
+    BoundingBox sceneBoundingBox;
+    btBoxShape  shape1;
+    btBoxShape  shape2;
+    btBoxShape  shape3;
+    btBoxShape  shape4;
     protected Text2D version;
 
     public AbstractScene(RenderEngine3D<GameEngine> renderEngine, List<GameObject<GameEngine>> renderModelInstances) {
@@ -203,9 +205,9 @@ public abstract class AbstractScene {
     }
 
     protected void createMarbles(float minSize, float maxSize, float planeLevel) {
-        Vector3     min         = renderEngine.getSceneBox().min;
-        Vector3     max         = renderEngine.getSceneBox().max;
-        BoundingBox boundingBox = new BoundingBox(new Vector3(min.x - 30, planeLevel, min.z - 30), new Vector3(max.x + 30, planeLevel + maxSize, 5));
+        Vector3 min = renderEngine.getSceneBox().min;
+        Vector3 max = renderEngine.getSceneBox().max;
+        sceneBoundingBox      = new BoundingBox(new Vector3(min.x - 30, planeLevel, min.z - 30), new Vector3(max.x + 30, planeLevel + maxSize, 5));
         this.constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(0f, null, null, new Vector3(0, 0, 0));
 //        {
 //            Matrix4 m = new Matrix4();
@@ -229,10 +231,10 @@ public abstract class AbstractScene {
 //        }
         {
             Matrix4 m = new Matrix4();
-            m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY() - .6f, boundingBox.getCenterZ() - boundingBox.getDepth() / 2 - .5f);
-            shape1 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2, .9f / 2, .1f));
+            m.setToTranslation(sceneBoundingBox.getCenterX(), sceneBoundingBox.getCenterY() - .6f, sceneBoundingBox.getCenterZ() - sceneBoundingBox.getDepth() / 2 - .5f);
+            shape1 = new btBoxShape(new Vector3(sceneBoundingBox.getWidth() / 2, .9f / 2, .1f));
 
-            boundariesZNegGameObject = new GameObject<>(new ModelInstanceHack(createCube(boundingBox.getWidth(), 1, .1f)), shape1);
+            boundariesZNegGameObject = new GameObject<>(new ModelInstanceHack(createCube(sceneBoundingBox.getWidth(), 1, .1f)), shape1);
             boundariesZNegGameObject.instance.transform.set(m);
             renderEngine.addDynamic(boundariesZNegGameObject);
             boundariesZNegGameObject.update();
@@ -249,10 +251,10 @@ public abstract class AbstractScene {
         }
         {
             Matrix4 m = new Matrix4();
-            m.setToTranslation(boundingBox.getCenterX(), boundingBox.getCenterY() - .6f, boundingBox.getCenterZ() + boundingBox.getDepth() / 2 + .5f);
-            shape2 = new btBoxShape(new Vector3(boundingBox.getWidth() / 2 - .1f, .9f / 2, .1f));
+            m.setToTranslation(sceneBoundingBox.getCenterX(), sceneBoundingBox.getCenterY() - .6f, sceneBoundingBox.getCenterZ() + sceneBoundingBox.getDepth() / 2 + .5f);
+            shape2 = new btBoxShape(new Vector3(sceneBoundingBox.getWidth() / 2 - .1f, .9f / 2, .1f));
 
-            boundariesZPosGameObject = new GameObject<>(new ModelInstanceHack(createCube(boundingBox.getWidth(), 1, .1f)), shape2);
+            boundariesZPosGameObject = new GameObject<>(new ModelInstanceHack(createCube(sceneBoundingBox.getWidth(), 1, .1f)), shape2);
             boundariesZPosGameObject.instance.transform.set(m);
             renderEngine.addDynamic(boundariesZPosGameObject);
             boundariesZPosGameObject.update();
@@ -269,10 +271,10 @@ public abstract class AbstractScene {
         }
         {
             Matrix4 m = new Matrix4();
-            m.setToTranslation(boundingBox.getCenterX() - boundingBox.getWidth() / 2 - .5f, boundingBox.getCenterY() - .6f, boundingBox.getCenterZ());
-            shape3 = new btBoxShape(new Vector3(.1f, .45f, boundingBox.getDepth() / 2));
+            m.setToTranslation(sceneBoundingBox.getCenterX() - sceneBoundingBox.getWidth() / 2 - .5f, sceneBoundingBox.getCenterY() - .6f, sceneBoundingBox.getCenterZ());
+            shape3 = new btBoxShape(new Vector3(.1f, .45f, sceneBoundingBox.getDepth() / 2));
 
-            boundariesXPosGameObject = new GameObject<>(new ModelInstanceHack(createCube(.1f, 1, boundingBox.getDepth())), shape3);
+            boundariesXPosGameObject = new GameObject<>(new ModelInstanceHack(createCube(.1f, 1, sceneBoundingBox.getDepth())), shape3);
             boundariesXPosGameObject.instance.transform.set(m);
             renderEngine.addDynamic(boundariesXPosGameObject);
             boundariesXPosGameObject.update();
@@ -289,10 +291,10 @@ public abstract class AbstractScene {
         }
         {
             Matrix4 m = new Matrix4();
-            m.setToTranslation(boundingBox.getCenterX() + boundingBox.getWidth() / 2 + .5f, boundingBox.getCenterY() - .6f, boundingBox.getCenterZ());
-            shape4 = new btBoxShape(new Vector3(.1f, .45f, boundingBox.getDepth() / 2));
+            m.setToTranslation(sceneBoundingBox.getCenterX() + sceneBoundingBox.getWidth() / 2 + .5f, sceneBoundingBox.getCenterY() - .6f, sceneBoundingBox.getCenterZ());
+            shape4 = new btBoxShape(new Vector3(.1f, .45f, sceneBoundingBox.getDepth() / 2));
 
-            boundariesXNegGameObject = new GameObject<>(new ModelInstanceHack(createCube(.1f, 1, boundingBox.getDepth())), shape4);
+            boundariesXNegGameObject = new GameObject<>(new ModelInstanceHack(createCube(.1f, 1, sceneBoundingBox.getDepth())), shape4);
             boundariesXNegGameObject.instance.transform.set(m);
             renderEngine.addDynamic(boundariesXNegGameObject);
             boundariesXNegGameObject.update();
@@ -327,7 +329,12 @@ public abstract class AbstractScene {
             model = renderEngine.getGameEngine().modelManager.mirror;
             GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
             cube.instance.materials.get(0).set(ColorAttribute.createDiffuse(color));
-            cube.instance.transform.setToTranslationAndScaling(0f, renderEngine.getMirror().getMirrorLevel(), 0f, WATER_X, 0.1f, WATER_Z);
+            Vector3 min = new Vector3();
+            sceneBoundingBox.getMin(min);
+            Vector3 max = new Vector3();
+            sceneBoundingBox.getMax(max);
+            cube.instance.transform.setToTranslationAndScaling(0f, renderEngine.getMirror().getMirrorLevel(), min.z + (max.z - min.z) / 2, max.x - min.x + 1, 0.1f, max.z - min.z + 1);
+            cube.update();
             renderModelInstances.add(cube);
         }
     }
@@ -336,9 +343,14 @@ public abstract class AbstractScene {
         Model model;
         model = renderEngine.getGameEngine().modelManager.square;
         GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
-        Material               m    = cube.instance.materials.get(0);
+        Vector3                min  = new Vector3();
+        sceneBoundingBox.getMin(min);
+        Vector3 max = new Vector3();
+        sceneBoundingBox.getMax(max);
+        Material m = cube.instance.materials.get(0);
         m.set(PBRColorAttribute.createBaseColorFactor(color));
-        cube.instance.transform.setToTranslationAndScaling(0f, renderEngine.getMirror().getMirrorLevel(), 0, WATER_X, 0.1f, WATER_Z);
+        cube.instance.transform.setToTranslationAndScaling(0f, renderEngine.getMirror().getMirrorLevel(), min.z + (max.z - min.z) / 2, max.x - min.x + 1, 0.1f, max.z - min.z + 1);
+        cube.update();
         renderModelInstances.add(cube);
     }
 
@@ -346,7 +358,11 @@ public abstract class AbstractScene {
         // water
         if (renderEngine.isWaterPresent()) {
             final GameObject<GameEngine> water = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.water), null);
-            water.instance.transform.setToTranslationAndScaling(0, WATER_Y, -15, WATER_X, 1, WATER_Z);
+            Vector3                      min   = new Vector3();
+            sceneBoundingBox.getMin(min);
+            Vector3 max = new Vector3();
+            sceneBoundingBox.getMax(max);
+            water.instance.transform.setToTranslationAndScaling(0, WATER_Y, min.z + (max.z - min.z) / 2, max.x - min.x, 1f, max.z - min.z);
             water.update();
             renderModelInstances.add(water);
             // plane below the water
@@ -359,7 +375,8 @@ public abstract class AbstractScene {
                 } else {
                     cube.instance.materials.get(0).set(ColorAttribute.createDiffuse(Color.GREEN));
                 }
-                cube.instance.transform.setToTranslationAndScaling(0f, -30f, 0f, 100f, 0.1f, 100f);
+                cube.instance.transform.setToTranslationAndScaling(0f, -30f, min.z + (max.z - min.z) / 2, max.x - min.x, 0.1f, max.z - min.z);
+                cube.update();
                 renderModelInstances.add(cube);
             }
         }
@@ -387,6 +404,10 @@ public abstract class AbstractScene {
     }
 
     public abstract Color getInfoColor();
+
+    public BoundingBox getSceneBoundingBox() {
+        return sceneBoundingBox;
+    }
 
     private GameObject<GameEngine> instanciateBuilding(final RenderEngine3D<GameEngine> renderEngine, final int index) {
 //		int i = rand.nextInt(ModelManager.MAX_NUMBER_OF_BUILDING_MODELS);
