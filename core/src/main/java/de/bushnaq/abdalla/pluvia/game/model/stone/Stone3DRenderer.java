@@ -126,6 +126,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                 renderEngine.addDynamic(stoneGO);
                 stoneGO.update();
             }
+            //are we a magnetic or sticky stone?
             if (stone.type > 8) {
                 for (int i = 0; i < NUMBER_OF_FRAME_ELEMENTS; i++) {
                     GameObject<GameEngine> go = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.stoneFrameElement.scene.model), stone);
@@ -414,9 +415,13 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
         }
         float distance = 3.55f;
         float scaling  = 1f;
+        float xShift   = ((float) gameEngine.context.levelManager.xSize) / 2 + .05f;
+        float yShift   = ((float) gameEngine.context.levelManager.ySize) / 2 + .05f;
+        float zShift   = ((float) gameEngine.context.levelManager.zSize) / 2 + .05f;
+
         {
             translationBuffer.set(translation);
-            translationBuffer.x = -distance;
+            translationBuffer.x = -xShift;
             stoneXNegGO.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
             stoneXNegGO.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
             stoneXNegGO.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
@@ -431,7 +436,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
         }
         if (bothSides) {
             translationBuffer.set(translation);
-            translationBuffer.x = distance;
+            translationBuffer.x = xShift;
             stoneXPosGO.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
             stoneXPosGO.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
             stoneXPosGO.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
@@ -446,7 +451,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
         }
         {
             translationBuffer.set(translation);
-            translationBuffer.y = -distance;
+            translationBuffer.y = -yShift;
             stoneYNegGO.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
             stoneYNegGO.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
             stoneYNegGO.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
@@ -461,7 +466,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
         }
         if (bothSides) {
             translationBuffer.set(translation);
-            translationBuffer.y = distance;
+            translationBuffer.y = yShift;
             stoneYPosGO.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
             stoneYPosGO.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
             stoneYPosGO.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
@@ -476,7 +481,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
         }
         {
             translationBuffer.set(translation);
-            translationBuffer.z = -distance;
+            translationBuffer.z = -zShift;
             stoneZNegGO.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
             stoneZNegGO.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
             stoneZNegGO.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
@@ -491,7 +496,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
         }
         if (bothSides) {
             translationBuffer.set(translation);
-            translationBuffer.z = distance;
+            translationBuffer.z = zShift;
             stoneZPosGO.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
             stoneZPosGO.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
             stoneZPosGO.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());

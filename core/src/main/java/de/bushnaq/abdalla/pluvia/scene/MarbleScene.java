@@ -71,7 +71,7 @@ public class MarbleScene extends AbstractScene {
 
     @Override
     public Color getInfoColor() {
-        return Color.BLACK;
+        return Color.LIGHT_GRAY;
     }
 
 }

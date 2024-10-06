@@ -20,9 +20,9 @@ import de.bushnaq.abdalla.engine.GameObject;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
 
 public class StonePlane {
-    protected     GameObject<GameEngine>[][] patch = null;
-    private final int                        xSize;
-    private final int                        ySize;
+    protected GameObject<GameEngine>[][] patch = null;
+    private final int xSize;
+    private final int ySize;
 
     public StonePlane(int xSize, int ySize) {
         this.xSize = xSize;
@@ -39,6 +39,14 @@ public class StonePlane {
 
     public GameObject<GameEngine> get(int x, int y) {
         return patch[x][y];
+    }
+
+    public int getxSize() {
+        return xSize;
+    }
+
+    public int getySize() {
+        return ySize;
     }
 
     public void set(int x, int y, GameObject<GameEngine> stone) {

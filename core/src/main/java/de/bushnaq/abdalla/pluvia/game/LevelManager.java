@@ -21,7 +21,7 @@ package de.bushnaq.abdalla.pluvia.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.math.Vector3;
 import de.bushnaq.abdalla.engine.GameObject;
 import de.bushnaq.abdalla.engine.RenderEngine3D;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
@@ -29,6 +29,7 @@ import de.bushnaq.abdalla.pluvia.game.model.stone.Stone;
 import de.bushnaq.abdalla.pluvia.scene.AbstractScene;
 import de.bushnaq.abdalla.pluvia.scene.BubblesScene;
 import de.bushnaq.abdalla.pluvia.scene.MarbleScene;
+import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -44,12 +45,25 @@ public class LevelManager extends Level implements Serializable {
     private static final String                       INVALID_LEVEL_RECORDING_DETECTED = "Invalid Level Recording Detected";
     private static final String                       RESETTING_LEVEL                  = "\n\nResetting level...";
     private static final long                         serialVersionUID                 = 1L;
+    //	protected Font				TextFont							= new Font("SansSerif", Font.BOLD, 14);
+    private              StonePlane                   cubeXNegPlane;
+    private              Vector3                      cubeXNegPlaneTranslation;    // intermediate value
+    private              StonePlane                   cubeXPosPlane;
+    private              Vector3                      cubeXPosPlaneTranslation;    // intermediate value
+    private              StonePlane                   cubeYNegPlane;
+    private              Vector3                      cubeYNegPlaneTranslation;    // intermediate value
+    private              StonePlane                   cubeYPosPlane;
+    private              Vector3                      cubeYPosPlaneTranslation;    // intermediate value
+    private              StonePlane                   cubeZNegPlane;
+    private              Vector3                      cubeZNegPlaneTranslation;    // intermediate value
+    private              StonePlane                   cubeZPosPlane;
+    private              Vector3                      cubeZPosPlaneTranslation;    // intermediate value
     private final        int                          index                            = 0;
     private              Color                        infoColor;
     private final        RenderEngine3D<GameEngine>   renderEngine;
     private final        List<GameObject<GameEngine>> renderModelInstances             = new ArrayList<>();
     private final        Map<String, AbstractScene>   sceneList                        = new HashMap<>();
-//	protected Font				TextFont							= new Font("SansSerif", Font.BOLD, 14);
+    private final        Vector3                      translationBuffer                = new Vector3();
 
     public LevelManager(RenderEngine3D<GameEngine> renderEngine, Game game) {
         super(game);
@@ -69,6 +83,84 @@ public class LevelManager extends Level implements Serializable {
         }
     }
 
+    void createCube() {
+        float xShift = ((float) xSize) / 2;
+        float yShift = ((float) ySize) / 2;
+        float zShift = ((float) zSize) / 2;
+        {
+            cubeYNegPlane            = new StonePlane(xSize, zSize);
+            cubeYNegPlaneTranslation = new Vector3(0, -yShift - .1f, 0);
+            for (int x = 0; x < xSize; x++) {
+                for (int z = 0; z < zSize; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.transparentPlane), null);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeYNegPlane.set(x, z, go);
+                }
+            }
+        }
+        {
+            cubeYPosPlane            = new StonePlane(xSize, zSize);
+            cubeYPosPlaneTranslation = new Vector3(0, yShift + .1f, 0);
+            for (int x = 0; x < xSize; x++) {
+                for (int z = 0; z < zSize; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.transparentPlane), null);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeYPosPlane.set(x, z, go);
+                }
+            }
+        }
+        {
+            cubeZNegPlane            = new StonePlane(xSize, zSize);
+            cubeZNegPlaneTranslation = new Vector3(0, 0, -zShift - .1f);
+            for (int x = 0; x < xSize; x++) {
+                for (int z = 0; z < zSize; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.transparentPlane), null);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeZNegPlane.set(x, z, go);
+                }
+            }
+        }
+        {
+            cubeZPosPlane            = new StonePlane(xSize, zSize);
+            cubeZPosPlaneTranslation = new Vector3(0, 0, zShift + .1f);
+            for (int x = 0; x < xSize; x++) {
+                for (int z = 0; z < zSize; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.transparentPlane), null);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeZPosPlane.set(x, z, go);
+                }
+            }
+        }
+        {
+            cubeXNegPlane            = new StonePlane(ySize, zSize);
+            cubeXNegPlaneTranslation = new Vector3(-xShift - .1f, 0, 0);
+            for (int y = 0; y < ySize; y++) {
+                for (int z = 0; z < zSize; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.transparentPlane), null);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeXNegPlane.set(y, z, go);
+                }
+            }
+        }
+        {
+            cubeXPosPlane            = new StonePlane(ySize, zSize);
+            cubeXPosPlaneTranslation = new Vector3(xShift + .1f, 0, 0);
+            for (int y = 0; y < ySize; y++) {
+                for (int z = 0; z < zSize; z++) {
+                    GameObject<GameEngine> go = new GameObject<GameEngine>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.transparentPlane), null);
+                    go.update();
+                    renderEngine.addDynamic(go);
+                    cubeXPosPlane.set(y, z, go);
+                }
+            }
+        }
+    }
+
     public void createLevel(String levelName) {
 //        sceneList.get(game.name).setLevelName(levelName);
         super.createLevel(levelName);
@@ -77,14 +169,14 @@ public class LevelManager extends Level implements Serializable {
     @Override
     public void createLevelBackground(String levelNameString) {
         if (renderEngine != null) {
-            float cubeSize = 0.5f;
-            float dx       = ((float) xSize) / 2;
-            float dy       = (ySize);
-            Model model    = renderEngine.getGameEngine().modelManager.levelCube;
+//            float cubeSize = 0.5f;
+//            float dx       = ((float) xSize) / 2;
+//            float dy       = (ySize);
+//            Model model    = renderEngine.getGameEngine().modelManager.levelCube;
             // level back
-            int count = 0;
-            if (false) {
-                // back side
+//            int count = 0;
+//            if (false) {
+            // back side
 //		{
 //			Model m;
 //			m = gameEngine.modelManager.backPlate;
@@ -93,63 +185,63 @@ public class LevelManager extends Level implements Serializable {
 //			cube.instance.transform.rotate(Vector3.X, 90);
 //			renderModelInstances.add(cube);
 //		}
-                // left side
+            // left side
 //                for (float y = this.ySize - 0.75f; y >= preview; y -= 0.5f) {
 //                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
 //                    cube.instance.transform.setToTranslationAndScaling(-0.75f - dx, -(y - dy), -0.25f, cubeSize, cubeSize, cubeSize);
 //                    renderModelInstances.add(cube);
 //                    count++;
 //                }
-                // right side
+            // right side
 //                for (float y = this.ySize - 0.75f; y >= preview; y -= 0.5f) {
 //                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
 //                    cube.instance.transform.setToTranslationAndScaling(xSize - 0.25f - dx, -(y - dy), 0 - 0.25f, cubeSize, cubeSize, cubeSize);
 //                    renderModelInstances.add(cube);
 //                    count++;
 //                }
-                // left lower side
+            // left lower side
 //                for (float x = -0.75f; x <= this.xSize / 2 - 1.5f - 1f; x += 0.5f) {
 //                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
 //                    cube.instance.transform.setToTranslationAndScaling(x - dx, -(ySize - dy) + 0.25f, 0 - 0.25f, cubeSize, cubeSize, cubeSize);
 //                    renderModelInstances.add(cube);
 //                    count++;
 //                }
-                // game name
-                int position = 0;
+            // game name
+//                int position = 0;
 //                for (float x = -0.75f + this.xSize / 2 - 0.5f - 1f; x <= this.xSize / 2 + .75f - 1.5f; x += 0.5f) {
 //                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.name));
 //                    position++;
 //                    count++;
 //                }
-                // game seed
-                position = 0;
+            // game seed
+//                position = 0;
 //                for (float x = this.xSize / 2 + .75f - 1.5f + 0.5f; x <= -0.75f + this.xSize / 2 + 1.5f + 1f - 0.5f; x += 0.5f) {
 //                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.seed));
 //                    position++;
 //                    count++;
 //                }
-                // right lower side
+            // right lower side
 //                for (float x = -0.75f + this.xSize / 2 + 1.5f + 1f; x <= this.xSize; x += 0.5f) {
 //                    GameObject<GameEngine> cube = new GameObject<>(new ModelInstanceHack(model), null);
 //                    cube.instance.transform.setToTranslationAndScaling(x - dx, -(ySize - dy) + 0.25f, 0 - 0.25f, cubeSize, cubeSize, cubeSize);
 //                    renderModelInstances.add(cube);
 //                    count++;
 //                }
-                // score
-                position = 0;
+            // score
+//                position = 0;
 //                for (float x = -0.75f - 2.5f; x <= -1.25; x += 0.5f) {
 //                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.score));
 //                    position++;
 //                    count++;
 //                }
-                // steps
-                position = 0;
+            // steps
+//                position = 0;
 //                for (float x = this.xSize + 0.25f; x <= this.xSize + 0.5 + 2f; x += 0.5f) {
 //                    renderEngine.getGameEngine().context.digitList.add(new Digit(renderModelInstances, renderEngine, x - dx, -(ySize - dy) + 0.25f - 0.5f, -0.25f, position, DigitType.steps));
 //                    position++;
 //                    count++;
 //                }
-            }
+//            }
 //            for (Digit digit : renderEngine.getGameEngine().context.digitList) {
 //                renderEngine.addStatic(digit.get3DRenderer());
 //            }
@@ -176,6 +268,26 @@ public class LevelManager extends Level implements Serializable {
 
     public void destroy() {
         disposeLevel();
+        destroyCube();
+    }
+
+    private void destroy(StonePlane stonePlane) {
+        if (stonePlane != null) {
+            for (int x = 0; x < stonePlane.getxSize(); x++) {
+                for (int y = 0; y < stonePlane.getySize(); y++) {
+                    renderEngine.removeDynamic(stonePlane.get(x, y));
+                }
+            }
+        }
+    }
+
+    private void destroyCube() {
+        destroy(cubeYNegPlane);
+        destroy(cubeYPosPlane);
+        destroy(cubeZNegPlane);
+        destroy(cubeZPosPlane);
+        destroy(cubeXNegPlane);
+        destroy(cubeXPosPlane);
     }
 
     public void destroyLevelBackground() {
@@ -200,6 +312,7 @@ public class LevelManager extends Level implements Serializable {
     public void disposeLevel() {
         clear();
         destroyLevelBackground();
+        destroyCube();
         game.reset();
         NrOfTotalStones = 0;
     }
@@ -234,6 +347,172 @@ public class LevelManager extends Level implements Serializable {
             renderEngine.getGameEngine().context.stoneList.remove(stone);
 //			renderEngine.removeStatic(stone.get3DRenderer());
         }
+    }
+
+    public void render(final long currentTime) {
+        renderCube(currentTime);
+    }
+
+    private void renderCube(final long currentTime) {
+        float      xShift     = ((float) xSize) / 2;
+        float      yShift     = ((float) ySize) / 2;
+        float      zShift     = ((float) zSize) / 2;
+        float      scale      = .9f;
+        GameEngine gameEngine = renderEngine.getGameEngine();
+        if (gameEngine.context.game.getySize() != 0) {
+            if (cubeYNegPlane != null) {
+                for (int x = 0; x < xSize; x++) {
+                    for (int z = 0; z < zSize; z++) {
+                        {
+                            GameObject<GameEngine> go = cubeYNegPlane.get(x, z);
+                            go.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
+                            translationBuffer.set(cubeYNegPlaneTranslation);
+                            translationBuffer.x += x - xShift + .5f;
+                            translationBuffer.z += z - zShift + .5f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(scale, 0.1f, scale);
+//                        go.instance.transform.rotate(Vector3.Z, -90);
+                            go.update();
+                        }
+                        {
+                            GameObject<GameEngine> go = cubeYPosPlane.get(x, z);
+                            go.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
+                            translationBuffer.set(cubeYPosPlaneTranslation);
+                            translationBuffer.x += x - xShift + .5f;
+                            translationBuffer.z += z - zShift + .5f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(scale, 0.1f, scale);
+                            go.instance.transform.rotate(Vector3.Z, 180);
+                            go.update();
+                        }
+                    }
+                }
+            }
+
+            if (cubeZNegPlane != null) {
+                for (int x = 0; x < xSize; x++) {
+                    for (int y = 0; y < ySize; y++) {
+                        {
+                            GameObject<GameEngine> go = cubeZNegPlane.get(x, y);
+                            go.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
+                            translationBuffer.set(cubeZNegPlaneTranslation);
+                            translationBuffer.x += x - xShift + .5f;
+                            translationBuffer.y += y - yShift + .5f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(scale, scale, 0.1f);
+                            go.instance.transform.rotate(Vector3.X, 90);
+                            go.update();
+                        }
+                        {
+                            GameObject<GameEngine> go = cubeZPosPlane.get(x, y);
+                            go.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
+                            translationBuffer.set(cubeZPosPlaneTranslation);
+                            translationBuffer.x += x - xShift + .5f;
+                            translationBuffer.y += y - yShift + .5f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(scale, scale, 0.1f);
+                            go.instance.transform.rotate(Vector3.X, -90);
+                            go.update();
+                        }
+                    }
+                }
+            }
+
+            if (cubeXNegPlane != null) {
+                for (int y = 0; y < ySize; y++) {
+                    for (int z = 0; z < zSize; z++) {
+                        {
+                            GameObject<GameEngine> go = cubeXNegPlane.get(y, z);
+                            go.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
+                            translationBuffer.set(cubeXNegPlaneTranslation);
+                            translationBuffer.y += y - yShift + .5f;
+                            translationBuffer.z += z - zShift + .5f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(0.1f, scale, scale);
+                            go.instance.transform.rotate(Vector3.Z, -90);
+                            go.update();
+                        }
+                        {
+                            GameObject<GameEngine> go = cubeXPosPlane.get(y, z);
+                            go.instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
+                            go.instance.transform.rotate(Vector3.X, gameEngine.getRotateCubeXAngle());
+                            go.instance.transform.rotate(Vector3.Z, gameEngine.getRotateCubeZAngle());
+                            translationBuffer.set(cubeXPosPlaneTranslation);
+                            translationBuffer.y += y - yShift + .5f;
+                            translationBuffer.z += z - zShift + .5f;
+                            go.instance.transform.translate(translationBuffer);
+                            go.instance.transform.scale(0.1f, scale, scale);
+                            go.instance.transform.rotate(Vector3.Z, 90);
+                            go.update();
+                        }
+                    }
+                }
+            }
+        }
+//        else {
+//            Vector3 hide = new Vector3(0, 0, 1000);
+//            //hide
+//            if (cubeYNegPlane != null) {
+//                for (int x = 0; x < 7; x++) {
+//                    for (int z = 0; z < 7; z++) {
+//                        {
+//                            GameObject<GameEngine> go = cubeYNegPlane.get(x, z);
+//                            go.instance.transform.setToTranslation(hide);
+//                            go.update();
+//                        }
+//                        {
+//                            GameObject<GameEngine> go = cubeYPosPlane.get(x, z);
+//                            go.instance.transform.setToTranslation(hide);
+//                            go.update();
+//                        }
+//                    }
+//                }
+//            }
+//
+//            if (cubeZNegPlane != null) {
+//                for (int x = 0; x < 7; x++) {
+//                    for (int y = 0; y < 7; y++) {
+//                        {
+//                            GameObject<GameEngine> go = cubeZNegPlane.get(x, y);
+//                            go.instance.transform.setToTranslation(hide);
+//                            go.update();
+//                        }
+//                        {
+//                            GameObject<GameEngine> go = cubeZPosPlane.get(x, y);
+//                            go.instance.transform.setToTranslation(hide);
+//                            go.update();
+//                        }
+//                    }
+//                }
+//            }
+//
+//            if (cubeXNegPlane != null) {
+//                for (int y = 0; y < 7; y++) {
+//                    for (int z = 0; z < 7; z++) {
+//                        {
+//                            GameObject<GameEngine> go = cubeXNegPlane.get(y, z);
+//                            go.instance.transform.setToTranslation(hide);
+//                            go.update();
+//                        }
+//                        {
+//                            GameObject<GameEngine> go = cubeXPosPlane.get(y, z);
+//                            go.instance.transform.setToTranslation(hide);
+//                            go.update();
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 
     public boolean testValidity() {

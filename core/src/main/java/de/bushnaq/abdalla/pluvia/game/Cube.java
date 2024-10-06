@@ -19,22 +19,13 @@ package de.bushnaq.abdalla.pluvia.game;
 import de.bushnaq.abdalla.pluvia.game.model.stone.Stone;
 
 public class Cube {
-    protected     Stone[][][] patch = null;
-    private final int         xSize;
-    private final int         ySize;
-    private final int         zSize;
+    protected Stone[][][] patch = null;
+    private   int         xSize;
+    private   int         ySize;
+    private   int         zSize;
 
     public Cube(int xSize, int ySize, int zSize) {
-        this.xSize = xSize;
-        this.ySize = ySize;
-        this.zSize = zSize;
-        patch      = new Stone[xSize][][];
-        for (int x = 0; x < xSize; x++) {
-            patch[x] = new Stone[ySize][];
-            for (int y = 0; y < ySize; y++) {
-                patch[x][y] = new Stone[zSize];
-            }
-        }
+        createPatch(xSize, ySize, zSize);
     }
 
     public boolean canVanish(int x, int y, int z) {
@@ -46,6 +37,19 @@ public class Cube {
 
     public void clear(int x, int y, int z) {
         patch[x][y][z] = null;
+    }
+
+    private void createPatch(int xSize, int ySize, int zSize) {
+        this.xSize = xSize;
+        this.ySize = ySize;
+        this.zSize = zSize;
+        patch      = new Stone[xSize][][];
+        for (int x = 0; x < xSize; x++) {
+            patch[x] = new Stone[ySize][];
+            for (int y = 0; y < ySize; y++) {
+                patch[x][y] = new Stone[zSize];
+            }
+        }
     }
 
     public Stone get(int x, int y, int z) {
@@ -71,6 +75,19 @@ public class Cube {
 
     public boolean isOccupied(int x, int y, int z) {
         return get(x, y, z) != null;
+    }
+
+    public void resize(int newXSize, int newYSize, int newZSize) {
+        Cube buffer = new Cube(newXSize, newYSize, newZSize);
+        for (int z = 0; z < newZSize; z++) {
+            for (int y = 0; y < newYSize; y++) {
+                for (int x = 0; x < newXSize; x++) {
+                    Stone stone = get(x, y, z);
+                    buffer.set(x, y, z, stone);
+                }
+            }
+        }
+        set(buffer);
     }
 
     public void rotateCubeMinusX() {
@@ -159,6 +176,9 @@ public class Cube {
     }
 
     public void set(Cube buffer) {
+        if (buffer.xSize != xSize || buffer.ySize != ySize || buffer.zSize != zSize) {
+            createPatch(buffer.xSize, buffer.ySize, buffer.zSize);
+        }
         for (int z = 0; z < zSize; z++) {
             for (int y = 0; y < ySize; y++) {
                 for (int x = 0; x < xSize; x++) {

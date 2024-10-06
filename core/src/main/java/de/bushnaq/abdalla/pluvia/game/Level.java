@@ -46,15 +46,15 @@ import java.util.Set;
  * @author kunterbunt
  */
 public abstract class Level {
-    protected     int        NrOfTotalStones      = 0;                                        // The sum of all follen patches within this game
-    public        int        animationPhase       = 0;
-    private final Cube       cube;
-    protected     Set<Stone> droppingStones       = new HashSet<>();
-    protected     Set<Stone> droppingStonesBuffer = new HashSet<>();
-    protected     Game       game                 = null;
-    public        GamePhase  gamePhase            = GamePhase.waiting;
-    protected     Logger     logger               = LoggerFactory.getLogger(this.getClass());
-    public        int        maxAnimationPhase    = 12 * 4;
+    protected int        NrOfTotalStones      = 0;                                        // The sum of all follen patches within this game
+    public    int        animationPhase       = 0;
+    private   Cube       cube;
+    protected Set<Stone> droppingStones       = new HashSet<>();
+    protected Set<Stone> droppingStonesBuffer = new HashSet<>();
+    protected Game       game                 = null;
+    public    GamePhase  gamePhase            = GamePhase.waiting;
+    protected Logger     logger               = LoggerFactory.getLogger(this.getClass());
+    public    int        maxAnimationPhase    = 12 * 4;
     //    protected     int        nrOfStones           = 0;                                        // Number of different patches (colors) in the game
     //    protected     int        preview              = 0;                                        // Number of rows that the user can preview before they actually drop into the game
 //    private final Set<Stone> pushingLeftStones    = new HashSet<>();
@@ -65,7 +65,7 @@ public abstract class Level {
     private       boolean   userReacted = false;                                    // user has either moved a stones left or right and we need to generate new stones.
     public        int       xSize       = 0;                                        // number of columns
     public        int       ySize       = 0;                                        // number of rows in the level
-    public final  int       zSize;
+    public        int       zSize;
 
     public Level(Game game) {
         this.xSize = game.xSize;
@@ -74,7 +74,6 @@ public abstract class Level {
 //        this.preview    = game.preview;
 //        this.nrOfStones = game.nrOfStones;
         this.game = game;
-        cube      = new Cube(xSize, ySize, zSize);
         rand      = new PersistentRandomGenerator();
         game.reset();
         game.setReset(false);
@@ -82,14 +81,16 @@ public abstract class Level {
     }
 
     protected void clear() {
-        for (int z = 0; z < this.zSize; z++) {
-            for (int y = 0; y < this.ySize; y++) {
-                for (int x = 0; x < this.xSize; x++) {
-                    Stone stone = cube.get(x, y, z);
-                    if (stone != null) {
-                        removeStone(stone);
-                        cube.clear(x, y, z);
-                    } else {
+        if (cube != null) {
+            for (int z = 0; z < this.zSize; z++) {
+                for (int y = 0; y < this.ySize; y++) {
+                    for (int x = 0; x < this.xSize; x++) {
+                        Stone stone = cube.get(x, y, z);
+                        if (stone != null) {
+                            removeStone(stone);
+                            cube.clear(x, y, z);
+                        } else {
+                        }
                     }
                 }
             }
@@ -139,6 +140,8 @@ public abstract class Level {
         }
     }
 
+    abstract void createCube();
+
     private void createDemoLevel() {
         if (zSize > 0) {
             for (int z = 0; z < zSize; z++) {
@@ -162,6 +165,7 @@ public abstract class Level {
 //            generateStones();
         }
         createLevelBackground(levelNameString);
+        createCube();
     }
 
     abstract void createLevelBackground(String levelNameString);
@@ -762,12 +766,11 @@ public abstract class Level {
         Map<Integer, Integer> statistics = new HashMap<>();
         try (FileInputStream fis = new FileInputStream(String.format("level/level%03d.lvl", levelNumber));
              DataInputStream dis = new DataInputStream(fis)) {
-            for (int z = 0; z < this.zSize; z++) {
-                for (int y = 0; y < this.ySize; y++) {
-                    for (int x = 0; x < this.xSize; x++) {
-                        int a         = dis.readByte();
-                        int b         = dis.readByte();
-                        int stoneType = a + (b << 8);
+            cube = new Cube(7, 7, 7);
+            for (int z = 0; z < 7; z++) {
+                for (int y = 0; y < 7; y++) {
+                    for (int x = 0; x < 7; x++) {
+                        int stoneType = readLegacyInt(dis);
                         if (stoneType != 0) {
                             cube.set(y, z, x, createStoneAndUpdateScore(y, z, x, stoneType));
                             Integer count = statistics.get(stoneType);
@@ -780,6 +783,11 @@ public abstract class Level {
                     }
                 }
             }
+            int levelSize = readLegacyInt(dis);
+            this.xSize = levelSize;
+            this.ySize = levelSize;
+            this.zSize = levelSize;
+            cube.resize(xSize, ySize, zSize);
         }
         logger.info("###########");
         logger.info(String.format("%4s %5s", "type", "Count"));
@@ -788,6 +796,12 @@ public abstract class Level {
         }
         logger.info("###########");
 
+    }
+
+    private int readLegacyInt(DataInputStream dis) throws IOException {
+        int a = dis.readByte();
+        int b = dis.readByte();
+        return a + (b << 8);
     }
 
     protected abstract void removeStone(Stone stone);
