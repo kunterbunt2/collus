@@ -318,61 +318,62 @@ public abstract class Level {
                         if (stone.isMagneticTo(cube.get(x, y - 1, z)))
                             stickyYNeg = true;
 
-                        if (stickyXPos && !stone.getXPosAttached()) {
+                        if (stickyXPos && !stone.neighbors.getXPosAttached()) {
                             //first time to detect
                             playSound(AudioManager.STICKY);
-                            stone.setXPosAttached(true);
+                            stone.neighbors.setXPosAttached(true);
+                            logger.info(String.format("%s sticking xpos", stone.name));
                         }
-                        if (!stickyXPos && stone.getXPosAttached()) {
+                        if (!stickyXPos && stone.neighbors.getXPosAttached()) {
                             //first time to detect
-                            stone.setXPosAttached(false);
+                            stone.neighbors.setXPosAttached(false);
                         }
-                        if (stickyXNeg && !stone.getXNegAttached()) {
+                        if (stickyXNeg && !stone.neighbors.getXNegAttached()) {
                             //first time to detect
                             playSound(AudioManager.STICKY);
-                            stone.setXNegAttached(true);
+                            stone.neighbors.setXNegAttached(true);
                         }
-                        if (!stickyXNeg && stone.getXNegAttached()) {
+                        if (!stickyXNeg && stone.neighbors.getXNegAttached()) {
                             //first time to detect
-                            stone.setXNegAttached(false);
+                            stone.neighbors.setXNegAttached(false);
                         }
 
-                        if (stickyZPos && !stone.getZPosAttached()) {
+                        if (stickyZPos && !stone.neighbors.getZPosAttached()) {
                             //first time to detect
                             playSound(AudioManager.STICKY);
-                            stone.setZPosAttached(true);
+                            stone.neighbors.setZPosAttached(true);
                         }
-                        if (!stickyZPos && stone.getZPosAttached()) {
+                        if (!stickyZPos && stone.neighbors.getZPosAttached()) {
                             //first time to detect
-                            stone.setZPosAttached(false);
+                            stone.neighbors.setZPosAttached(false);
                         }
-                        if (stickyZNeg && !stone.getZNegAttached()) {
+                        if (stickyZNeg && !stone.neighbors.getZNegAttached()) {
                             //first time to detect
                             playSound(AudioManager.STICKY);
-                            stone.setZNegAttached(true);
+                            stone.neighbors.setZNegAttached(true);
                         }
-                        if (!stickyZNeg && stone.getZNegAttached()) {
+                        if (!stickyZNeg && stone.neighbors.getZNegAttached()) {
                             //first time to detect
-                            stone.setZNegAttached(false);
+                            stone.neighbors.setZNegAttached(false);
                         }
 
-                        if (stickyYPos && !stone.getYPosAttached()) {
+                        if (stickyYPos && !stone.neighbors.getYPosAttached()) {
                             //first time to detect
                             playSound(AudioManager.STICKY);
-                            stone.setYPosAttached(true);
+                            stone.neighbors.setYPosAttached(true);
                         }
-                        if (!stickyYPos && stone.getYPosAttached()) {
+                        if (!stickyYPos && stone.neighbors.getYPosAttached()) {
                             //first time to detect
-                            stone.setYPosAttached(false);
+                            stone.neighbors.setYPosAttached(false);
                         }
-                        if (stickyYNeg && !stone.getYNegAttached()) {
+                        if (stickyYNeg && !stone.neighbors.getYNegAttached()) {
                             //first time to detect
                             playSound(AudioManager.STICKY);
-                            stone.setYNegAttached(true);
+                            stone.neighbors.setYNegAttached(true);
                         }
-                        if (!stickyYNeg && stone.getYNegAttached()) {
+                        if (!stickyYNeg && stone.neighbors.getYNegAttached()) {
                             //first time to detect
-                            stone.setYNegAttached(false);
+                            stone.neighbors.setYNegAttached(false);
                         }
                     }
                 }

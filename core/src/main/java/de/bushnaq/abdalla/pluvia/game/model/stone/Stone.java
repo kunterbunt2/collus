@@ -37,17 +37,10 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
     public static final int       MAGNETIC_STONE3 = 12;//magnetically attaches to type MAGNETIC_STONE3 stones
     public static final int       UHU_CUBE        = 9;//magnetically attaches to any type stones
     private final       RcBoolean canDrop         = new RcBoolean(false);
-    //    private final       RcBoolean canMoveLeft     = new RcBoolean(false);
-//    private final       RcBoolean canMoveRight    = new RcBoolean(false);
     private final       RcBoolean cannotDrop      = new RcBoolean(false);
-    //    private final       RcBoolean cannotMoveLeft  = new RcBoolean(false);
-//    private final       RcBoolean cannotMoveRight = new RcBoolean(false);
     private final       RcBoolean dropping        = new RcBoolean(false);
-    //    private final       RcBoolean movingLeft      = new RcBoolean(false);
-//    private final       RcBoolean movingRight     = new RcBoolean(false);
     public final        String    name;
-    //    private final       RcBoolean pushingLeft     = new RcBoolean(false);
-//    private final       RcBoolean pushingRight    = new RcBoolean(false);
+    public final        Neighbors neighbors       = new Neighbors();
     public              int       score           = 0;
     public              float     tx              = 0;
     public              float     ty              = 0;
@@ -55,14 +48,8 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
     public              float     tz              = 0;
     private final       RcBoolean vanishing       = new RcBoolean(false);
     public              int       x               = 0;
-    private final       RcBoolean xNegAttached    = new RcBoolean(false);
-    private final       RcBoolean xPosAttached    = new RcBoolean(false);
     public              int       y               = 0;
-    private final       RcBoolean yNegAttached    = new RcBoolean(false);
-    private final       RcBoolean yPosAttached    = new RcBoolean(false);
     public              int       z               = 0;
-    private final       RcBoolean zNegAttached    = new RcBoolean(false);
-    private final       RcBoolean zPosAttached    = new RcBoolean(false);
 
     public Stone(RenderEngine3D<GameEngine> renderEngine, int x, int y, int z, int aType) {
         set3DRenderer(new Stone3DRenderer(this));
@@ -100,18 +87,6 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         return somethingHasChanged;
     }
 
-//    public boolean clearPushingAttributes() {
-//        boolean     somethingHasChanged = false;
-//        RcBoolean[] attributeList       = {pushingLeft, pushingRight};
-//        for (RcBoolean element : attributeList) {
-//            if (element.getBooleanValue()) {
-//                element.setBooleanValue(false);
-//                somethingHasChanged = true;
-//            }
-//        }
-//        return somethingHasChanged;
-//    }
-
     public void clearTemporaryAttributes() {
         RcBoolean[] attributeList = {cannotDrop};
         for (RcBoolean element : attributeList) {
@@ -144,18 +119,10 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
 
     public String getCanAttributesAsString() {
         String attribute = "Y:";
-//        if (isCanMoveLeft())
-//            attribute += "L";
-//        else
-//            attribute += "-";
         if (isCanDrop())
             attribute += "D";
         else
             attribute += "-";
-//        if (isCanMoveRight())
-//            attribute += "R";
-//        else
-//            attribute += "-";
         if (isVanishing())
             attribute += "V";
         else
@@ -165,18 +132,10 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
 
     public String getCannotAttributesAsString() {
         String attribute = "N:";
-//        if (isCannotMoveLeft())
-//            attribute += "L";
-//        else
-//            attribute += "-";
         if (isCannotDrop())
             attribute += "D";
         else
             attribute += "-";
-//        if (isCannotMoveRight())
-//            attribute += "R";
-//        else
-//            attribute += "-";
         return attribute;
     }
 
@@ -186,59 +145,43 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
 
     public String getDoingStatusAsString() {
         String attribute = "D:";
-//        if (isPushingLeft())
-//            attribute += "P";
-//        else
-//            attribute += "-";
-//        if (isPushingRight())
-//            attribute += "P";
-//        else
-//            attribute += "-";
-//        if (isMovingLeft())
-//            attribute += "M";
-//        else
-//            attribute += "-";
         if (isDropping())
             attribute += "D";
         else
             attribute += "-";
-//        if (isMovingRight())
-//            attribute += "M";
-//        else
-//            attribute += "-";
         return attribute;
     }
 
     public String getGlueStatusAsString() {
         String attribute = "G:";
 
-        if (getXNegAttached())
+        if (neighbors.getXNegAttached())
             attribute += "L";
         else
             attribute += "_";
 
 
-        if (getZNegAttached())
+        if (neighbors.getZNegAttached())
             attribute += "B";
         else
             attribute += "_";
 
-        if (getZPosAttached())
+        if (neighbors.getZPosAttached())
             attribute += "F";
         else
             attribute += "_";
 
-        if (getYPosAttached())
+        if (neighbors.getYPosAttached())
             attribute += "U";
         else
             attribute += "_";
 
-        if (getYNegAttached())
+        if (neighbors.getYNegAttached())
             attribute += "D";
         else
             attribute += "_";
 
-        if (getXPosAttached())
+        if (neighbors.getXPosAttached())
             attribute += "R";
         else
             attribute += "_";
@@ -258,30 +201,6 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         return type;
     }
 
-    public boolean getXNegAttached() {
-        return xNegAttached.getBooleanValue();
-    }
-
-    public boolean getXPosAttached() {
-        return xPosAttached.getBooleanValue();
-    }
-
-    public boolean getYNegAttached() {
-        return yNegAttached.getBooleanValue();
-    }
-
-    public boolean getYPosAttached() {
-        return yPosAttached.getBooleanValue();
-    }
-
-    public boolean getZNegAttached() {
-        return zNegAttached.getBooleanValue();
-    }
-
-    public boolean getZPosAttached() {
-        return zPosAttached.getBooleanValue();
-    }
-
     public boolean isAffectedByGravity() {
         switch (this.type) {
             case FIXED_CUBE:
@@ -296,25 +215,9 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         return canDrop.getBooleanValue() && isAffectedByGravity();
     }
 
-//    public boolean isCanMoveLeft() {
-//        return canMoveLeft.getBooleanValue();
-//    }
-
-//    public boolean isCanMoveRight() {
-//        return canMoveRight.getBooleanValue();
-//    }
-
     public boolean isCannotDrop() {
         return cannotDrop.getBooleanValue() || !isAffectedByGravity();
     }
-
-//    public boolean isCannotMoveLeft() {
-//        return cannotMoveLeft.getBooleanValue();
-//    }
-
-//    public boolean isCannotMoveRight() {
-//        return cannotMoveRight.getBooleanValue();
-//    }
 
     public boolean isDropping() {
         return dropping.getBooleanValue();
@@ -330,8 +233,6 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
                     return this.type == neighbor.type;
                 case UHU_CUBE:
                     return true;
-//                default:
-//                    return false;
             }
             switch (this.type) {
                 case MAGNETIC_STONE1:
@@ -341,8 +242,6 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
                     return this.type == neighbor.type;
                 case UHU_CUBE:
                     return true;
-//                default:
-//                    return false;
             }
         }
         return false;
@@ -351,22 +250,6 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
     public boolean isMoving() {
         return isDropping() /*|| isMovingLeft() || isMovingRight()*/;
     }
-
-//    public boolean isMovingLeft() {
-//        return movingLeft.getBooleanValue();
-//    }
-
-//    public boolean isMovingRight() {
-//        return movingRight.getBooleanValue();
-//    }
-
-//    public boolean isPushingLeft() {
-//        return pushingLeft.getBooleanValue();
-//    }
-
-//    public boolean isPushingRight() {
-//        return pushingRight.getBooleanValue();
-//    }
 
     public boolean isVanishing() {
         return vanishing.getBooleanValue();
@@ -390,6 +273,30 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         return false;
     }
 
+    public void rotateMinusX() {
+        neighbors.rotateMinusX();
+    }
+
+    public void rotateMinusY() {
+        neighbors.rotateMinusY();
+    }
+
+    public void rotateMinusZ() {
+        neighbors.rotateMinusZ();
+    }
+
+    public void rotatePlusX() {
+        neighbors.rotatePlusX();
+    }
+
+    public void rotatePlusY() {
+        neighbors.rotatePlusY();
+    }
+
+    public void rotatePlusZ() {
+        neighbors.rotatePlusZ();
+    }
+
     public void set(int x, int y, int z) {
         this.x = x;
         this.y = y;
@@ -400,45 +307,13 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         canDrop.setBooleanValue(aCanDrop);
     }
 
-//    public void setCanMoveLeft(boolean aCanMoveLeft) {
-//        canMoveLeft.setBooleanValue(aCanMoveLeft);
-//    }
-
-//    public void setCanMoveRight(boolean aCanMoveRight) {
-//        canMoveRight.setBooleanValue(aCanMoveRight);
-//    }
-
     public void setCannotDrop(boolean aCannotDrop) {
         cannotDrop.setBooleanValue(aCannotDrop);
     }
 
-//    public void setCannotMoveLeft(boolean aCannotMoveLeft) {
-//        cannotMoveLeft.setBooleanValue(aCannotMoveLeft);
-//    }
-
-//    public void setCannotMoveRight(boolean aCannotMoveRight) {
-//        cannotMoveRight.setBooleanValue(aCannotMoveRight);
-//    }
-
     public void setDropping(boolean aDropping) {
         dropping.setBooleanValue(aDropping);
     }
-
-//    public void setMovingLeft(boolean aMovingLeft) {
-//        movingLeft.setBooleanValue(aMovingLeft);
-//    }
-
-//    public void setMovingRight(boolean aMovingRight) {
-//        movingRight.setBooleanValue(aMovingRight);
-//    }
-
-//    public void setPushingLeft(boolean aPushingLeft) {
-//        pushingLeft.setBooleanValue(aPushingLeft);
-//    }
-
-//    public void setPushingRight(boolean aPushingRight) {
-//        pushingRight.setBooleanValue(aPushingRight);
-//    }
 
     public void setTx(float tx) {
         this.tx = tx;
@@ -452,29 +327,6 @@ public class Stone extends Renderable<GameEngine> implements Comparable<Stone> {
         this.tz = tz;
     }
 
-    public void setXNegAttached(boolean xNegAttached) {
-        this.xNegAttached.setBooleanValue(xNegAttached);
-    }
-
-    public void setXPosAttached(boolean xPosAttached) {
-        this.xPosAttached.setBooleanValue(xPosAttached);
-    }
-
-    public void setYNegAttached(boolean yNegAttached) {
-        this.yNegAttached.setBooleanValue(yNegAttached);
-    }
-
-    public void setYPosAttached(boolean yPosAttached) {
-        this.yPosAttached.setBooleanValue(yPosAttached);
-    }
-
-    public void setZNegAttached(boolean zNegAttached) {
-        this.zNegAttached.setBooleanValue(zNegAttached);
-    }
-
-    public void setZPosAttached(boolean zPosAttached) {
-        this.zPosAttached.setBooleanValue(zPosAttached);
-    }
 
     public void setisVanishing(boolean aCanVanish) {
         vanishing.setBooleanValue(aCanVanish);

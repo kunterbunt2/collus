@@ -330,7 +330,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                     new Vector3(-270f, 0f, -90f),//yneg - down
             };
             boolean[] visible = new boolean[]{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-            if (stone.getXPosAttached()) {
+            if (stone.neighbors.getXPosAttached()) {
                 for (int i = 0; i < 24; i++) {
                     boolean value = needed[0][i];
                     if (value) {
@@ -338,7 +338,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                     }
                 }
             }
-            if (stone.getXNegAttached()) {
+            if (stone.neighbors.getXNegAttached()) {
                 for (int i = 0; i < 24; i++) {
                     boolean value = needed[1][i];
                     if (value) {
@@ -346,7 +346,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                     }
                 }
             }
-            if (stone.getZPosAttached()) {
+            if (stone.neighbors.getZPosAttached()) {
                 for (int i = 0; i < 24; i++) {
                     boolean value = needed[2][i];
                     if (value) {
@@ -354,7 +354,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                     }
                 }
             }
-            if (stone.getZNegAttached()) {
+            if (stone.neighbors.getZNegAttached()) {
                 for (int i = 0; i < 24; i++) {
                     boolean value = needed[3][i];
                     if (value) {
@@ -362,7 +362,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                     }
                 }
             }
-            if (stone.getYPosAttached()) {
+            if (stone.neighbors.getYPosAttached()) {
                 for (int i = 0; i < 24; i++) {
                     boolean value = needed[4][i];
                     if (value) {
@@ -370,7 +370,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                     }
                 }
             }
-            if (stone.getYNegAttached()) {
+            if (stone.neighbors.getYNegAttached()) {
                 for (int i = 0; i < 24; i++) {
                     boolean value = needed[5][i];
                     if (value) {

@@ -96,6 +96,8 @@ public class Cube {
             for (int y = 0; y < this.ySize; y++) {
                 for (int x = 0; x < xSize; x++) {
                     Stone stone = get(x, y, z);
+                    if (stone != null)
+                        stone.rotateMinusX();
                     buffer.set(x, z, ySize - 1 - y, stone);
                 }
             }
@@ -109,6 +111,8 @@ public class Cube {
             for (int y = 0; y < ySize; y++) {
                 for (int x = 0; x < xSize; x++) {
                     Stone stone = get(x, y, z);
+                    if (stone != null)
+                        stone.rotateMinusY();
                     buffer.set(xSize - 1 - z, y, x, stone);
                 }
             }
@@ -122,6 +126,8 @@ public class Cube {
             for (int y = 0; y < ySize; y++) {
                 for (int x = 0; x < xSize; x++) {
                     Stone stone = get(x, y, z);
+                    if (stone != null)
+                        stone.rotateMinusZ();
                     buffer.set(y, ySize - 1 - x, z, stone);
                 }
             }
@@ -135,6 +141,8 @@ public class Cube {
             for (int y = 0; y < ySize; y++) {
                 for (int x = 0; x < xSize; x++) {
                     Stone stone = get(x, y, z);
+                    if (stone != null)
+                        stone.rotatePlusX();
                     buffer.set(x, zSize - 1 - z, y, stone);
                 }
             }
@@ -148,6 +156,8 @@ public class Cube {
             for (int y = 0; y < ySize; y++) {
                 for (int x = 0; x < xSize; x++) {
                     Stone stone = get(x, y, z);
+                    if (stone != null)
+                        stone.rotatePlusY();
                     buffer.set(z, y, zSize - 1 - x, stone);
                 }
             }
@@ -161,6 +171,8 @@ public class Cube {
             for (int y = 0; y < ySize; y++) {
                 for (int x = 0; x < xSize; x++) {
                     Stone stone = get(x, y, z);
+                    if (stone != null)
+                        stone.rotatePlusZ();
                     buffer.set(zSize - 1 - y, x, z, stone);
                 }
             }
