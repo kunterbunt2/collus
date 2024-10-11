@@ -178,7 +178,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         camera.position.set(lookat.x + 0f / 2, lookat.y + 0f / 2, lookat.z + 8);
         camera.up.set(0, 1, 0);
         camera.lookAt(lookat);
-        camera.near = 2f;
+        camera.near = .2f;
         camera.far  = 100f;
         camera.update();
         camera.setDirty(true);

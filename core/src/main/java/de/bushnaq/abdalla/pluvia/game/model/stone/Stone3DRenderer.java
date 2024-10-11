@@ -29,6 +29,7 @@ import de.bushnaq.abdalla.engine.GameObject;
 import de.bushnaq.abdalla.engine.ObjectRenderer;
 import de.bushnaq.abdalla.engine.RenderEngine3D;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
+import de.bushnaq.abdalla.pluvia.engine.ModelManager;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 
 import static de.bushnaq.abdalla.pluvia.game.model.stone.Stone.*;
@@ -66,52 +67,52 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
     public void create(final RenderEngine3D<GameEngine> renderEngine) {
         needed = new boolean[][]{//
                 {//xpos
-                        false, false, false, false,//
-                        false, false, true, false,//
-                        false, false, false, false,//
-                        true, false, false, false,//
-                        false, false, false, true,//
-                        false, true, false, false//
+                        true, true, true, true,//left
+                        false, false, true, false,//front
+                        false, false, false, false,//right
+                        true, false, false, false,//back
+                        false, false, false, true,//top
+                        false, true, false, false//bottom
                 },//
                 {//xneg
-                        false, false, false, false,//
-                        true, false, false, false,//
-                        false, false, false, false,//
-                        false, false, true, false,//
-                        false, true, false, false,//
-                        false, false, false, true//
+                        false, false, false, false,//left
+                        true, false, false, false,//front
+                        true, true, true, true,//right
+                        false, false, true, false,//back
+                        false, true, false, false,//top
+                        false, false, false, true//bottom
                 },//
                 {//zpos
-                        true, false, false, false,//
-                        false, false, false, false,//
-                        false, false, true, false,//
-                        false, false, false, false,//
-                        true, false, false, false,//
-                        true, false, false, false//
+                        true, false, false, false,//left
+                        true, true, true, true,//front
+                        false, false, true, false,//right
+                        false, false, false, false,//back
+                        true, false, false, false,//top
+                        true, false, false, false//bottom
                 },//
                 {//zneg
-                        false, false, true, false,//
-                        false, false, false, false,//
-                        true, false, false, false,//
-                        false, false, false, false,//
-                        false, false, true, false,//
-                        false, false, true, false//
+                        false, false, true, false,//left
+                        false, false, false, false,//front
+                        true, false, false, false,//right
+                        true, true, true, true,//back
+                        false, false, true, false,//top
+                        false, false, true, false//bottom
                 },//
                 {//ypos
-                        false, true, false, false,//
-                        false, true, false, false,//
-                        false, true, false, false,//
-                        false, true, false, false,//
-                        false, false, false, false,//
-                        false, false, false, false//
+                        false, true, false, false,//left
+                        false, true, false, false,//front
+                        false, true, false, false,//right
+                        false, true, false, false,//back
+                        true, true, true, true,//top
+                        false, false, false, false//bottom
                 },//
                 {//yneg
-                        false, false, false, true,//
-                        false, false, false, true,//
-                        false, false, false, true,//
-                        false, false, false, true,//
-                        false, false, false, false,//
-                        false, false, false, false//
+                        false, false, false, true,//left
+                        false, false, false, true,//front
+                        false, false, false, true,//right
+                        false, false, false, true,//back
+                        false, false, false, false,//top
+                        true, true, true, true//bottom
                 },//
         };
 //        for (int i = 0; i < 6; i++) {
@@ -127,7 +128,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                 stoneGO.update();
             }
             //are we a magnetic or sticky stone?
-            if (stone.type > 8) {
+            if (stone.type > ModelManager.MAX_NUMBER_OF_NORMAL_STONE_MODELS) {
                 for (int i = 0; i < NUMBER_OF_FRAME_ELEMENTS; i++) {
                     GameObject<GameEngine> go = new GameObject<>(new ModelInstanceHack(renderEngine.getGameEngine().modelManager.stoneFrameElement.scene.model), stone);
                     Material               m  = go.instance.materials.get(0);
@@ -268,33 +269,12 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
             stone.setTx(x);
             stone.setTy(y + fraction * TRADER_SIZE_Y);
             stone.setTz(z);
-//        } else if (stone.isMovingLeft()) {
-//            stone.setTx(x + fraction * TRADER_SIZE_X);
-//            stone.setTy(y);
-//            stone.setTz(z);
-//        } else if (stone.isMovingRight()) {
-//            stone.setTx(x - fraction * TRADER_SIZE_X);
-//            stone.setTy(y);
-//            stone.setTz(z);
         } else {
             stone.setTx(x);
             stone.setTy(y);
             stone.setTz(z);
         }
-//        float scaleDx = 0;
-//        float scaleDz = 0;
-//        float scaleDy = 0;
 
-//        if (stone.getXPosAttached()) scaleDx += 0.2f;
-//        if (stone.getXNegAttached()) scaleDx += 0.2f;
-//        if (stone.getZPosAttached()) scaleDz += 0.2f;
-//        if (stone.getZNegAttached()) scaleDz += 0.2f;
-//        if (stone.getYPosAttached()) scaleDy += 0.2f;
-//        if (stone.getYNegAttached()) scaleDy += 0.2f;
-
-//        if (stone.getXPosAttached() && !stone.getXNegAttached()) translation.x = stone.tx + 0.1f;
-//        else if (!stone.getXPosAttached() && stone.getXNegAttached()) translation.x = stone.tx - 0.1f;
-//        else
         translation.x = stone.tx;
         translation.y = stone.ty;
         translation.z = stone.tz;
@@ -313,31 +293,37 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
         }
         if (stone.type > 8) {
             Vector3[] rotation = {
+                    //right
                     new Vector3(0f, 0f, 0f),//xpos - left
                     new Vector3(-90f, 0f, 0f),//xpos - top
                     new Vector3(-180f, 0f, 0f),//xpos - right
                     new Vector3(-270f, 0f, 0f),//xpos - down
 
+                    //front
                     new Vector3(0f, -90f, 0f),//zpos - left
                     new Vector3(-90f, -90f, 0f),//zpos - top
                     new Vector3(-180f, -90f, 0f),//zpos - right
                     new Vector3(-270f, -90f, 0f),//zpos - down
 
+                    //left
                     new Vector3(0f, -180f, 0f),//xneg - left
                     new Vector3(-90f, -180f, 0f),//xneg - top
                     new Vector3(-180f, -180f, 0f),//xneg - right
                     new Vector3(-270f, -180f, 0f),//xneg - down
 
+                    //back
                     new Vector3(0f, -270f, 0f),//zneg - left
                     new Vector3(-90f, -270f, 0f),//zneg - top
                     new Vector3(-180f, -270f, 0f),//zneg - right
                     new Vector3(-270f, -270f, 0f),//zneg - down
 
+                    //top
                     new Vector3(0f, 0f, 90f),//ypos - left
                     new Vector3(-90f, 0f, 90f),//ypos - top
                     new Vector3(-180f, 0f, 90f),//ypos - right
                     new Vector3(-270f, 0f, 90f),//ypos - down
 
+                    //bottom
                     new Vector3(0f, 0f, -90f),//yneg - left
                     new Vector3(-90f, 0f, -90f),//yneg - top
                     new Vector3(-180f, 0f, -90f),//yneg - right
@@ -392,7 +378,8 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                     }
                 }
             }
-            Vector3 hide = new Vector3(0, 0, 1000);
+            Vector3 hide    = new Vector3(0, 0, 1000);
+            float   scaling = 1f;
             for (int i = 0; i < NUMBER_OF_FRAME_ELEMENTS; i++) {
                 if (visible[i]) {
                     stoneFrame[i].instance.transform.setToRotation(Vector3.Y, gameEngine.getViewAngle() + gameEngine.getRotateCubeYAngle());
@@ -405,7 +392,7 @@ public class Stone3DRenderer extends ObjectRenderer<GameEngine> {
                     if (stone.isVanishing()) {
                         stoneFrame[i].instance.transform.scale(fraction, fraction, fraction);
                     } else {
-                        stoneFrame[i].instance.transform.scale(1f, 1f, 1f);
+                        stoneFrame[i].instance.transform.scale(scaling, scaling, scaling);
                     }
                 } else {
                     stoneFrame[i].instance.transform.setToTranslation(hide);

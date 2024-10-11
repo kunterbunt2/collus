@@ -38,7 +38,7 @@ public class MyCameraInputController extends CameraInputController {
         super(camera);
         this.gameEngine = gameEngine;
         rotateButton    = Buttons.RIGHT;
-        pinchZoomFactor = 0.05f;
+        pinchZoomFactor = 0.02f;
     }
 
     @Override

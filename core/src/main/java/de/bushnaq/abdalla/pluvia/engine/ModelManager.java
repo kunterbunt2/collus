@@ -45,7 +45,7 @@ public class ModelManager {
     public static final  int          MAX_NUMBER_OF_FIREFLY_MODELS       = 10;
     public static final  int          MAX_NUMBER_OF_FLY_MODELS           = 10;
     public static final  int          MAX_NUMBER_OF_MARBLE_MODELS        = 5;
-    private static final int          MAX_NUMBER_OF_NORMAL_STONE_MODELS  = 8;
+    public static final  int          MAX_NUMBER_OF_NORMAL_STONE_MODELS  = 8;
     public static final  int          MAX_NUMBER_OF_RAIN_MODELS          = 12;
     private static final int          MAX_NUMBER_OF_SPECIAL_STONE_MODELS = 6;
     private static final int          MAX_NUMBER_OF_STONE_MODELS         = 15;
@@ -317,34 +317,12 @@ public class ModelManager {
     private void createStoneModels(AtlasManager atlasManager, boolean isPbr) {
 
 
-//        CubeModel[] cubes = new CubeModel[]{ //
-//                new CubeModel(null, AtlasManager.getAssetsFolderName() + "/models/stone1.glb"), //
-//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone2.glb"), //
-//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone3.glb"), //
-//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone4.glb"), //
-//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone5.glb"), //
-//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone6.glb"), //
-//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone7.glb"), //
-//                new Cube(null, AtlasManager.getAssetsFolderName() + "/models/stone8.glb") //
-//        };
-        for (int i = 1; i <= MAX_NUMBER_OF_NORMAL_STONE_MODELS; i++) {
+        for (int i = 1; i < MAX_NUMBER_OF_STONE_MODELS; i++) {
             stone[i] = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + String.format("/models/stone-%02d.glb", i)));
         }
-        for (int i = 1; i <= MAX_NUMBER_OF_SPECIAL_STONE_MODELS; i++) {
-//            if (MAX_NUMBER_OF_NORMAL_STONE_MODELS + i == 13)
-//            {
-//                SceneAsset asset = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + String.format("/models/stone-%02d-material.glb", MAX_NUMBER_OF_NORMAL_STONE_MODELS + i)));
-//                stone[MAX_NUMBER_OF_NORMAL_STONE_MODELS + i] = asset;
-//                for (int s = 0; s < 6; s++) {
-//                    Material            m         = asset.scene.model.materials.get(s);
-//                    PBRTextureAttribute attribute = (PBRTextureAttribute) m.get(PBRTextureAttribute.BaseColorTexture);
-//                    attribute.set(atlasManager.stoneTextureRegion[s]);
-//                    int a = 0;
-//                }
-//            }
-//            else
-            stone[MAX_NUMBER_OF_NORMAL_STONE_MODELS + i] = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + String.format("/models/stone-%02d-full.glb", MAX_NUMBER_OF_NORMAL_STONE_MODELS + i)));
-        }
+//        for (int i = 1; i <= MAX_NUMBER_OF_SPECIAL_STONE_MODELS; i++) {
+//            stone[MAX_NUMBER_OF_NORMAL_STONE_MODELS + i] = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + String.format("/models/stone-%02d-full.glb", MAX_NUMBER_OF_NORMAL_STONE_MODELS + i)));
+//        }
         stoneFrameElement = new GLBLoader().load(Gdx.files.internal(AtlasManager.getAssetsFolderName() + "/models/stone-frame-element.glb"));
     }
 
