@@ -43,27 +43,24 @@ public class MyCameraInputController extends CameraInputController {
 
     @Override
     protected boolean process(final float deltaX, final float deltaY, final int button) {
-        logger.info("process");
-        if (gameEngine.renderEngine.isDebugMode()) {
-            try {
-                final MovingCamera movingCamera = (MovingCamera) camera;
-                if (button == rotateButton) {
-                    tmpV1.set(movingCamera.direction).crs(movingCamera.up)/*.y = 0f*/;
-                    movingCamera.rotateAround(movingCamera.lookat, tmpV1.nor(), deltaY * rotateAngle);
-                    movingCamera.rotateAround(movingCamera.lookat, Vector3.Y, deltaX * -rotateAngle);
-                    movingCamera.setDirty(true);
-                    //				notifyListener(movingCamera);
-                } else {
-                    return false;
-                }
-                if (autoUpdate)
-                    movingCamera.update();
-            } catch (final Exception e) {
-                logger.error(e.getMessage(), e);
+//        logger.info("process");
+        try {
+            final MovingCamera movingCamera = (MovingCamera) camera;
+            if (button == rotateButton) {
+                tmpV1.set(movingCamera.direction).crs(movingCamera.up)/*.y = 0f*/;
+                movingCamera.rotateAround(movingCamera.lookat, tmpV1.nor(), deltaY * rotateAngle);
+                movingCamera.rotateAround(movingCamera.lookat, Vector3.Y, deltaX * -rotateAngle);
+                movingCamera.setDirty(true);
+            } else {
+                //reset camera if needed
+                return false;
             }
-            return true;
-        } else
-            return false;
+            if (autoUpdate)
+                movingCamera.update();
+        } catch (final Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return true;
     }
 
     @Override

@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import static de.bushnaq.abdalla.pluvia.game.GameList.*;
+
 /**
  * @author kunterbunt
  */
@@ -84,15 +86,28 @@ public class MainDialog extends AbstractDialog {
 
             table1.add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
         }
+//        {
+//            table1.row();
+//            VisTextButton button = new VisTextButton("High Score");
+//            addHoverEffect(button);
+//            button.addListener(new ChangeListener() {
+//
+//                @Override
+//                public void changed(ChangeEvent event, Actor actor) {
+//                    getGameEngine().getScoreDialog().push(MainDialog.this);
+//                }
+//            });
+//            table1.add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
+//        }
         {
             table1.row();
-            VisTextButton button = new VisTextButton("High Score");
+            VisTextButton button = new VisTextButton("Level Editor");
             addHoverEffect(button);
             button.addListener(new ChangeListener() {
 
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                    getGameEngine().getScoreDialog().push(MainDialog.this);
+                    editAction();
                 }
             });
             table1.add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
@@ -194,6 +209,11 @@ public class MainDialog extends AbstractDialog {
         super.draw();
     }
 
+    private void editAction() {
+        setVisible(false);
+        createGame(GAME_EDIT_MODE_INDEX, true, -1, true);
+    }
+
     @Override
     protected void enterAction() {
         startAction();
@@ -214,7 +234,7 @@ public class MainDialog extends AbstractDialog {
     public void setVisible(final boolean visible) {
         super.setVisible(visible);
         if (visible) {
-            createGame(1, false, -1);
+            createGame(GAME_UI_INDEX, false, -1, false);
             if (getGameEngine().context.getAmbientAudioProperty()) {
 //				createAudio();
             }
@@ -226,7 +246,7 @@ public class MainDialog extends AbstractDialog {
     private void startAction() {
         setVisible(false);
         int checkedIndex = listView.getSelectedIndex();
-        createGame(0, true, -1);
+        createGame(GAME_LEGACY_INDEX, true, -1, false);
     }
 
 //    private void updateDescription(Sizes sizes) {

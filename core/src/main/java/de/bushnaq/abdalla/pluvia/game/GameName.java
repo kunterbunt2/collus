@@ -20,5 +20,5 @@ package de.bushnaq.abdalla.pluvia.game;
  * @author kunterbunt
  */
 public enum GameName {
-    LEGACY, UI
+    LEGACY, EDIT_MODE, UI
 }

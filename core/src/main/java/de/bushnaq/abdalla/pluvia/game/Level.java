@@ -46,15 +46,16 @@ import java.util.Set;
  * @author kunterbunt
  */
 public abstract class Level {
-    protected int        NrOfTotalStones      = 0;                                        // The sum of all follen patches within this game
-    public    int        animationPhase       = 0;
-    private   Cube       cube;
-    protected Set<Stone> droppingStones       = new HashSet<>();
-    protected Set<Stone> droppingStonesBuffer = new HashSet<>();
-    protected Game       game                 = null;
-    public    GamePhase  gamePhase            = GamePhase.waiting;
-    protected Logger     logger               = LoggerFactory.getLogger(this.getClass());
-    public    int        maxAnimationPhase    = 12 * 4;
+    protected     int        NrOfTotalStones      = 0;                                        // The sum of all follen patches within this game
+    public        int        animationPhase       = 0;
+    private       Cube       cube;
+    protected     Set<Stone> droppingStones       = new HashSet<>();
+    protected     Set<Stone> droppingStonesBuffer = new HashSet<>();
+    private final boolean    editMode;
+    protected     Game       game                 = null;
+    public        GamePhase  gamePhase            = GamePhase.waiting;
+    protected     Logger     logger               = LoggerFactory.getLogger(this.getClass());
+    public        int        maxAnimationPhase    = 12 * 4;
     //    protected     int        nrOfStones           = 0;                                        // Number of different patches (colors) in the game
     //    protected     int        preview              = 0;                                        // Number of rows that the user can preview before they actually drop into the game
 //    private final Set<Stone> pushingLeftStones    = new HashSet<>();
@@ -67,14 +68,15 @@ public abstract class Level {
     public        int       ySize       = 0;                                        // number of rows in the level
     public        int       zSize;
 
-    public Level(Game game) {
+    public Level(Game game, boolean editMode) {
         this.xSize = game.xSize;
         this.ySize = game.ySize;
         this.zSize = game.zSize;
 //        this.preview    = game.preview;
 //        this.nrOfStones = game.nrOfStones;
-        this.game = game;
-        rand      = new PersistentRandomGenerator();
+        this.game     = game;
+        this.editMode = editMode;
+        rand          = new PersistentRandomGenerator();
         game.reset();
         game.setReset(false);
         recording = new Recording();
@@ -97,21 +99,6 @@ public abstract class Level {
         }
     }
 
-    protected boolean clearCommandAttributes() {
-        boolean somethingHasChanged = false;
-        for (int z = 0; z < this.zSize; z++) {
-            for (int y = 0; y < this.ySize; y++) {
-                for (int x = 0; x < this.xSize; x++) {
-                    if (cube.get(x, y, z) != null) {
-                        if (cube.get(x, y, z).clearCommandAttributes()) somethingHasChanged = true;
-                    } else {
-                    }
-                }
-            }
-        }
-        return somethingHasChanged;
-    }
-
 //    protected boolean clearPuchingAttributes() {
 //        boolean somethingHasChanged = false;
 //        for (int z = 0; z < this.zSize; z++) {
@@ -126,6 +113,21 @@ public abstract class Level {
 //        }
 //        return somethingHasChanged;
 //    }
+
+    protected boolean clearCommandAttributes() {
+        boolean somethingHasChanged = false;
+        for (int z = 0; z < this.zSize; z++) {
+            for (int y = 0; y < this.ySize; y++) {
+                for (int x = 0; x < this.xSize; x++) {
+                    if (cube.get(x, y, z) != null) {
+                        if (cube.get(x, y, z).clearCommandAttributes()) somethingHasChanged = true;
+                    } else {
+                    }
+                }
+            }
+        }
+        return somethingHasChanged;
+    }
 
     protected void clearTemporaryAttributes() {
         for (int z = 0; z < this.zSize; z++) {
@@ -168,6 +170,12 @@ public abstract class Level {
         createCube();
     }
 
+    public void createLevel() {
+        createLevel("New Level");
+        cube = new Cube(7, 7, 7);
+    }
+
+
     abstract void createLevelBackground(String levelNameString);
 
     protected abstract Stone createStone(int x, int y, int z, int type);
@@ -202,24 +210,6 @@ public abstract class Level {
         }
     }
 
-    public void fillLevel() {
-//        logger.info(String.format("fillLevel %d %d %d", xSize, ySize, zSize));
-//        for (int z = 0; z < zSize; z++) {
-//            for (int y = 0; y < ySize; y++) {
-//                for (int x = 0; x < xSize; x++) {
-//                    // GenerateStones();
-//                    if (rand.nextInt(100) < 25) {
-//                        cube.set(x, y, z, createStoneAndUpdateScore(x, y, z, rand.nextInt(nrOfStones)));
-//                        NrOfTotalStones++;
-//                    }
-//                }
-//            }
-//        }
-
-        createDemoLevel();
-        boolean Changed = false;
-    }
-
 //    public void generateStones() {
 //        for (int z = 0; z < this.zSize; z++) {
 //            for (int y = 0; y < this.ySize; y++) {
@@ -251,6 +241,24 @@ public abstract class Level {
 //			return game.getScore();
 //		return -1;
 //	}
+
+    public void fillLevel() {
+//        logger.info(String.format("fillLevel %d %d %d", xSize, ySize, zSize));
+//        for (int z = 0; z < zSize; z++) {
+//            for (int y = 0; y < ySize; y++) {
+//                for (int x = 0; x < xSize; x++) {
+//                    // GenerateStones();
+//                    if (rand.nextInt(100) < 25) {
+//                        cube.set(x, y, z, createStoneAndUpdateScore(x, y, z, rand.nextInt(nrOfStones)));
+//                        NrOfTotalStones++;
+//                    }
+//                }
+//            }
+//        }
+
+        createDemoLevel();
+        boolean Changed = false;
+    }
 
     public String getName() {
         return game.name;
@@ -676,6 +684,8 @@ public abstract class Level {
     protected abstract void playSound(String tag);
 
     protected int queryHeapHeight() {
+        if (cube == null)
+            return 0;
         for (int z = 0; z < this.zSize; z++)
             for (int y = 0; y < this.ySize; y++)
                 for (int x = 0; x < this.xSize; x++)
@@ -829,6 +839,7 @@ public abstract class Level {
     }
 
     public void rotateCubeMinusX() {
+        game.recordStep();
         cube.rotateCubeMinusX();
         setUserReacted(true);
     }
@@ -839,11 +850,13 @@ public abstract class Level {
     }
 
     public void rotateCubeMinusZ() {
+        game.recordStep();
         cube.rotateCubeMinusZ();
         setUserReacted(true);
     }
 
     public void rotateCubePlusX() {
+        game.recordStep();
         cube.rotateCubePlusX();
         setUserReacted(true);
     }
@@ -854,6 +867,7 @@ public abstract class Level {
     }
 
     public void rotateCubePlusZ() {
+        game.recordStep();
         cube.rotateCubePlusZ();
         setUserReacted(true);
     }

@@ -65,11 +65,11 @@ public class LevelManager extends Level implements Serializable {
     private final        Map<String, AbstractScene>   sceneList                        = new HashMap<>();
     private final        Vector3                      translationBuffer                = new Vector3();
 
-    public LevelManager(RenderEngine3D<GameEngine> renderEngine, Game game) {
-        super(game);
+    public LevelManager(RenderEngine3D<GameEngine> renderEngine, Game game, boolean editMode) {
+        super(game, editMode);
         this.renderEngine = renderEngine;
         sceneList.put(GameName.LEGACY.name(), new BubblesScene(renderEngine, renderModelInstances));
-//		sceneList.put(GameName.Rabbit.name(), new FireflyScene(renderEngine, renderModelInstances));
+        sceneList.put(GameName.EDIT_MODE.name(), new BubblesScene(renderEngine, renderModelInstances));
 //		sceneList.put(GameName.Turtle.name(), new TurtlesScene(renderEngine, renderModelInstances));
 //		sceneList.put(GameName.Dragon.name(), new NightFishScene(renderEngine, renderModelInstances));
 //		sceneList.put(GameName.FIVE.name(), new FlyScene(renderEngine, renderModelInstances));
@@ -162,7 +162,6 @@ public class LevelManager extends Level implements Serializable {
     }
 
     public void createLevel(String levelName) {
-//        sceneList.get(game.name).setLevelName(levelName);
         super.createLevel(levelName);
     }
 

@@ -151,6 +151,10 @@ public class Game implements Cloneable {
         return false;
     }
 
+    public void recordStep() {
+        steps++;
+    }
+
     protected void reset() {
         score        = -xSize * ySize * getStoneScore();
         steps        = 0;

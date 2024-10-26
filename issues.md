@@ -1,13 +1,10 @@
 # Issues that need fixing soon
 
 1. harmonize menu color with level color
-2. After Finishing Level next Level should load instead of exiting to main menu.
-1. Stones forget who they are attached to when you rotate?
 1. Add visual buttons to rotate the cube.
 1. Do we need a main menu?
 1. Level size should be flexible.
 1. Show best time to Beat.
-1. Extend Stone Edge bevel.
 
 # Stones
 

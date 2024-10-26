@@ -1,0 +1,124 @@
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| Package Name        | File Name                          | Type     | Blank    | JavaDoc  | Comment  | Code     | Total    |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| desktop             | ApplicationProperties.java         | src      |       47 |        3 |        6 |      278 |      334 |
+| desktop             | Context.java                       | src      |       34 |        3 |       15 |      280 |      332 |
+| desktop             | ModelList.java                     | src      |        4 |        3 |       15 |       13 |       35 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| engine.camera       | MyCameraInputController.java       | src      |        8 |        3 |       18 |       54 |       83 |
+| engine.camera       | SnappingCamera.java                | src      |        6 |        0 |       17 |       22 |       45 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| engine.demo         | Demo.java                          | src      |       17 |        0 |       89 |      108 |      214 |
+| engine.demo         | DemoMode.java                      | src      |        2 |        0 |       15 |        4 |       21 |
+| engine.demo         | DemoString.java                    | src      |        5 |        0 |       15 |       10 |       30 |
+| engine.demo         | FadeInTask.java                    | src      |       10 |        0 |       15 |       40 |       65 |
+| engine.demo         | FadeOutTask.java                   | src      |       10 |        0 |       15 |       40 |       65 |
+| engine.demo         | PauseTask.java                     | src      |        6 |        0 |       15 |       10 |       31 |
+| engine.demo         | PositionCamera.java                | src      |        8 |        0 |       17 |       35 |       60 |
+| engine.demo         | RotateCamera.java                  | src      |        9 |        0 |       15 |       24 |       48 |
+| engine.demo         | RotatingCamera.java                | src      |        6 |        0 |       15 |       16 |       37 |
+| engine.demo         | ScheduledTask.java                 | src      |        7 |        3 |       15 |       17 |       42 |
+| engine.demo         | WaitAfterExecuteAbstractTask.java  | src      |        8 |        0 |       15 |       35 |       58 |
+| engine.demo         | WaitDuringExecuteAbstractTask.java | src      |        9 |        0 |       15 |       38 |       62 |
+| engine.demo         | ZoomCamera.java                    | src      |        8 |        0 |       16 |       25 |       49 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| engine              | AtlasManager.java                  | src      |       13 |        3 |       31 |      100 |      147 |
+| engine              | AudioManager.java                  | src      |        9 |        3 |       18 |       36 |       66 |
+| engine              | CubeModel.java                     | src      |        4 |        3 |       15 |       10 |       32 |
+| engine              | GameEngine.java                    | src      |       93 |       10 |      149 |      722 |      974 |
+| engine              | ModelManager.java                  | src      |       33 |       10 |       38 |      316 |      397 |
+| engine              | MyContactListener.java             | src      |        5 |        0 |       19 |       24 |       48 |
+| engine              | Rotate.java                        | src      |        2 |        0 |       15 |        4 |       21 |
+| engine              | ScreenListener.java                | src      |        3 |        4 |        0 |        4 |       11 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| game.model.stone    | Neighbors.java                     | src      |       23 |        0 |       27 |       97 |      147 |
+| game.model.stone    | Stone.java                         | src      |       47 |        3 |       19 |      265 |      334 |
+| game.model.stone    | Stone3DRenderer.java               | src      |       23 |        3 |       32 |      443 |      501 |
+| game.model.stone    | StoneList.java                     | src      |        3 |        4 |        0 |        4 |       11 |
+| game.model.stone    | StoneType.java                     | src      |        2 |        0 |       15 |        4 |       21 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| game.recording      | Frame.java                         | src      |       16 |        5 |        0 |       51 |       72 |
+| game.recording      | Interaction.java                   | src      |        1 |        4 |        0 |        4 |        9 |
+| game.recording      | Recording.java                     | src      |       13 |        4 |       67 |       45 |      129 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| game.score          | Score.java                         | src      |       19 |        4 |        3 |       73 |       99 |
+| game.score          | ScoreList.java                     | src      |       17 |        4 |        0 |       85 |      106 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| game.util           | TestPersistentRandomGenerator.java | src      |        8 |        0 |        0 |       30 |       38 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| game                | Cube.java                          | src      |       19 |        0 |       15 |      168 |      202 |
+| game                | EditMode.java                      | src      |        3 |        5 |       18 |        9 |       35 |
+| game                | Game.java                          | src      |       35 |        9 |       28 |      136 |      208 |
+| game                | GameDataObject.java                | src      |       23 |        3 |       10 |       89 |      125 |
+| game                | GameList.java                      | src      |       16 |        3 |       27 |       49 |       95 |
+| game                | GameName.java                      | src      |        2 |        3 |       15 |        4 |       24 |
+| game                | GamePhase.java                     | src      |        1 |        4 |        0 |        4 |        9 |
+| game                | LegacyGame.java                    | src      |        3 |        5 |       18 |        9 |       35 |
+| game                | Level.java                         | src      |       90 |        3 |      391 |      571 |     1055 |
+| game                | LevelManager.java                  | src      |       26 |        3 |      160 |      337 |      526 |
+| game                | StoneDataObject.java               | src      |       11 |        4 |        0 |       23 |       38 |
+| game                | StoneOption.java                   | src      |        2 |        3 |       15 |        4 |       24 |
+| game                | StonePlane.java                    | src      |       10 |        0 |       25 |       31 |       66 |
+| game                | TestScoreList.java                 | src      |        8 |        0 |       31 |       23 |       62 |
+| game                | UiGame.java                        | src      |        5 |        5 |       18 |       10 |       38 |
+| game                | User.java                          | src      |        5 |        3 |        3 |       16 |       27 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| scene.model.bubble  | Bubble.java                        | src      |        8 |        3 |       19 |       61 |       91 |
+| scene.model.bubble  | Bubble3DRenderer.java              | src      |       18 |        4 |       10 |      128 |      160 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| scene.model.digit   | Digit.java                         | src      |       13 |        3 |       15 |       68 |       99 |
+| scene.model.digit   | Digit3DRenderer.java               | src      |       12 |        4 |        6 |      114 |      136 |
+| scene.model.digit   | DigitType.java                     | src      |        1 |        4 |        0 |        4 |        9 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| scene.model.firefly | Firefly.java                       | src      |        8 |        3 |       19 |       61 |       91 |
+| scene.model.firefly | Firefly3DRenderer.java             | src      |       21 |        3 |       31 |      118 |      173 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| scene.model.fish    | Fish.java                          | src      |        7 |        3 |      115 |       22 |      147 |
+| scene.model.fish    | Fish3DRenderer.java                | src      |       16 |        4 |        7 |      112 |      139 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| scene.model.fly     | Fly.java                           | src      |       11 |        3 |       30 |       76 |      120 |
+| scene.model.fly     | Fly3DRenderer.java                 | src      |       18 |        4 |       12 |      111 |      145 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| scene.model.marble  | Marble.java                        | src      |       13 |        3 |       26 |       51 |       93 |
+| scene.model.marble  | Marble3DRenderer.java              | src      |       20 |        3 |       24 |      167 |      214 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| scene.model.rain    | Rain.java                          | src      |        9 |        3 |       17 |       55 |       84 |
+| scene.model.rain    | Rain3DRenderer.java                | src      |       18 |        4 |       27 |       99 |      148 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| scene.model         | AbstractActor.java                 | src      |       22 |        3 |       19 |      104 |      148 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| scene               | AbstractScene.java                 | src      |       43 |        3 |       52 |      346 |      444 |
+| scene               | BubblesScene.java                  | src      |       10 |        3 |       34 |       42 |       89 |
+| scene               | DeepSeaScene.java                  | src      |        7 |        3 |       17 |       27 |       54 |
+| scene               | FireflyScene.java                  | src      |       11 |        3 |       24 |       56 |       94 |
+| scene               | FlyScene.java                      | src      |       11 |        3 |       22 |       48 |       84 |
+| scene               | MarbleScene.java                   | src      |       12 |        3 |       22 |       40 |       77 |
+| scene               | NightFishScene.java                | src      |        8 |        3 |       19 |       37 |       67 |
+| scene               | RainScene.java                     | src      |        9 |        3 |       20 |       52 |       84 |
+| scene               | TwinBuilding.java                  | src      |        2 |        4 |        0 |       14 |       20 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| ui                  | AboutDialog.java                   | src      |        8 |        3 |       27 |       46 |       84 |
+| ui                  | AbstractDialog.java                | src      |       36 |        8 |       77 |      224 |      345 |
+| ui                  | AudioOptions.java                  | src      |       10 |        4 |        1 |       93 |      108 |
+| ui                  | GraphicsOptions.java               | src      |       16 |        4 |        0 |      181 |      201 |
+| ui                  | GraphicsQualityOptions.java        | src      |       21 |        4 |        0 |      224 |      249 |
+| ui                  | InfoDialog.java                    | src      |       27 |        4 |        7 |      220 |      258 |
+| ui                  | LabelData.java                     | src      |        2 |        4 |        2 |        9 |       17 |
+| ui                  | MainDialog.java                    | src      |       28 |        3 |       75 |      164 |      270 |
+| ui                  | MessageDialog.java                 | src      |       10 |        3 |       23 |       69 |      105 |
+| ui                  | OptionsDialog.java                 | src      |       20 |        6 |       16 |      146 |      188 |
+| ui                  | PauseDialog.java                   | src      |        9 |        3 |       27 |       85 |      124 |
+| ui                  | ScoreDialog.java                   | src      |       12 |        3 |       21 |      178 |      214 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| util                | MavenPropertiesProvider.java       | src      |        4 |        4 |        1 |       19 |       28 |
+| util                | MeshMerger.java                    | src      |       29 |        4 |        8 |      171 |      212 |
+| util                | ModelCreator.java                  | src      |       22 |        4 |       27 |      222 |      275 |
+| util                | PersistentRandomGenerator.java     | src      |        9 |        6 |        0 |       34 |       49 |
+| util                | RcBoolean.java                     | src      |        6 |        4 |       12 |       19 |       41 |
+| util                | TimeAccuracy.java                  | src      |        1 |        4 |        0 |        4 |        9 |
+| util                | TimeStatistic.java                 | src      |        8 |        4 |        0 |       59 |       71 |
+| util                | TimeUnit.java                      | src      |       14 |       12 |       21 |       87 |      134 |
+| util                | TimeUtil.java                      | src      |       10 |        0 |       23 |      119 |      152 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+
+| 20 package(s)       | 99 file(s)                         | java     |     1427 |      305 |     2520 |     9235 |    13487 |
++---------------------+------------------------------------+----------+----------+----------+----------+----------+----------+

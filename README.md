@@ -1,4 +1,4 @@
-# pluvia
+# collus
 
 Pluvia, a computer game for rainy days.  
 It is relaxing and does not impose time pressure.

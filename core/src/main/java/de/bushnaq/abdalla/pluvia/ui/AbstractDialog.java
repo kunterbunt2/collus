@@ -34,9 +34,9 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
-import de.bushnaq.abdalla.engine.camera.MovingCamera;
 import de.bushnaq.abdalla.pluvia.desktop.Context;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
+import de.bushnaq.abdalla.pluvia.engine.camera.SnappingCamera;
 import de.bushnaq.abdalla.pluvia.game.Game;
 import de.bushnaq.abdalla.pluvia.game.LevelManager;
 import org.slf4j.Logger;
@@ -104,47 +104,50 @@ public abstract class AbstractDialog {
 
     protected abstract void create();
 
-    protected void createGame(int gameIndex, boolean resume, int seed) {
+    protected void createGame(int gameIndex, boolean resume, int seed, boolean editMode) {
         if (getGameEngine().context.levelManager != null)
             getGameEngine().context.levelManager.disposeLevel();
         getGameEngine().context.selectGame(gameIndex);
         Game game = getGameEngine().context.game;
-        getGameEngine().context.levelManager = new LevelManager(getGameEngine().renderEngine, game);
+        getGameEngine().context.levelManager = new LevelManager(getGameEngine().renderEngine, game, editMode);
 //		universe.GameThread.clearLevel();
-        if (resume) {
+        if (editMode) {
+            getGameEngine().context.levelManager.createLevel();
+        } else {
             if (!getGameEngine().context.levelManager.readFromDisk(getGameEngine().context.getLevelNumber())) {
                 // we failed to read the level
                 // What is the next seed?
                 getGameEngine().context.levelManager.disposeLevel();
                 int lastGameSeed = getGameEngine().context.getLastGameSeed();
                 getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
-            } else {
-                if (!getGameEngine().context.levelManager.testValidity()) {
-                    // we failed to validate the level
-                    logger.error("invalid recording file");
-//					System.exit(1);
-                    // What is the next seed?
-                    getGameEngine().context.levelManager.disposeLevel();
-                    int lastGameSeed = getGameEngine().context.getLastGameSeed();
-                    getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
-                }
             }
-        } else {
-            if (seed == -1) {
-                // next seed
-                int lastGameSeed = getGameEngine().context.getLastGameSeed();
-                getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
-            } else {
-                // seed is defined by user choice (high score)
-                getGameEngine().context.levelManager.setGameSeed(seed);
-            }
+//            else {
+//                if (!getGameEngine().context.levelManager.testValidity()) {
+//                    // we failed to validate the level
+//                    logger.error("invalid recording file");
+//                    // What is the next seed?
+//                    getGameEngine().context.levelManager.disposeLevel();
+//                    int lastGameSeed = getGameEngine().context.getLastGameSeed();
+//                    getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
+//                }
+//            }
         }
+//        else {
+//            if (seed == -1) {
+//                // next seed
+//                int lastGameSeed = getGameEngine().context.getLastGameSeed();
+//                getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
+//            } else {
+//                // seed is defined by user choice (high score)
+//                getGameEngine().context.levelManager.setGameSeed(seed);
+//            }
+//        }
         getGameEngine().context.levelManager.createLevel("");
         game.startTimer();
         {
-            MovingCamera camera   = getGameEngine().renderEngine.getCamera();
-            Vector3      position = new Vector3();
-            Vector3      lookAt   = new Vector3();
+            SnappingCamera camera   = getGameEngine().getCamera();
+            Vector3        position = new Vector3();
+            Vector3        lookAt   = new Vector3();
             if (game.getySize() == 0) {
                 //menu
                 position.x = 0;
@@ -154,7 +157,7 @@ public abstract class AbstractDialog {
                 lookAt.y   = 0;
                 lookAt.z   = 0;
                 if (getGameEngine().getDemo() != null)
-                    getGameEngine().getDemo().setEnabled(true);
+                    getGameEngine().getDemo().startDemoMode();
             } else {
                 position.x = 0;
                 position.y = (float) game.getySize();
@@ -162,11 +165,12 @@ public abstract class AbstractDialog {
                 lookAt.x   = 0;
                 lookAt.y   = 0;
                 lookAt.z   = 0;
-                getGameEngine().getDemo().setEnabled(false);
+                getGameEngine().renderEngine.getScheduledEffectEngine().resetAllEffects();
             }
             camera.position.set(position);
             camera.up.set(0, 1, 0);
             camera.lookAt(lookAt);
+            camera.snapBack(position);
             camera.update();
             camera.setDirty(true);
 

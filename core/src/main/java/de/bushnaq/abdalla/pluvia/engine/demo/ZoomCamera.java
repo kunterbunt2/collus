@@ -16,6 +16,7 @@
 
 package de.bushnaq.abdalla.pluvia.engine.demo;
 
+import de.bushnaq.abdalla.engine.shader.effect.scheduled.ScheduledTask;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
 
 public class ZoomCamera extends ScheduledTask {

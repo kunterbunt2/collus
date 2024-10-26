@@ -21,7 +21,6 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.profiling.GLErrorListener;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.Vector3;
@@ -29,9 +28,14 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import de.bushnaq.abdalla.engine.*;
-import de.bushnaq.abdalla.engine.camera.MovingCamera;
+import de.bushnaq.abdalla.engine.audio.AudioEngine;
+import de.bushnaq.abdalla.engine.shader.effect.scheduled.FadeInTask;
+import de.bushnaq.abdalla.engine.shader.effect.scheduled.FadeOutTask;
+import de.bushnaq.abdalla.engine.shader.effect.scheduled.TextFormat;
+import de.bushnaq.abdalla.engine.shader.effect.scheduled.TextTask;
 import de.bushnaq.abdalla.pluvia.desktop.Context;
 import de.bushnaq.abdalla.pluvia.engine.camera.MyCameraInputController;
+import de.bushnaq.abdalla.pluvia.engine.camera.SnappingCamera;
 import de.bushnaq.abdalla.pluvia.engine.demo.Demo;
 import de.bushnaq.abdalla.pluvia.game.Game;
 import de.bushnaq.abdalla.pluvia.game.model.stone.Stone;
@@ -60,7 +64,7 @@ import java.util.List;
  *
  * @author kunterbunt
  */
-public class GameEngine implements ScreenListener, ApplicationListener, InputProcessor, RenderEngineExtension {
+public class GameEngine implements ScreenListener, ApplicationListener, InputProcessor, IGameEngine {
     private static final float                      CUBE_ROTATION_SPEED = 200f;
     public static final  float                      FIELD_OF_VIEW_Y     = 67f;
     public static final  int                        FONT_SIZE           = 9;
@@ -72,7 +76,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     private              AudioManager               audioManager;
     private              Texture                    brdfLUT;
     private              MyCameraInputController    camController;
-    private              MovingCamera               camera;
+    private              SnappingCamera             camera;
     private              float                      centerXD;
     private              float                      centerYD;
     private              float                      centerZD;
@@ -110,8 +114,8 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     private              StringBuilder              stringBuilder;
     private              boolean                    takeScreenShot;
     private              GameObject<GameEngine>     testCube;
-    private              Integer                    touchX              = null;
-    private              Integer                    touchY              = null;
+    private final        Integer                    touchX              = null;
+    private final        Integer                    touchY              = null;
     private              float                      viewAngle           = -45f;
     private              float                      viewAngleSpeed      = 0f;
 
@@ -173,7 +177,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
     }
 
     private void createCamera() {
-        camera = new MovingCamera(FIELD_OF_VIEW_Y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera = new SnappingCamera(FIELD_OF_VIEW_Y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         final Vector3 lookat = new Vector3(0, 0, 0);
         camera.position.set(lookat.x + 0f / 2, lookat.y + 0f / 2, lookat.z + 8);
         camera.up.set(0, 1, 0);
@@ -206,6 +210,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         camController                = new MyCameraInputController(camera, this);
         camController.scrollFactor   = -0.1f;
         camController.translateUnits = 1000f;
+        getInputMultiplexer().addProcessor(getCamController());
         inputMultiplexer.addProcessor(inputProcessor);
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
@@ -313,6 +318,11 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         return atlasManager;
     }
 
+    @Override
+    public AudioEngine getAudioEngine() {
+        return null;
+    }
+
     public AudioManager getAudioManager() {
         return audioManager;
     }
@@ -321,7 +331,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         return camController;
     }
 
-    public MovingCamera getCamera() {
+    public SnappingCamera getCamera() {
         return camera;
     }
 
@@ -331,6 +341,10 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 
     public InputMultiplexer getInputMultiplexer() {
         return inputMultiplexer;
+    }
+
+    public MainDialog getMainDialog() {
+        return mainDialog;
     }
 
 //	private void exit() {
@@ -346,20 +360,21 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 //		printWriter.close();
 //	}
 
-    public MainDialog getMainDialog() {
-        return mainDialog;
+    public MessageDialog getMessageDialog() {
+        return messageDialog;
     }
 
 //    public int getMaxFramesPerSecond() {
 //        return maxFramesPerSecond;
 //    }
 
-    public MessageDialog getMessageDialog() {
-        return messageDialog;
-    }
-
     public OptionsDialog getOptionsDialog() {
         return optionsDialog;
+    }
+
+    @Override
+    public RenderEngine3D<GameEngine> getRenderEngine() {
+        return renderEngine;
     }
 
     public float getRotateCubeXAngle() {
@@ -548,6 +563,11 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         }
     }
 
+    public void loadNextLevel() {
+        context.setLevelNumber(context.getLevelNumber() + 1);
+        loadLevel();
+    }
+
     @Override
     public boolean mouseMoved(final int screenX, final int screenY) {
         return false;
@@ -664,7 +684,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             centerZD = 0;
         }
         updateScore();
-        demo.renderDemo(deltaTime);
+//        demo.renderDemo(deltaTime);
         context.levelManager.render(currentTime);
         renderStones(currentTime);
         renderDynamicBackground(currentTime);
@@ -692,6 +712,12 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                         context.levelManager.playSound(AudioManager.TILT);
                     }
                 }
+                renderEngine.getScheduledEffectEngine().add(new FadeOutTask<>(this, 0.5f));
+                renderEngine.getScheduledEffectEngine().add(new LoadNextLevelTask(this));
+                renderEngine.getScheduledEffectEngine().add(new TextTask<>(this, new TextFormat("Level solved", atlasManager.logoFont, Color.WHITE), 2));
+                renderEngine.getScheduledEffectEngine().add(new TextTask<>(this, new TextFormat(String.format("in %d step(s)", game.getSteps()), atlasManager.logoFont, Color.WHITE), 2));
+                renderEngine.getScheduledEffectEngine().add(new FadeInTask<>(this, 0.5f));
+
                 context.levelManager.deleteFile();
                 context.levelManager.tilt();
                 context.levelManager.disposeLevel();
@@ -700,9 +726,6 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 //				int lastGameSeed = context.getLastGameSeed();
 //				context.levelManager.setGameSeed(lastGameSeed + 1);
                 //if (!mainDialog.isVisible()) mainDialog.setVisible(true);
-                context.setLevelNumber(context.getLevelNumber() + 1);
-                loadLevel();
-
             }
         }
     }
@@ -745,9 +768,9 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
             labelIndex++;
         }
         //demo mode
-        if (demo.isEnabled()) {
+        if (renderEngine.getScheduledEffectEngine().isEnabled()) {
             stringBuilder.setLength(0);
-            stringBuilder.append(String.format(" demo time=%s, demo index = %d, ambient music=%s", TimeUtil.create24hDurationString(demo.runningSince(), true, false, true, true, false), demo.index, demo.files[demo.index]));
+            stringBuilder.append(String.format(" demo time=%s, demo index = %d, ambient music=%s", TimeUtil.create24hDurationString(renderEngine.getScheduledEffectEngine().runningSince(), true, false, true, true, false), demo.index, demo.files[demo.index]));
             labels.get(labelIndex).getStyle().fontColor = Color.PINK;
             labels.get(labelIndex++).setText(stringBuilder);
         }
@@ -909,11 +932,13 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         } else {
             renderEngine.setDebugMode(false);
         }
-        if (renderEngine.isDebugMode()) {
+//        if (renderEngine.isDebugMode())
+        {
             getInputMultiplexer().addProcessor(getCamController());
-        } else {
-            getInputMultiplexer().removeProcessor(getCamController());
         }
+//        else {
+//            getInputMultiplexer().removeProcessor(getCamController());
+//        }
     }
 
     public void togglePause() {
@@ -927,82 +952,18 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
 
     @Override
     public boolean touchDown(final int screenX, final int screenY, final int pointer, final int button) {
-        if (!Context.isIos()) {
-            switch (button) {
-                case Input.Buttons.LEFT: {
-                    // did we select an object?
-                    final GameObject selected = renderEngine.getGameObject(screenX, screenY);
-//				System.out.println("selected " + selected);
-//                    if (selected != null)
-//                        context.levelManager.reactLeft(selected.interactive);
-                }
-                break;
-                case Input.Buttons.RIGHT: {
-                    // did we select an object?
-                    final GameObject selected = renderEngine.getGameObject(screenX, screenY);
-//				System.out.println("selected " + selected);
-//                    if (selected != null)
-//                        context.levelManager.reactRight(selected.interactive);
-                }
-                break;
-            }
-        }
         return false;
     }
 
     @Override
     public boolean touchDragged(final int screenX, final int screenY, final int pointer) {
-        if (Context.isIos()) {
-//			logger.info(String.format("touchDragged x=%d, y=%d", screenX, screenY));
-            if (touchX == null || touchY == null) {
-                touchX = screenX;
-                touchY = screenY;
-            } else {
-                int dx = screenX - touchX;
-                int dy = screenY - touchY;
-                if (Math.abs(dx) > TOUCH_DELTA_X && Math.abs(dy) < TOUCH_DELTA_Y) {
-                    if (dx > 0) {
-                        // dragged finger to the right
-                        // did we select an object?
-//                        final GameObject selected = renderEngine.getGameObject(touchX, touchY);
-//						System.out.println("selected " + selected);
-//                        if (selected != null)
-//                            context.levelManager.reactRight(selected.interactive);
-                        viewAngle += dx * rotateAngle;
-                        System.out.printf("react right dx=%d viewAngle=%f\n", dx, viewAngle);
-                    } else {
-                        // dragged finger to the left
-                        // did we select an object?
-//                        final GameObject selected = renderEngine.getGameObject(touchX, touchY);
-//						System.out.println("react left dx " + dx);
-//						System.out.println("selected " + selected);
-//                        if (selected != null)
-//                            context.levelManager.reactLeft(selected.interactive);
-                        viewAngle += dx * rotateAngle;
-                        System.out.printf("react left dx=%d viewAngle=%f\n", dx, viewAngle);
-                    }
-                }
-                if (Math.abs(dy) > TOUCH_DELTA_Y && Math.abs(dx) < TOUCH_DELTA_X) {
-                    if (dy > 0) {
-                        // dragged finger down
-                        context.levelManager.nextRound();
-                    } else {
-                        // dragged finger up
-                        togglePause();
-                    }
-                }
-            }
-
-        }
         return false;
     }
 
     @Override
     public boolean touchUp(final int screenX, final int screenY, final int pointer, final int button) {
-        touchX = null;
-        touchY = null;
-//		System.out.println("reset touch");
-        return true;
+        camera.snapBack();
+        return false;
     }
 
     public void updateContext() {
@@ -1021,15 +982,15 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
         }
     }
 
-    class DemoString {
-        BitmapFont font;
-        String     text;
-
-        public DemoString(final String text, final BitmapFont font) {
-            this.text = text;
-            this.font = font;
-        }
-    }
+//    class DemoString {
+//        BitmapFont font;
+//        String     text;
+//
+//        public DemoString(final String text, final BitmapFont font) {
+//            this.text = text;
+//            this.font = font;
+//        }
+//    }
 
 
 }
