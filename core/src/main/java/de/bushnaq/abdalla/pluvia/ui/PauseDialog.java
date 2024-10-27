@@ -70,38 +70,40 @@ public class PauseDialog extends AbstractDialog {
                     close();
                 }
             });
+            add(button);
             getTable().add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
         }
+//        {
+//            getTable().row();
+//            VisTextButton button = new VisTextButton("View Score");
+//            addHoverEffect(button);
+//            button.addListener(new ClickListener() {
+//                @Override
+//                public void clicked(final InputEvent event, final float x, final float y) {
+//                    getGameEngine().getScoreDialog().push(PauseDialog.this);
+//                }
+//            });
+//            getTable().add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
+//        }
         {
             getTable().row();
-            VisTextButton button = new VisTextButton("View Score");
-            addHoverEffect(button);
-            button.addListener(new ClickListener() {
-                @Override
-                public void clicked(final InputEvent event, final float x, final float y) {
-                    getGameEngine().getScoreDialog().push(PauseDialog.this);
-                }
-            });
-            getTable().add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
-        }
-        {
-            getTable().row();
-            VisTextButton button = new VisTextButton("New Game");
+            VisTextButton button = new VisTextButton("Reset Level");
             addHoverEffect(button);
             button.addListener(new ClickListener() {
                 @Override
                 public void clicked(final InputEvent event, final float x, final float y) {
 //					getGameEngine().context.levelManager.disposeLevel();
 //					getGameEngine().context.levelManager.createLevel();
-                    createGame(getGameEngine().context.getGameIndex(), false, -1, false);
+                    createGame(getGameEngine().context.getGameIndex(), false/*, -1*/, false);
                     close();
                 }
             });
+            add(button);
             getTable().add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
         }
         {
             getTable().row();
-            VisTextButton button = new VisTextButton("Back to Main Menu");
+            VisTextButton button = new VisTextButton("Quit Game");
             addHoverEffect(button);
 //			button.setColor(Color.RED);
             button.addListener(new ClickListener() {
@@ -114,6 +116,7 @@ public class PauseDialog extends AbstractDialog {
                     getGameEngine().getMainDialog().setVisible(true);
                 }
             });
+            add(button);
             getTable().add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor).pad(16);
         }
 

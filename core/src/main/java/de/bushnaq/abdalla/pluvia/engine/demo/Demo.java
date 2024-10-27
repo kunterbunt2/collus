@@ -31,40 +31,26 @@ import java.util.List;
 import java.util.Random;
 
 public class Demo {
-    public static final float    CAMERA_OFFSET_X = 1f;
-    public static final float    CAMERA_OFFSET_Y = 7f;
-    public static final float    CAMERA_OFFSET_Z = 15f;
+    public static final  float      CAMERA_OFFSET_X = 1f;
+    public static final  float      CAMERA_OFFSET_Y = 7f;
+    public static final  float      CAMERA_OFFSET_Z = 15f;
     //    private void startAmbientMusic() throws OpenAlException {
 //        gameEngine.oggPlayer = gameEngine.audioEngine.createAudioProducer(OggPlayer.class);
 //        playNext();
 //    }
-    static              int      NUMBER_OF_TASKS = 2;
-    //    public        int                     index           = 0;
-//    private             boolean  enabled;
-    public              String[] files           = {"01-morning.ogg", "02-methodica.ogg", "05-massive.ogg", "06-abyss.ogg"};
-    boolean firstTask = true;
-    private final GameEngine gameEngine;
-    public        int        index  = 0;
-    private final Logger     logger = LoggerFactory.getLogger(this.getClass());
+    private static final int        NUMBER_OF_TASKS = 2;
+    public               String[]   files           = {"01-morning.ogg", "02-methodica.ogg", "05-massive.ogg", "06-abyss.ogg"};
+    private              boolean    firstTimeEver   = true;
+    private final        GameEngine gameEngine;
+    public               int        index           = 0;
+    private final        Logger     logger          = LoggerFactory.getLogger(this.getClass());
     //    public        MercatorRandomGenerator randomGenerator = new MercatorRandomGenerator(1, null);
-//    public        long             startTime;//start time of demo
-    //    private final List<ScheduledTask> tasks  = new ArrayList<>();
-//    private final List<DemoString> text   = new ArrayList<>();
-//    private final float            textX  = 100;
     //    private void renderAmbientMusic() throws OpenAlException {
 //        if (!gameEngine.oggPlayer.isPlaying()) {
 //            playNext();
 //        }
 //    }
-//    private       float            textY  = 0;
-
-    public Demo(GameEngine gameEngine, boolean enabled) throws OpenAlException {
-        this.gameEngine = gameEngine;
-//        this.enabled    = enabled;
-        if (enabled) {
-            startDemoMode();
-        }
-    }
+    Random random = new Random(1);
 
 //    private void playNext() throws OpenAlException {
 //        index++;
@@ -74,12 +60,13 @@ public class Demo {
 //        gameEngine.oggPlayer.play();
 //    }
 
-//    private void executeTasks(float deltaTime) throws OpenAlException {
-//        if (tasks.isEmpty()) startDemoMode();
-//        if (tasks.get(0).execute(deltaTime)) {
-//            tasks.remove(0);
-//        }
-//    }
+    public Demo(GameEngine gameEngine, boolean enabled) throws OpenAlException {
+        this.gameEngine = gameEngine;
+//        this.enabled    = enabled;
+        if (enabled) {
+            startDemoMode(true);
+        }
+    }
 
     private void export(final String fileName, final List<TextFormat> Strings) throws IOException {
         final FileWriter  fileWriter  = new FileWriter(fileName);
@@ -90,50 +77,34 @@ public class Demo {
         printWriter.close();
     }
 
-//    public boolean isEnabled() {
-//        return enabled;
-//    }
-
-//    public void renderDemo(float deltaTime) throws IOException, OpenAlException {
-//
-//        if (enabled) {
-//            executeTasks(deltaTime);
-//        } else {
-//            gameEngine.renderEngine.getFadeEffect().setEnabled(false);
-//            gameEngine.getCamera().fieldOfView = GameEngine.FIELD_OF_VIEW_Y;
-//        }
-//    }
-
-//    public long runningSince() {
-//        if (tasks.isEmpty())
-//            return 0;
-//        return tasks.get(0).secondToRun();
-//    }
-
-//    public void setEnabled(boolean enabled) {
-//        this.enabled = enabled;
-//    }
-
     public void startDemoMode() {
-        logger.info("start demo mode");
+        startDemoMode(false);
+    }
+
+    public void startDemoMode(boolean reset) {
+//        logger.info("start demo mode");
         float taskDuration      = 10;
         float fadeInOutDuration = .5f;
-//        int    secondsDelta    = 18 / 2;
-        Random random = new Random(1);
         gameEngine.renderEngine.getFadeEffect().setEnabled(true);
         BoundingBox sceneBoundingBox = gameEngine.context.levelManager.getScene().getSceneBoundingBox();
 
+        gameEngine.getRenderEngine().getScheduledEffectEngine().resetAllEffects();
         for (int t = 0; t < NUMBER_OF_TASKS; t++) {
             float angle = -30 + random.nextInt(60);
-            if (firstTask) {
+            if (reset) {
+                random = new Random(1);
+                angle  = -30 + random.nextInt(60);
                 Vector3 position = new Vector3(0, 7, gameEngine.context.game.cameraZPosition);
                 Vector3 lookat   = new Vector3(0, 0, 0);
                 gameEngine.getRenderEngine().getScheduledEffectEngine().add(new PositionCamera<>(gameEngine, 0, position, lookat, gameEngine.getCamera().fieldOfView));
 //                tasks.add(new RotatingCamera(gameEngine, 20, 10));
 //                tasks.add(new RotateCamera(gameEngine, angle));
-                int firstSecondsDelta = 19 / 2;
+                if (!firstTimeEver) {
+                    gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeInTask<>(gameEngine, fadeInOutDuration));
+                }
                 gameEngine.getRenderEngine().getScheduledEffectEngine().add(new PauseTask<>(gameEngine, taskDuration - fadeInOutDuration));
-                firstTask = false;
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOutTask<>(gameEngine, fadeInOutDuration));
+                reset = false;
             } else {
                 Vector3 min = new Vector3();
                 sceneBoundingBox.getMin(min);
@@ -153,12 +124,11 @@ public class Demo {
 //                tasks.add(new RotateCamera(gameEngine, angle));
                 gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeInTask<>(gameEngine, fadeInOutDuration));
                 gameEngine.getRenderEngine().getScheduledEffectEngine().add(new PauseTask<>(gameEngine, taskDuration - fadeInOutDuration * 2));
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOutTask<>(gameEngine, fadeInOutDuration));
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new RestartDemoTask<>(gameEngine));
             }
-            gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOutTask<>(gameEngine, fadeInOutDuration));
         }
-
-//        textY     = 0;
-//        startTime = System.currentTimeMillis();
+        firstTimeEver = false;
     }
 
 }

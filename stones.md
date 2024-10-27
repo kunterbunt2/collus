@@ -1,12 +1,4 @@
-# Issues that need fixing soon
-
-1. harmonize menu color with level color
-1. Add visual buttons to rotate the cube.
-1. Do we need a main menu?
-1. Level size should be flexible.
-1. Show best time to Beat.
-
-# Stones
+# stones
 
 1. stone01 red
 1. stone02 green

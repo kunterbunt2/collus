@@ -26,7 +26,6 @@ import de.bushnaq.abdalla.pluvia.game.Game;
 import de.bushnaq.abdalla.pluvia.game.GameList;
 import de.bushnaq.abdalla.pluvia.game.LevelManager;
 import de.bushnaq.abdalla.pluvia.game.model.stone.StoneList;
-import de.bushnaq.abdalla.pluvia.game.score.Score;
 import de.bushnaq.abdalla.pluvia.game.score.ScoreList;
 import de.bushnaq.abdalla.pluvia.scene.model.bubble.Bubble;
 import de.bushnaq.abdalla.pluvia.scene.model.digit.Digit;
@@ -237,14 +236,14 @@ public abstract class Context extends ApplicationProperties implements IContext 
 
     protected abstract String getInstallationFolder();
 
-    public int getLastGameSeed() {
-        int lastGameSeed = -1;
-        for (Score s : scoreList) {
-            if (game.getName().equals(s.getGame()))
-                lastGameSeed = Math.max(lastGameSeed, s.getSeed());
-        }
-        return lastGameSeed;
-    }
+//    public int getLastGameSeed() {
+//        int lastGameSeed = -1;
+//        for (Score s : scoreList) {
+//            if (game.getName().equals(s.getGame()))
+//                lastGameSeed = Math.max(lastGameSeed, s.getSeed());
+//        }
+//        return lastGameSeed;
+//    }
 
     public int getLevelNumber() {
         return levelNumber;

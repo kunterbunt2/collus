@@ -83,7 +83,7 @@ public class MainDialog extends AbstractDialog {
                 }
 
             });
-
+            add(button);
             table1.add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
         }
 //        {
@@ -110,6 +110,7 @@ public class MainDialog extends AbstractDialog {
                     editAction();
                 }
             });
+            add(button);
             table1.add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
         }
         {
@@ -124,6 +125,7 @@ public class MainDialog extends AbstractDialog {
                     getGameEngine().getAboutDialog().push(MainDialog.this);
                 }
             });
+            add(button);
             table1.add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
         }
 
@@ -137,6 +139,7 @@ public class MainDialog extends AbstractDialog {
                     getGameEngine().getOptionsDialog().push(MainDialog.this);
                 }
             });
+            add(button);
             table1.add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor);
         }
 
@@ -162,7 +165,7 @@ public class MainDialog extends AbstractDialog {
 //        }
         {
             getTable().row();
-            VisTextButton button = new VisTextButton("Exit Game");
+            VisTextButton button = new VisTextButton("Quit Collus");
             addHoverEffect(button);
             button.addListener(new ChangeListener() {
                 @Override
@@ -171,6 +174,7 @@ public class MainDialog extends AbstractDialog {
                     Gdx.app.exit();
                 }
             });
+            add(button);
             getTable().add(button).width(BUTTON_WIDTH * sizes.scaleFactor).center().colspan(2);
         }
         {
@@ -211,7 +215,7 @@ public class MainDialog extends AbstractDialog {
 
     private void editAction() {
         setVisible(false);
-        createGame(GAME_EDIT_MODE_INDEX, true, -1, true);
+        createGame(GAME_EDIT_MODE_INDEX, true/*, -1*/, true);
     }
 
     @Override
@@ -234,7 +238,7 @@ public class MainDialog extends AbstractDialog {
     public void setVisible(final boolean visible) {
         super.setVisible(visible);
         if (visible) {
-            createGame(GAME_UI_INDEX, false, -1, false);
+            createGame(GAME_UI_INDEX, false/*, -1*/, false);
             if (getGameEngine().context.getAmbientAudioProperty()) {
 //				createAudio();
             }
@@ -246,7 +250,7 @@ public class MainDialog extends AbstractDialog {
     private void startAction() {
         setVisible(false);
         int checkedIndex = listView.getSelectedIndex();
-        createGame(GAME_LEGACY_INDEX, true, -1, false);
+        createGame(GAME_LEGACY_INDEX, true/*, -1*/, false);
     }
 
 //    private void updateDescription(Sizes sizes) {

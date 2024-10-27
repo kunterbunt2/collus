@@ -48,7 +48,7 @@ public class ModelManager {
     public static final  int          MAX_NUMBER_OF_NORMAL_STONE_MODELS  = 8;
     public static final  int          MAX_NUMBER_OF_RAIN_MODELS          = 12;
     private static final int          MAX_NUMBER_OF_SPECIAL_STONE_MODELS = 6;
-    private static final int          MAX_NUMBER_OF_STONE_MODELS         = 15;
+    public static final  int          MAX_NUMBER_OF_STONE_MODELS         = 15;
     private static final Color        POST_GREEN_COLOR                   = new Color(0x00614eff);
     private static final Color        SCARLET_COLOR                      = new Color(0xb00233ff);
     public static        int          MAX_NUMBER_OF_BUILDING_MODELS      = 8;

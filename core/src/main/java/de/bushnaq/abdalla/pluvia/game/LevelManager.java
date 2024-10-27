@@ -31,11 +31,14 @@ import de.bushnaq.abdalla.pluvia.scene.BubblesScene;
 import de.bushnaq.abdalla.pluvia.scene.MarbleScene;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author kunterbunt
@@ -313,7 +316,7 @@ public class LevelManager extends Level implements Serializable {
         destroyLevelBackground();
         destroyCube();
         game.reset();
-        NrOfTotalStones = 0;
+//        NrOfTotalStones = 0;
     }
 
     public Color getInfoColor() {
@@ -330,6 +333,16 @@ public class LevelManager extends Level implements Serializable {
             return renderEngine.getGameEngine().context.isEnableTime();
         else
             return true;
+    }
+
+    public Set<String> listFilesUsingFilesList(String dir) throws IOException {
+        try (Stream<Path> stream = Files.list(Paths.get(dir))) {
+            return stream
+                    .filter(file -> !Files.isDirectory(file))
+                    .map(Path::getFileName)
+                    .map(Path::toString)
+                    .collect(Collectors.toSet());
+        }
     }
 
     @Override
@@ -458,64 +471,20 @@ public class LevelManager extends Level implements Serializable {
                 }
             }
         }
-//        else {
-//            Vector3 hide = new Vector3(0, 0, 1000);
-//            //hide
-//            if (cubeYNegPlane != null) {
-//                for (int x = 0; x < 7; x++) {
-//                    for (int z = 0; z < 7; z++) {
-//                        {
-//                            GameObject<GameEngine> go = cubeYNegPlane.get(x, z);
-//                            go.instance.transform.setToTranslation(hide);
-//                            go.update();
-//                        }
-//                        {
-//                            GameObject<GameEngine> go = cubeYPosPlane.get(x, z);
-//                            go.instance.transform.setToTranslation(hide);
-//                            go.update();
-//                        }
-//                    }
-//                }
-//            }
-//
-//            if (cubeZNegPlane != null) {
-//                for (int x = 0; x < 7; x++) {
-//                    for (int y = 0; y < 7; y++) {
-//                        {
-//                            GameObject<GameEngine> go = cubeZNegPlane.get(x, y);
-//                            go.instance.transform.setToTranslation(hide);
-//                            go.update();
-//                        }
-//                        {
-//                            GameObject<GameEngine> go = cubeZPosPlane.get(x, y);
-//                            go.instance.transform.setToTranslation(hide);
-//                            go.update();
-//                        }
-//                    }
-//                }
-//            }
-//
-//            if (cubeXNegPlane != null) {
-//                for (int y = 0; y < 7; y++) {
-//                    for (int z = 0; z < 7; z++) {
-//                        {
-//                            GameObject<GameEngine> go = cubeXNegPlane.get(y, z);
-//                            go.instance.transform.setToTranslation(hide);
-//                            go.update();
-//                        }
-//                        {
-//                            GameObject<GameEngine> go = cubeXPosPlane.get(y, z);
-//                            go.instance.transform.setToTranslation(hide);
-//                            go.update();
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 
     public boolean testValidity() {
         return getRecording().testValidity(INVALID_LEVEL_RECORDING_DETECTED, RESETTING_LEVEL, renderEngine.getGameEngine(), (Game) renderEngine.getGameEngine().context.game.clone());
+    }
+
+    public void translateLegacyLevels() {
+        String legacyDirectory = "legacy-level/";
+        try {
+            Set<String> files = listFilesUsingFilesList(legacyDirectory);
+            renderEngine.getScheduledEffectEngine().add(new TranslateLegacyLevel<>(renderEngine.getGameEngine(), new ArrayList<>(files)));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     public void updateFps() {

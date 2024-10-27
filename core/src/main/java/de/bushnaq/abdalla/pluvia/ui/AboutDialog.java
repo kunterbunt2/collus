@@ -77,6 +77,7 @@ public class AboutDialog extends AbstractDialog {
                     close();
                 }
             });
+            add(button);
             getTable().add(button).center().width(BUTTON_WIDTH * sizes.scaleFactor).pad(16);
         }
     }

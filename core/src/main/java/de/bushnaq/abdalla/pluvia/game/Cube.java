@@ -20,9 +20,9 @@ import de.bushnaq.abdalla.pluvia.game.model.stone.Stone;
 
 public class Cube {
     protected Stone[][][] patch = null;
-    private   int         xSize;
-    private   int         ySize;
-    private   int         zSize;
+    int xSize;
+    int ySize;
+    int zSize;
 
     public Cube(int xSize, int ySize, int zSize) {
         createPatch(xSize, ySize, zSize);

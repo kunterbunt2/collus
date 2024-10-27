@@ -1,23 +1,23 @@
 # collus
 
-Pluvia, a computer game for rainy days.  
-It is relaxing and does not impose time pressure.
-Pluvia’s main target is to gain the highest score by keeping a steady growing pile of stones from reaching the top of
-the screen.  
-In a Pluvia game, stones of different color drop from above onto each other to form gradually a heap that will
-eventually reach the top of the screen and end the game. Each stone that drops into the game screen increments the score
-one point.  
-Whenever two or more stones of the same colour land on top of each other, they vanish and leave space for more stones to
-drop.  
-Whenever two or more stones of the same colour land beside each other, they glue to each other and form a bar. Bars are
-very annoying and you will end up trying to avoid them.  
-Each time some stones have dropped into the game screen, you can interact with the heap; You can click on one of the
-stones with the left or right mouse button to push it to the left or right. The stone will move into that direction as
-long as there is room, pushing any other stones with along with it.  
-This way you can heap stones of same colour on top of each other to make room.  
-If you do not want to move any stone, you can press the space key to force new stones to drop.  
-You can exit any game using the escape button and selecting ‘Exit’ in the ‘Game Menu’. You can always continue such a
-game.
+# Issues that need fixing soon
+
+1. add level menu using images that scroll horizontally.<br>
+   all levels after the current are grayed out.
+1. fix shadows
+1. Add level description
+1. level text must be removed after level is won
+1. Reset timer for main menu
+1. Show level step target and current steps
+1. harmonize menu color with level color
+1. Add visual buttons to rotate the cube.
+1. Do we need a main menu?
+
+# Issues fixed
+
+1. Rename back to main menu to quit level
+1. Add reset level menu
+1. allow menu keyboard navigation
 
 [Pluvia Web site](https://pluvia.bushnaq.de/)  
 [Pluvia github site](https://github.com/kunterbunt2/pluvia)
@@ -31,7 +31,7 @@ Pluvia is written in Java using
 
 # Installation
 
-## How to install PLuvia on Windows
+## How to install Collus on Windows
 
 Pluvia is released as a msi installer for Windows platform. This installer is however not digitally signed. This means
 that your Windows will warn you with a popup that the software could be harmful  

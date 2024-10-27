@@ -23,14 +23,13 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
@@ -53,29 +52,36 @@ import java.util.List;
  * @author kunterbunt
  */
 public abstract class AbstractDialog {
-    protected static final int                  BUTTON_WIDTH        = 150;
-    protected static final int                  DIALOG_WIDTH        = 150;
-    protected static final int                  LABEL_WIDTH         = 250;
-    protected static final Color                LIGHT_BLUE_COLOR    = new Color(0x1BA1E2FF);
-    private final          Batch                batch;
-    private                VisDialog            dialog;
-    private final          GameEngine           gameEngine;
-    private final          InputMultiplexer     inputMultiplexer;
-    private final          List<InputProcessor> inputProcessorCache = new ArrayList<>();
+    protected static final int                 BUTTON_WIDTH     = 150;
+    protected static final int                 DIALOG_WIDTH     = 150;
+    protected static final int                 LABEL_WIDTH      = 250;
+    protected static final Color               LIGHT_BLUE_COLOR = new Color(0x1BA1E2FF);
+    private final          Batch               batch;
+    private final          List<VisTextButton> buttonList       = new ArrayList<>();
+    protected              int                 currentButton    = 0;
+    private                VisDialog           dialog;
+    Event event = new Event();
+    private final GameEngine           gameEngine;
+    private final InputMultiplexer     inputMultiplexer;
+    private final List<InputProcessor> inputProcessorCache = new ArrayList<>();
     // private float blurAmount = 1f;
 //	private int						blurPasses			= 1;
 //	private BlurMode				blurMode			= BlurMode.up;
-    final                  Logger               logger              = LoggerFactory.getLogger(this.getClass());
-    protected              boolean              modal               = false;
-    private                AbstractDialog       parent;
-    private                Stage                stage;
-    private final          VisTable             table               = new VisTable(true);
-    private                boolean              visible             = false;
+    final         Logger               logger              = LoggerFactory.getLogger(this.getClass());
+    protected     boolean              modal               = false;
+    private       AbstractDialog       parent;
+    private       Stage                stage;
+    private final VisTable             table               = new VisTable(true);
+    private       boolean              visible             = false;
 
     public AbstractDialog(GameEngine gameEngine, final Batch batch, final InputMultiplexer inputMultiplexer) throws Exception {
         this.gameEngine       = gameEngine;
         this.batch            = batch;
         this.inputMultiplexer = inputMultiplexer;
+    }
+
+    void add(VisTextButton button) {
+        buttonList.add(button);
     }
 
     protected void addHoverEffect(final VisTextButton button) {
@@ -104,7 +110,7 @@ public abstract class AbstractDialog {
 
     protected abstract void create();
 
-    protected void createGame(int gameIndex, boolean resume, int seed, boolean editMode) {
+    protected void createGame(int gameIndex, boolean resume/*, int seed*/, boolean editMode) {
         if (getGameEngine().context.levelManager != null)
             getGameEngine().context.levelManager.disposeLevel();
         getGameEngine().context.selectGame(gameIndex);
@@ -118,8 +124,8 @@ public abstract class AbstractDialog {
                 // we failed to read the level
                 // What is the next seed?
                 getGameEngine().context.levelManager.disposeLevel();
-                int lastGameSeed = getGameEngine().context.getLastGameSeed();
-                getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
+//                int lastGameSeed = getGameEngine().context.getLastGameSeed();
+//                getGameEngine().context.levelManager.setGameSeed(lastGameSeed + 1);
             }
 //            else {
 //                if (!getGameEngine().context.levelManager.testValidity()) {
@@ -157,7 +163,7 @@ public abstract class AbstractDialog {
                 lookAt.y   = 0;
                 lookAt.z   = 0;
                 if (getGameEngine().getDemo() != null)
-                    getGameEngine().getDemo().startDemoMode();
+                    getGameEngine().getDemo().startDemoMode(true);
             } else {
                 position.x = 0;
                 position.y = (float) game.getySize();
@@ -180,32 +186,80 @@ public abstract class AbstractDialog {
     public void createStage(String title, boolean closeOnEscape) {
         if (stage == null) {
             stage = new Stage(new ScreenViewport(), batch);
-            if (closeOnEscape) {
+//            if (closeOnEscape)
+            {
                 stage.addListener(new InputListener() {
                     @Override
                     public boolean keyDown(InputEvent event, int keycode) {
                         switch (event.getKeyCode()) {
                             case Input.Keys.ESCAPE:
-                                escapeAction();
+                                if (closeOnEscape) {
+                                    escapeAction();
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            case Input.Keys.UP:
+//                                if (currentButton > 0)
+                            {
+                                {
+                                    VisTextButton button = buttonList.get(currentButton);
+                                    button.setStyle(VisUI.getSkin().get(VisTextButton.VisTextButtonStyle.class));
+                                }
+                                currentButton--;
+                                currentButton = (currentButton + buttonList.size()) % buttonList.size();
+//                                    logger.info(String.format("currentButton=%d", currentButton));
+                                {
+                                    VisTextButton button = buttonList.get(currentButton);
+                                    button.setStyle(VisUI.getSkin().get("blue", VisTextButton.VisTextButtonStyle.class));
+                                }
+                                draw();
+                            }
+                            return true;
+                            case Input.Keys.DOWN:
+                                if (currentButton < buttonList.size()) {
+                                    {
+                                        VisTextButton button = buttonList.get(currentButton);
+                                        button.setStyle(VisUI.getSkin().get(VisTextButton.VisTextButtonStyle.class));
+                                    }
+                                    currentButton++;
+                                    currentButton %= buttonList.size();
+//                                    logger.info(String.format("currentButton=%d", currentButton));
+                                    {
+                                        VisTextButton button = buttonList.get(currentButton);
+                                        button.setStyle(VisUI.getSkin().get("blue", VisTextButton.VisTextButtonStyle.class));
+                                    }
+                                    draw();
+                                }
+                                return true;
+                            case Input.Keys.ENTER:
+                                VisTextButton button = buttonList.get(currentButton);
+                                DelayedRemovalArray<EventListener> listeners = button.getListeners();
+                                for (int i = 0; i < listeners.size; i++) {
+                                    if (listeners.get(i) instanceof ClickListener) {
+                                        ((ClickListener) listeners.get(i)).clicked(null, 0, 0);
+                                    }
+                                }
+//                                enterAction();
                                 return true;
                         }
                         return false;
                     }
                 });
             }
-            stage.addListener(new InputListener() {
-
-                @Override
-                public boolean keyDown(InputEvent event, int keycode) {
-                    switch (event.getKeyCode()) {
-                        case Input.Keys.ENTER:
-                            enterAction();
-                            return true;
-                    }
-                    return false;
-                }
-
-            });
+//            stage.addListener(new InputListener() {
+//
+//                @Override
+//                public boolean keyDown(InputEvent event, int keycode) {
+//                    switch (event.getKeyCode()) {
+//                        case Input.Keys.ENTER:
+//                            enterAction();
+//                            return true;
+//                    }
+//                    return false;
+//                }
+//
+//            });
             stage.addActor(createWindow(title));
             create();
             packAndPosition();
@@ -223,10 +277,6 @@ public abstract class AbstractDialog {
         dialog.getContentTable().add(this.table);
         return dialog;
     }
-
-//	public void disposeWindow() {
-//		stage.clear();
-//	}
 
     public void dispose() {
         inputMultiplexer.removeProcessor(stage);
@@ -260,6 +310,10 @@ public abstract class AbstractDialog {
     protected void enterAction() {
         close();
     }
+
+//	public void disposeWindow() {
+//		stage.clear();
+//	}
 
     protected void escapeAction() {
         close();
@@ -302,7 +356,7 @@ public abstract class AbstractDialog {
     /**
      * switch to another dialog
      *
-     * @param dialog
+     * @param parent parent dialog to switch back to when calling pop().
      */
     public void push(AbstractDialog parent) {
         this.parent = parent;

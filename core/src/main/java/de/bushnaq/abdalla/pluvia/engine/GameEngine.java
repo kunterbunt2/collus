@@ -434,6 +434,10 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                 }
                 return true;
 
+            case Input.Keys.C:
+                context.levelManager.translateLegacyLevels();
+                return true;
+
 
             case Input.Keys.SPACE:
                 context.levelManager.nextRound();
@@ -715,7 +719,7 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                 renderEngine.getScheduledEffectEngine().add(new FadeOutTask<>(this, 0.5f));
                 renderEngine.getScheduledEffectEngine().add(new LoadNextLevelTask(this));
                 renderEngine.getScheduledEffectEngine().add(new TextTask<>(this, new TextFormat("Level solved", atlasManager.logoFont, Color.WHITE), 2));
-                renderEngine.getScheduledEffectEngine().add(new TextTask<>(this, new TextFormat(String.format("in %d step(s)", game.getSteps()), atlasManager.logoFont, Color.WHITE), 2));
+                renderEngine.getScheduledEffectEngine().add(new TextTask<>(this, new TextFormat(String.format("You needed %d / %d step(s)", game.getSteps(), context.levelManager.getStepsToBeat()), atlasManager.logoFont, Color.WHITE), 2));
                 renderEngine.getScheduledEffectEngine().add(new FadeInTask<>(this, 0.5f));
 
                 context.levelManager.deleteFile();

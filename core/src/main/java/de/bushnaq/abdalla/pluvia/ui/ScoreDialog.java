@@ -57,28 +57,28 @@ public class ScoreDialog extends AbstractDialog {
     private void addRow(Score s) {
 
         String gameName = s.getGame();
-        String seed     = "" + s.getSeed();
-        String userName = s.getUserName();
-        String score    = "" + s.getScore();
-        String steps    = "" + s.getSteps();
-        String time     = TimeUnit.createDurationString(s.getRelativeTime(), true, true, false);
-        String date     = simpleDateFormat.format(new Date(s.getTime()));
+//        String seed     = "" + s.getSeed();
+//        String userName = s.getUserName();
+        String score = "" + s.getScore();
+        String steps = "" + s.getSteps();
+        String time  = TimeUnit.createDurationString(s.getRelativeTime(), true, true, false);
+        String date  = simpleDateFormat.format(new Date(s.getTime()));
         {
             VisTextField label = new VisTextField(gameName);
             label.setAlignment(Align.left);
             getTable().add(label).width(100 * sizes.scaleFactor).left();
         }
-        {
-            VisTextField label = new VisTextField(seed);
-            label.setReadOnly(true);
-            label.setAlignment(Align.right);
-            getTable().add(label).width(50 * sizes.scaleFactor).right();
-        }
-        {
-            VisTextField label = new VisTextField(userName);
-            label.setAlignment(Align.left);
-            getTable().add(label).width(100 * sizes.scaleFactor).left();
-        }
+//        {
+//            VisTextField label = new VisTextField(seed);
+//            label.setReadOnly(true);
+//            label.setAlignment(Align.right);
+//            getTable().add(label).width(50 * sizes.scaleFactor).right();
+//        }
+//        {
+//            VisTextField label = new VisTextField(userName);
+//            label.setAlignment(Align.left);
+//            getTable().add(label).width(100 * sizes.scaleFactor).left();
+//        }
         {
             VisTextField label = new VisTextField(score);
             label.setReadOnly(true);
@@ -110,7 +110,7 @@ public class ScoreDialog extends AbstractDialog {
                     logger.info("replay");
                     Score buttonScore = buttonToScoreMap.get(button);
                     setVisible(false);
-                    createGame(getGameEngine().context.getGameIndex(buttonScore.getGame()), false, buttonScore.getSeed(), false);
+                    createGame(getGameEngine().context.getGameIndex(buttonScore.getGame()), false/*, buttonScore.getSeed()*/, false);
                 }
             });
             getTable().add(button).width(BUTTON_WIDTH * sizes.scaleFactor);
