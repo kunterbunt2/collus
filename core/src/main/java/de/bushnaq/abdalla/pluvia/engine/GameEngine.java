@@ -29,10 +29,10 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import de.bushnaq.abdalla.engine.*;
 import de.bushnaq.abdalla.engine.audio.AudioEngine;
-import de.bushnaq.abdalla.engine.shader.effect.scheduled.FadeInTask;
-import de.bushnaq.abdalla.engine.shader.effect.scheduled.FadeOutTask;
-import de.bushnaq.abdalla.engine.shader.effect.scheduled.TextFormat;
-import de.bushnaq.abdalla.engine.shader.effect.scheduled.TextTask;
+import de.bushnaq.abdalla.engine.chronos.FadeIn;
+import de.bushnaq.abdalla.engine.chronos.FadeOut;
+import de.bushnaq.abdalla.engine.chronos.ShowText;
+import de.bushnaq.abdalla.engine.chronos.TextData;
 import de.bushnaq.abdalla.pluvia.desktop.Context;
 import de.bushnaq.abdalla.pluvia.engine.camera.MyCameraInputController;
 import de.bushnaq.abdalla.pluvia.engine.camera.SnappingCamera;
@@ -716,11 +716,11 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                         context.levelManager.playSound(AudioManager.TILT);
                     }
                 }
-                renderEngine.getScheduledEffectEngine().add(new FadeOutTask<>(this, 0.5f));
+                renderEngine.getScheduledEffectEngine().add(new FadeOut<>(this, 0.5f));
                 renderEngine.getScheduledEffectEngine().add(new LoadNextLevelTask(this));
-                renderEngine.getScheduledEffectEngine().add(new TextTask<>(this, new TextFormat("Level solved", atlasManager.logoFont, Color.WHITE), 2));
-                renderEngine.getScheduledEffectEngine().add(new TextTask<>(this, new TextFormat(String.format("You needed %d / %d step(s)", game.getSteps(), context.levelManager.getStepsToBeat()), atlasManager.logoFont, Color.WHITE), 2));
-                renderEngine.getScheduledEffectEngine().add(new FadeInTask<>(this, 0.5f));
+                renderEngine.getScheduledEffectEngine().add(new ShowText<>(this, new TextData("Level solved", atlasManager.logoFont, Color.WHITE), 2));
+                renderEngine.getScheduledEffectEngine().add(new ShowText<>(this, new TextData(String.format("You needed %d / %d step(s)", game.getSteps(), context.levelManager.getStepsToBeat()), atlasManager.logoFont, Color.WHITE), 2));
+                renderEngine.getScheduledEffectEngine().add(new FadeIn<>(this, 0.5f));
 
                 context.levelManager.deleteFile();
                 context.levelManager.tilt();

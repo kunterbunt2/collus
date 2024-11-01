@@ -16,9 +16,9 @@
 
 package de.bushnaq.abdalla.pluvia.engine;
 
-import de.bushnaq.abdalla.engine.shader.effect.scheduled.ScheduledTask;
+import de.bushnaq.abdalla.engine.chronos.Task;
 
-public class LoadNextLevelTask extends ScheduledTask<GameEngine> {
+public class LoadNextLevelTask extends Task<GameEngine> {
     public LoadNextLevelTask(GameEngine gameEngine) {
         super(gameEngine, 0);
     }
@@ -35,6 +35,6 @@ public class LoadNextLevelTask extends ScheduledTask<GameEngine> {
     }
 
     @Override
-    public void subexecute(float deltaTime) {
+    public void subExecute(float deltaTime) {
     }
 }

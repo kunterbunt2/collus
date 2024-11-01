@@ -2,11 +2,12 @@
 
 # Issues that need fixing soon
 
+1. implement fadeout to white
+1. level text must be removed after level is won
+1. Add level description
 1. add level menu using images that scroll horizontally.<br>
    all levels after the current are grayed out.
 1. fix shadows
-1. Add level description
-1. level text must be removed after level is won
 1. Reset timer for main menu
 1. Show level step target and current steps
 1. harmonize menu color with level color

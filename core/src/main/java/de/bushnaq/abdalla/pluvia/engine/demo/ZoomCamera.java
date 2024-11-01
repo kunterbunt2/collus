@@ -16,10 +16,10 @@
 
 package de.bushnaq.abdalla.pluvia.engine.demo;
 
-import de.bushnaq.abdalla.engine.shader.effect.scheduled.ScheduledTask;
+import de.bushnaq.abdalla.engine.chronos.Task;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
 
-public class ZoomCamera extends ScheduledTask {
+public class ZoomCamera extends Task {
     private final String name;
     private final int    zoomIndex;
 
@@ -44,7 +44,7 @@ public class ZoomCamera extends ScheduledTask {
     }
 
     @Override
-    public void subexecute(float deltaTime) {
+    public void subExecute(float deltaTime) {
 
     }
 }

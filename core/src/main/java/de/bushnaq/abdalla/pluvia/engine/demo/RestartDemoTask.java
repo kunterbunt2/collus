@@ -17,10 +17,10 @@
 package de.bushnaq.abdalla.pluvia.engine.demo;
 
 import de.bushnaq.abdalla.engine.IGameEngine;
-import de.bushnaq.abdalla.engine.shader.effect.scheduled.ScheduledTask;
+import de.bushnaq.abdalla.engine.chronos.Task;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
 
-public class RestartDemoTask<T extends IGameEngine> extends ScheduledTask<T> {
+public class RestartDemoTask<T extends IGameEngine> extends Task<T> {
 
 
     public RestartDemoTask(T gameEngine) {
@@ -41,7 +41,7 @@ public class RestartDemoTask<T extends IGameEngine> extends ScheduledTask<T> {
     }
 
     @Override
-    public void subexecute(float deltaTime) {
+    public void subExecute(float deltaTime) {
 
     }
 }

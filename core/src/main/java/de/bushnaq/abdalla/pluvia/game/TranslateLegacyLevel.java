@@ -23,12 +23,12 @@ import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
 import de.bushnaq.abdalla.engine.IGameEngine;
-import de.bushnaq.abdalla.engine.shader.effect.scheduled.ScheduledTask;
+import de.bushnaq.abdalla.engine.chronos.Task;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
 
 import java.util.List;
 
-public class TranslateLegacyLevel<T extends IGameEngine> extends ScheduledTask<T> {
+public class TranslateLegacyLevel<T extends IGameEngine> extends Task<T> {
 
     private final List<String> files;
     private       String       lastFile;
@@ -91,7 +91,7 @@ public class TranslateLegacyLevel<T extends IGameEngine> extends ScheduledTask<T
     }
 
     @Override
-    public void subexecute(float deltaTime) {
+    public void subExecute(float deltaTime) {
 
     }
 }

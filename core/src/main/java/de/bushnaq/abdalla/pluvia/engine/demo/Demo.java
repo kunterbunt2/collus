@@ -19,7 +19,7 @@ package de.bushnaq.abdalla.pluvia.engine.demo;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import de.bushnaq.abdalla.engine.audio.OpenAlException;
-import de.bushnaq.abdalla.engine.shader.effect.scheduled.*;
+import de.bushnaq.abdalla.engine.chronos.*;
 import de.bushnaq.abdalla.pluvia.engine.GameEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,11 +68,11 @@ public class Demo {
         }
     }
 
-    private void export(final String fileName, final List<TextFormat> Strings) throws IOException {
+    private void export(final String fileName, final List<TextData> Strings) throws IOException {
         final FileWriter  fileWriter  = new FileWriter(fileName);
         final PrintWriter printWriter = new PrintWriter(fileWriter);
-        for (final TextFormat textFormat : Strings) {
-            printWriter.println(textFormat.text);
+        for (final TextData textData : Strings) {
+            printWriter.println(textData.text);
         }
         printWriter.close();
     }
@@ -100,10 +100,10 @@ public class Demo {
 //                tasks.add(new RotatingCamera(gameEngine, 20, 10));
 //                tasks.add(new RotateCamera(gameEngine, angle));
                 if (!firstTimeEver) {
-                    gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeInTask<>(gameEngine, fadeInOutDuration));
+                    gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeIn<>(gameEngine, fadeInOutDuration));
                 }
-                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new PauseTask<>(gameEngine, taskDuration - fadeInOutDuration));
-                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOutTask<>(gameEngine, fadeInOutDuration));
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new Pause<>(gameEngine, taskDuration - fadeInOutDuration));
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOut<>(gameEngine, fadeInOutDuration));
                 reset = false;
             } else {
                 Vector3 min = new Vector3();
@@ -122,9 +122,9 @@ public class Demo {
                 gameEngine.getRenderEngine().getScheduledEffectEngine().add(new PositionCamera<>(gameEngine, 0, position, lookat, fieldOfView));
 //                tasks.add(new RotatingCamera(gameEngine, 20, 10));
 //                tasks.add(new RotateCamera(gameEngine, angle));
-                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeInTask<>(gameEngine, fadeInOutDuration));
-                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new PauseTask<>(gameEngine, taskDuration - fadeInOutDuration * 2));
-                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOutTask<>(gameEngine, fadeInOutDuration));
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeIn<>(gameEngine, fadeInOutDuration));
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new Pause<>(gameEngine, taskDuration - fadeInOutDuration * 2));
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOut<>(gameEngine, fadeInOutDuration));
                 gameEngine.getRenderEngine().getScheduledEffectEngine().add(new RestartDemoTask<>(gameEngine));
             }
         }
