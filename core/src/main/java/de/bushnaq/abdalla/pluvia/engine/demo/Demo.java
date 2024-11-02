@@ -16,6 +16,7 @@
 
 package de.bushnaq.abdalla.pluvia.engine.demo;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import de.bushnaq.abdalla.engine.audio.OpenAlException;
@@ -84,7 +85,7 @@ public class Demo {
     public void startDemoMode(boolean reset) {
 //        logger.info("start demo mode");
         float taskDuration      = 10;
-        float fadeInOutDuration = .5f;
+        float fadeInOutDuration = 1f;
         gameEngine.renderEngine.getFadeEffect().setEnabled(true);
         BoundingBox sceneBoundingBox = gameEngine.context.levelManager.getScene().getSceneBoundingBox();
 
@@ -100,10 +101,10 @@ public class Demo {
 //                tasks.add(new RotatingCamera(gameEngine, 20, 10));
 //                tasks.add(new RotateCamera(gameEngine, angle));
                 if (!firstTimeEver) {
-                    gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeIn<>(gameEngine, fadeInOutDuration));
+                    gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeIn<>(gameEngine, Color.WHITE, fadeInOutDuration));
                 }
                 gameEngine.getRenderEngine().getScheduledEffectEngine().add(new Pause<>(gameEngine, taskDuration - fadeInOutDuration));
-                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOut<>(gameEngine, fadeInOutDuration));
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOut<>(gameEngine, Color.WHITE, fadeInOutDuration));
                 reset = false;
             } else {
                 Vector3 min = new Vector3();
@@ -122,9 +123,9 @@ public class Demo {
                 gameEngine.getRenderEngine().getScheduledEffectEngine().add(new PositionCamera<>(gameEngine, 0, position, lookat, fieldOfView));
 //                tasks.add(new RotatingCamera(gameEngine, 20, 10));
 //                tasks.add(new RotateCamera(gameEngine, angle));
-                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeIn<>(gameEngine, fadeInOutDuration));
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeIn<>(gameEngine, Color.WHITE, fadeInOutDuration));
                 gameEngine.getRenderEngine().getScheduledEffectEngine().add(new Pause<>(gameEngine, taskDuration - fadeInOutDuration * 2));
-                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOut<>(gameEngine, fadeInOutDuration));
+                gameEngine.getRenderEngine().getScheduledEffectEngine().add(new FadeOut<>(gameEngine, Color.WHITE, fadeInOutDuration));
                 gameEngine.getRenderEngine().getScheduledEffectEngine().add(new RestartDemoTask<>(gameEngine));
             }
         }

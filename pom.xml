@@ -30,7 +30,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.libraray.path>${env.JAVA_HOME}\bin</java.libraray.path>
         <module.version>${project.version}</module.version>
+        <!--
         <libgdxVersion>1.12.2-SNAPSHOT</libgdxVersion>
+        -->
         <client.version>1.0.0</client.version>
         <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
         <roboVMVersion>2.3.16</roboVMVersion>

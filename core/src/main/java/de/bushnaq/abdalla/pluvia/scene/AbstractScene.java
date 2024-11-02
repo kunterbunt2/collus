@@ -57,9 +57,9 @@ import static de.bushnaq.abdalla.pluvia.engine.ModelManager.MAX_NUMBER_OF_MARBLE
 public abstract class AbstractScene {
     protected static final float CITY_SIZE    = 3;
     public static final    float MIRROR_LEVEL = -4.949f;
-    private static final   float WATER_X      = 1000;
+//    private static final   float WATER_X      = 1000;
     private static final   float WATER_Y      = -3.5f;
-    private static final   float WATER_Z      = 1000;
+//    private static final   float WATER_Z      = 1000;
     GameObject<GameEngine> boundariesXNegGameObject;
     GameObject<GameEngine> boundariesXPosGameObject;
     GameObject<GameEngine> boundariesZNegGameObject;
@@ -70,7 +70,7 @@ public abstract class AbstractScene {
     protected Logger                                  logger = LoggerFactory.getLogger(this.getClass());
     protected Text2D                                  logo;
     public    MyMotionState                           motionState;
-    GameObject<GameEngine> planeGameObject;
+//    GameObject<GameEngine> planeGameObject;
     protected Random                       rand;
     protected RenderEngine3D<GameEngine>   renderEngine;
     protected List<GameObject<GameEngine>> renderModelInstances;

@@ -716,11 +716,11 @@ public class GameEngine implements ScreenListener, ApplicationListener, InputPro
                         context.levelManager.playSound(AudioManager.TILT);
                     }
                 }
-                renderEngine.getScheduledEffectEngine().add(new FadeOut<>(this, 0.5f));
+                renderEngine.getScheduledEffectEngine().add(new FadeOut<>(this, Color.WHITE, 0.5f));
                 renderEngine.getScheduledEffectEngine().add(new LoadNextLevelTask(this));
-                renderEngine.getScheduledEffectEngine().add(new ShowText<>(this, new TextData("Level solved", atlasManager.logoFont, Color.WHITE), 2));
-                renderEngine.getScheduledEffectEngine().add(new ShowText<>(this, new TextData(String.format("You needed %d / %d step(s)", game.getSteps(), context.levelManager.getStepsToBeat()), atlasManager.logoFont, Color.WHITE), 2));
-                renderEngine.getScheduledEffectEngine().add(new FadeIn<>(this, 0.5f));
+                renderEngine.getScheduledEffectEngine().add(new ShowText<>(this, Color.WHITE, new TextData("Level solved", atlasManager.logoFont, Color.BLACK), 2));
+                renderEngine.getScheduledEffectEngine().add(new ShowText<>(this, Color.WHITE, new TextData(String.format("You needed %d / %d step(s)", game.getSteps(), context.levelManager.getStepsToBeat()), atlasManager.logoFont, Color.BLACK), 2));
+                renderEngine.getScheduledEffectEngine().add(new FadeIn<>(this, Color.WHITE, 0.5f));
 
                 context.levelManager.deleteFile();
                 context.levelManager.tilt();
